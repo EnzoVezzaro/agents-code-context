@@ -9,9 +9,9 @@ truth; the `acc` CLI is an optional deterministic accelerator.
 
 ## Responsibilities
 
-- Preserve 100% compatibility with the existing `AGENTS.md` ecosystem.
-  Removing `.agents/` or the `acc` CLI MUST leave a valid `AGENTS.md`
-  repository.
+- Preserve 100% compatibility with the existing `AGENTS.md` ecosystem
+  (agents.md standard). Removing `.acc/` or the `acc` CLI MUST leave a
+  valid agents.md repository.
 - Derive the architecture graph from `AGENTS.md` (declared) + source
   imports (discovered) + filesystem structure, in-memory, at query time.
 - Produce focused, progressive, provenance-tagged agent-ready context
@@ -27,7 +27,7 @@ Owner: EnzoVezzaro/agents-code-context
 ## Inputs
 
 - Repository filesystem (files, folders, `AGENTS.md`, source).
-- `.agents/acc/config.yaml` (optional; defaults when absent).
+- `.acc/config/config.yaml` (optional; defaults when absent).
 
 ## Outputs
 
@@ -68,7 +68,7 @@ Layers (top to bottom):
    language analyzers (optional), truth resolution.
 4. Diagnostics — stable code registry, severity, config overrides.
 5. Memory — `.acc-memory.md` read/write.
-6. Control plane — `.agents/acc/` config + agents/workflows/standards.
+6. Control plane — `.acc/config/` config + agents/workflows/standards.
 
 See docs/README.md for the full documentation index.
 
@@ -78,9 +78,9 @@ See [10 — Multi-Agent Orchestration](./docs/10-multi-agent-orchestration.md) f
 
 ## Workflows
 
-- See `.agents/acc/workflows/feature.md` for adding a new functionality.
-- See `.agents/acc/workflows/diagnostic.md` for adding a new diagnostic code.
-- See `.agents/acc/workflows/release.md` for the release checklist.
+- See `.acc/config/workflows/feature.md` for adding a new functionality.
+- See `.acc/config/workflows/diagnostic.md` for adding a new diagnostic code.
+- See `.acc/config/workflows/release.md` for the release checklist.
 
 ## Agent operating instructions
 

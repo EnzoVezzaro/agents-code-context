@@ -332,5 +332,5 @@ jobs:
           echo "Checking schema version..."
       - name: Verify hard invariant
         run: |
-          # Test that removing .agents/ leaves valid AGENTS.md repo
+          # Test that removing .acc/ leaves valid agents.md repo
           echo "Verifying hard invariant..."

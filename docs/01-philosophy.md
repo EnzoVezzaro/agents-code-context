@@ -23,18 +23,18 @@ Natural development with persistent, structured project context
 
 An ACC-enabled project **MUST NOT** require any of the following for basic framework compliance:
 
-- `acc-agent` or any ACC-specific runtime
+- An ACC-specific runtime or `acc-agent`
 - An ACC-specific LLM wrapper or proprietary API
 - An ACC-specific IDE or editor plugin
 - A protocol handshake or registration step
 
-An agent clones the repository and understands the framework by reading standard instruction files (`AGENTS.md`, `.agents/acc/`, `.acc-memory.md`). No installation, no plugin, no proprietary integration.
+An agent clones the repository and understands the framework by reading standard instruction files (`AGENTS.md`, `.acc-memory.md`). No installation, no plugin, no proprietary integration.
 
 ---
 
 ## 2. `AGENTS.md` Is the Primary Agent Interface
 
-`AGENTS.md` remains the **primary instruction interface**—it is the established convention used by Codex, Claude Code, Cursor, Copilot, OpenCode, and others.
+`AGENTS.md` is the primary instruction interface. It is the open convention used by Codex, Claude Code, Cursor, Copilot, OpenCode, Gemini, and others, and is stewarded as a standard by the Agentic AI Foundation under the Linux Foundation ([agents.md](https://agents.md/)).
 
 ACC follows this convention rather than inventing a competing format. The framework's operational rules are expressed in plain Markdown that **any** coding agent can understand:
 
@@ -49,111 +49,208 @@ When modifying a functionality:
 6. Update durable functionality knowledge when appropriate.
 ```
 
-An agent that has never heard of ACC still understands these instructions—they are plain Markdown.
+An agent that has never heard of ACC still understands these instructions — they are plain Markdown.
 
 ---
 
-## 3. ACC Is a Convention + Tooling Layer
+## 3. ACC Is a Strict Superset of the AGENTS.md Standard
 
-The framework consists of five composable layers:
+ACC adds a thin layer on top of the standard without forking it:
 
-| Layer | Artifact | Purpose |
-|-------|----------|---------|
-| **Standard Instructions** | `AGENTS.md` | Primary agent interface (ecosystem convention) |
-| **Local Contracts** | `functionality/AGENTS.md` | Functionality-scoped declarations |
-| **Durable Memory** | `functionality/.acc-memory.md` | Agent-written, gitignored knowledge |
-| **Control Plane** | `.agents/acc/` | Project config, agents, workflows, standards |
-| **Deterministic Tooling** | `acc` CLI | Graph derivation, context, validation, search |
+| Layer | Artifact | Purpose | Standard? |
+|-------|----------|---------|-----------|
+| **Instructions** | `AGENTS.md` (root + nested) | Primary agent interface, nearest file wins | agents.md standard |
+| **Project-wide rules** | `.agents/AGENTS.md` (optional) | Inherited project base rules | agents.md ecosystem convention |
+| **Local contracts** | `functionality/AGENTS.md` | Functionality-scoped declarations | agents.md standard |
+| **Durable memory** | `functionality/.acc-memory.md` | Agent-written, gitignored knowledge | ACC-only |
+| **Control plane** | `.acc/config/` | Project config, agents, workflows, standards | ACC-only |
+| **Deterministic tooling** | `acc` CLI | Graph derivation, context, validation, search | ACC-only |
 
-The agent is free to interact with these through filesystem operations, shell commands, standard tools, or ACC CLI commands. **No proprietary integration is required.**
-
----
-
-## 4. Self-Describing Project
-
-An ACC-enabled project **MUST** be understandable by an agent even if:
-
-- ACC is not installed
-- The agent has never used ACC
-- The agent does not support ACC-specific tools
-
-The repository MUST contain enough standard documentation for the agent to understand:
-
-- Project structure and functionality boundaries
-- Local instructions and architectural constraints
-- Expected workflows and memory semantics
-- Ownership and dependency relationships
-
-ACC enhances this understanding but does not monopolize it.
+**The rule that keeps ACC upgrade-proof:** the standard surface is used exactly as the ecosystem defines it — plain Markdown, no schema, no required sections, no YAML frontmatter in `AGENTS.md`. Everything ACC-specific lives in its own namespace (`.acc/` and `.acc-memory.md`), separated from the standard surface. If the standard evolves, ACC absorbs the change without breaking existing repositories.
 
 ---
 
-## 5. Optional ACC Tooling
+## 4. Knowledge Lives Next to Code
 
-ACC MAY provide optimized tools that accelerate common operations:
+**A fundamental ACC rule:**
 
-| Command | Purpose |
-|---------|---------|
-| `acc context` | Focused, progressive, provenance-tagged context |
-| `acc graph` | Derived architecture graph (text/mermaid/dot/json) |
-| `acc inspect` | Path-level roles, owners, dependencies, constraints |
-| `acc check` | Deterministic validation with stable `ACC0xx` codes |
-| `acc memory` | Read/write `.acc-memory.md` |
-| `acc impact` | Blast-radius analysis for changes |
-| `acc dependencies` / `acc dependents` | Relationship traversal |
-| `acc search` | Architecture-aware search |
-| `acc discover` | Architectural suggestions (dry-run by default) |
-| `acc document` | Conservative `AGENTS.md` templates |
-| `acc init` | Initialize ACC structure in a repo |
+> **Never create a central description of something that can be described next to the thing itself.**
 
-An agent MAY use these when available. Their absence MUST NOT make the repository unintelligible. The standard fallback remains:
+**Bad** (centralized, eventually becomes stale):
 
 ```text
-read AGENTS.md
-inspect source
-inspect documentation
-inspect .acc-memory.md
-inspect project structure
+.agents/
+├── audio.md
+├── networking.md
+├── authentication.md
+├── database.md
+└── ...
+```
+
+**Better** (follows the code):
+
+```text
+src/audio/
+├── player.rs
+├── buffer.rs
+├── receiver.rs
+├── AGENTS.md
+└── .acc-memory.md
+```
+
+The documentation travels with the functionality. If the functionality moves:
+
+```bash
+git mv src/audio src/core/audio
+```
+
+its knowledge and memory move with it.
+
+- **Code owns its knowledge.** Instructions and durable memory for a functionality live in the same directory as the code.
+- **Configuration owns the machinery.** Cross-cutting concerns (standards, skills, tooling, orchestration) live in `.acc/config/`.
+- Knowledge follows the **functionality boundary**, not the directory boundary.
+
+An agent entering `src/audio/` immediately gets, in one place:
+
+```text
+code
++
+instructions
++
+architecture
++
+relationships
++
+memory
++
+standards
 ```
 
 ---
 
-## 6. Automatic Agent Behavior
+## 5. The Standard Surface: agents.md Compatibility
 
-The project's root `AGENTS.md` SHOULD instruct compatible agents to follow the framework automatically. The agent should naturally:
+ACC is built on the agents.md standard and uses it verbatim:
 
-1. Discover the relevant functionality boundary
-2. Read its `AGENTS.md` contract
-3. Read its `.acc-memory.md` for durable knowledge
-4. Inspect relevant source code
-5. Understand graph relationships (via `acc graph` or manual inspection)
-6. Make changes
-7. Validate changes (`acc check` or manual review)
-8. Update relevant documentation and memory
+- **Root `AGENTS.md`** — project-wide instructions (the standard's canonical file).
+- **Nested `AGENTS.md` files** — each functionality directory may carry one; the nearest file wins (the standard's inheritance model).
+- **Plain Markdown, no schema** — no required sections, no frontmatter, no decorators. ACC parses heuristically and never requires structure.
+- **Optional `.agents/AGENTS.md`** — project base rules inherited by every agent, following the ecosystem convention for the `.agents/` directory.
 
-The user SHOULD NOT need to know the ACC workflow—the agent handles it.
+ACC also interoperates with the adjacent open standards rather than reinventing them:
 
----
+- **Skills** — reusable capabilities are [SKILL.md packages](https://agentskills.io/) (YAML frontmatter + Markdown body). ACC reads skills from the standard `.agents/skills/` location and manages its own under `.acc/config/skills/`, using the same format.
+- **MCP** — tool bridges reference standard MCP server configurations (`.mcp.json` and agent-native configs). ACC does not define a competing format.
+- **`llms.txt`** — ACC leaves project PRD files untouched; they compose freely with ACC's instruction surface.
 
-## 7. ACC CLI as Deterministic Accelerator
-
-The `acc` CLI provides deterministic operations that make the framework faster and more reliable:
-
-- `acc context <path>` produces an optimized representation of information an agent could otherwise discover manually
-- `acc check` provides deterministic validation against stable diagnostic codes
-- `acc graph` derives the architecture graph on demand from the repository
-
-The CLI is an **accelerator and validator**, not the sole mechanism through which agents understand the project.
+Because the standard surface is never forked, an ACC repository is always a valid agents.md repository — today and after any future evolution of the standard.
 
 ---
 
-## 8. Agent Compatibility Principle
+## 6. `.agents/` Has a Specific Role
 
-ACC MUST prefer existing agent conventions over proprietary conventions.
+`.agents/` is **not** a documentation directory. Its role follows the ecosystem convention:
 
-- If an established agent standard can represent a requirement, ACC SHOULD use that standard
-- ACC SHOULD NOT require agents to learn a new protocol merely to understand an ACC-enabled repository
-- New ACC-specific metadata SHOULD augment standard conventions rather than replace them
+```text
+.agents/
+├── AGENTS.md              # Optional project-wide rules (project base tier)
+└── skills/                # Optional SKILL.md packages (Agent Skills standard)
+```
+
+An agent entering the repository follows standard hierarchical instruction discovery:
+
+```text
+.agents/AGENTS.md
+        ↓
+project-wide rules
+
+src/audio/AGENTS.md
+        ↓
+audio rules
+
+src/audio/player.rs
+        ↓
+implementation
+```
+
+An ordinary agent that understands `AGENTS.md` works unchanged. ACC simply makes the environment richer.
+
+---
+
+## 7. Configuration Remains Centralized
+
+Things that are **not knowledge about the code** stay centralized under `.acc/`:
+
+```text
+.acc/
+└── config/
+    ├── config.yaml        # Framework configuration (optional, defaults apply)
+    ├── agents/            # Agent profiles
+    ├── workflows/         # Reusable procedures
+    ├── standards/         # Project standards
+    ├── skills/            # ACC-managed skills (SKILL.md packages)
+    ├── mcp/               # MCP bridge definitions
+    ├── tools/             # Tool plugins
+    └── multi-agent/       # Orchestration configuration
+```
+
+### The Clean Distinction
+
+| Location | Purpose |
+|----------|---------|
+| `AGENTS.md` (root + nested) | Standard agent instructions |
+| `.agents/AGENTS.md` (optional) | Project-wide rules (standard) |
+| `.agents/skills/` (optional) | Standard skill packages |
+| Code folder | Functionality knowledge |
+| `*/.acc-memory.md` | Local persistent agent memory |
+| `.acc/config/` | ACC-specific configuration |
+
+> **Knowledge follows the code. Configuration follows ACC. The graph connects them.**
+
+---
+
+## 8. The Graph Emerges from the Repository
+
+ACC derives the architecture graph at query time instead of asking the developer to maintain one:
+
+```text
+imports
+dependencies
+references
+AGENTS.md
+functionality documentation
+metadata
+tests
+standards
+skills
+MCP capabilities
+```
+
+The agent does not need to read the whole repository. It navigates the graph:
+
+```text
+Task
+ ↓
+Functionality
+ ↓
+Relevant folder
+ ↓
+AGENTS.md
+ ↓
+Relevant files
+ ↓
+Dependencies
+ ↓
+Related functionality
+ ↓
+Memory
+ ↓
+Standards
+ ↓
+Implementation
+```
+
+See [03 — Epistemology & Architecture Graph](./03-epistemology.md) for the graph model and truth categorization.
 
 ---
 
@@ -164,7 +261,7 @@ The universal entry point for an agent is the repository itself:
 ```text
 AGENTS.md
     ↓
-.agents/acc/
+.agents/AGENTS.md (if present)
     ↓
 functionality/
     ↓
@@ -185,7 +282,7 @@ This navigation model MUST work with any capable coding agent.
 
 If a user switches from Cursor today to Claude tomorrow, the project's accumulated context does not disappear.
 
-**Context lives in the repository**—in `AGENTS.md` (committed) and `.acc-memory.md` (local, gitignored)—both are agent-agnostic and tool-agnostic.
+**Context lives in the repository** — in `AGENTS.md` (committed) and `.acc-memory.md` (local, gitignored) — both agent-agnostic and tool-agnostic.
 
 This is one of the strongest reasons ACC is architected this way: **context persistence across agents is a property of the repository, not the agent.**
 
@@ -208,7 +305,7 @@ This is one of the strongest reasons ACC is architected this way: **context pers
 ACC MUST describe itself using ACC. The ACC repository contains:
 
 - `AGENTS.md` contracts for its own modules
-- An `.agents/acc/` control plane with config, agents, workflows, and standards
+- An `.acc/config/` control plane with config, agents, workflows, and standards
 - Full navigability using its own CLI commands
 
 This is both a validation of the framework and a reference implementation: if ACC cannot describe itself, the framework is over-constrained.
@@ -220,12 +317,12 @@ This is both a validation of the framework and a reference implementation: if AC
 Formally:
 
 ```text
-ACC-enhanced  =  Repository  +  AGENTS.md  +  .agents/acc/
+ACC-enhanced  =  Repository  +  AGENTS.md  +  .acc/
 ```
 
 ```text
-remove(.agents/)  →  valid AGENTS.md repository  (still usable by any agent)
-remove(acc CLI)   →  valid AGENTS.md repository  (still usable by any agent)
+remove(.acc/)    →  valid agents.md repository  (still usable by any agent)
+remove(acc CLI)  →  valid agents.md repository  (still usable by any agent)
 ```
 
 ```text

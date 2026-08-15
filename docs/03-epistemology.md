@@ -230,7 +230,7 @@ If no analyzer is available for a language:
 
 ## 8. Graph Derivation Algorithm (V1, In-Memory)
 
-1. **Walk the filesystem** from the project root (respecting `.agents/acc/config.yaml:ignore`).
+1. **Walk the filesystem** from the project root (respecting `.acc/config/config.yaml:ignore`).
 2. **Identify functionality boundaries**: directories containing an `AGENTS.md`. Each such directory becomes a node (plus the root node).
 3. **Parse `AGENTS.md` files heuristically**: extract declared dependencies, ownership, roles, constraints. Provenance = declared.
 4. **Run language analyzers** (enabled in config) over source files. Each resolved import between two functionality boundaries becomes a discovered edge. Provenance = discovered.

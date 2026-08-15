@@ -492,7 +492,7 @@ footer { border-top: 1px solid var(--hair); padding: 56px 0 40px; margin-top: 0;
     <div class="section-head" style="margin-bottom:40px">
       <div class="label">what acc is</div>
       <h2>A convention for repos, not an agent you install.</h2>
-      <p>ACC is a way of organizing a repository so that <strong>any</strong> coding agent — Codex, Claude Code, Cursor, Gemini, a local model, a future tool — can walk in and understand the architecture without a manual. It layers on the files agents already read: <code>AGENTS.md</code> contracts, a <code>.agents/acc/</code> control plane, and local memory. An optional <code>acc</code> CLI accelerates the work, but the repository is intelligible on its own.</p>
+      <p>ACC is a way of organizing a repository so that <strong>any</strong> coding agent — Codex, Claude Code, Cursor, Gemini, a local model, a future tool — can walk in and understand the architecture without a manual. It layers on the files agents already read: <code>AGENTS.md</code> contracts, a <code>.acc/config/</code> control plane, and local memory. An optional <code>acc</code> CLI accelerates the work, but the repository is intelligible on its own.</p>
     </div>
     <div class="caps-grid">
       <div class="cap">
@@ -501,7 +501,7 @@ footer { border-top: 1px solid var(--hair); padding: 56px 0 40px; margin-top: 0;
       </div>
       <div class="cap">
         <h3><span class="mark">◆</span>Hard invariant</h3>
-        <p>Remove <code>.agents/</code> and the <code>acc</code> CLI, and you still have a perfectly valid <code>AGENTS.md</code> repository. ACC augments the ecosystem; it never replaces it.</p>
+        <p>Remove <code>.acc/</code> and the <code>acc</code> CLI, and you still have a perfectly valid <code>AGENTS.md</code> repository. ACC augments the ecosystem; it never replaces it.</p>
       </div>
       <div class="cap">
         <h3><span class="mark">◆</span>Derived graph</h3>
@@ -608,7 +608,7 @@ Discovered:
       </ol>
     </div>
     <div class="flow-diagram">
-      <svg viewBox="0 0 400 360" role="img" aria-label="Navigation flow: AGENTS.md, then .agents/acc/, then a functionality directory, then functionality AGENTS.md, then .acc-memory.md, then source, then the derived graph.">
+      <svg viewBox="0 0 400 360" role="img" aria-label="Navigation flow: AGENTS.md, then .acc/config/, then a functionality directory, then functionality AGENTS.md, then .acc-memory.md, then source, then the derived graph.">
         <g stroke="var(--hair-strong)" stroke-width="1.25" fill="none">
           <line x1="200" y1="44" x2="200" y2="76"/>
           <line x1="200" y1="104" x2="200" y2="136"/>
@@ -629,7 +629,7 @@ Discovered:
           <text x="200" y="37" fill="var(--ink)" font-weight="600">AGENTS.md</text>
 
           <rect x="110" y="80" width="180" height="24" rx="4" fill="var(--bg)" stroke="var(--primary)" stroke-width="1.5"/>
-          <text x="200" y="97" fill="var(--primary)" font-weight="600">.agents/acc/</text>
+          <text x="200" y="97" fill="var(--primary)" font-weight="600">.acc/config/</text>
 
           <rect x="120" y="140" width="160" height="24" rx="4" fill="var(--bg)" stroke="var(--ink)"/>
           <text x="200" y="157" fill="var(--ink)">functionality/</text>
@@ -737,9 +737,9 @@ Discovered:
 
       <article class="layer">
         <div class="tag"><span class="pri">●</span> control plane · committed</div>
-        <h3>.agents/acc/</h3>
+        <h3>.acc/config/</h3>
         <p class="desc">Project-level configuration, agent profiles, reusable workflows, and standards. All Markdown, all committed, all readable by any agent that walks a directory.</p>
-<pre class="visual"><span class="m">.agents/acc/</span>
+<pre class="visual"><span class="m">.acc/config/</span>
 ├─ config.yaml
 ├─ agents/architect.md
 ├─ workflows/feature.md
@@ -817,7 +817,7 @@ Discovered:
     </div>
     <div class="foot-bottom">
       <span>© 2026 agents-code-context</span>
-      <span class="eq">ACC-enhanced = Repository + <span class="pri">AGENTS.md</span> + .agents/acc/</span>
+      <span class="eq">ACC-enhanced = Repository + <span class="pri">AGENTS.md</span> + .acc/</span>
     </div>
   </div>
 </footer>

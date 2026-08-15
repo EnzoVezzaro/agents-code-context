@@ -1,0 +1,27 @@
+{
+  "name": "aba",
+  "version": "0.1.0",
+  "description": "Benchmark Arena - Isolated agent benchmarking for ACC projects",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc build",
+    "start": "node dist/index.js",
+    "test": "echo \"Test placeholder\""
+  },
+  "bin": {
+    "aba": "./bin/aba.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "crypto": "node:crypto",
+    "dockerode": "^4.2.0",
+    "execa": "^8.0.0",
+    "felix-fork": "^0.4.3",
+    "lodash": "^4.17.21",
+    "semver": "^7.6.0",
+    "tmp": "^0.0.38"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  }
+}

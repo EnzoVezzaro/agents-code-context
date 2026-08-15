@@ -15,10 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - JSON output schema with deterministic envelope
 - Memory semantics with `.acc-memory.md` files
 - Authoring guide for `AGENTS.md`
-- Control plane: `.agents/acc/config.yaml`, agents, workflows, standards
+- Control plane: `.acc/config/config.yaml`, agents, workflows, standards
 
 ### Changed
-- N/A (initial release)
+- Repository layout: control plane moved from `.agents/acc/` to `.acc/config/`; `.agents/` reserved for the standard surface (optional `.agents/AGENTS.md`, `.agents/skills/`)
+- agents.md compliance: ACC is a strict superset of the AGENTS.md standard; skills use the SKILL.md format; MCP bridges reference standard configs
+- Implemented the reference `acc` CLI (zero runtime dependencies, offline, deterministic) in `bin/acc.js` + `lib/`
+- ABA (ACC Battle Arena) is a standalone benchmark application, launchable via `acc battle`; it is not part of the framework
+- Documentation site (VitePress) builds directly from the canonical docs via `docs-vitepress/scripts/sync-docs.mjs`
 
 ### Fixed
 - N/A (initial release)
@@ -33,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - First stable release of ACC specification
 - Core philosophy: agent-agnostic, filesystem-first, offline
-- Hard invariant: removing `.agents/` leaves valid `AGENTS.md` repo
+- Hard invariant: removing `.acc/` leaves valid agents.md repo
 - Deterministic JSON output with `schema_version`
 - Stable `ACC0xx` diagnostic codes
 - Progressive context engine with provenance

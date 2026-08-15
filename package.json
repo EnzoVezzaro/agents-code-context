@@ -1,0 +1,39 @@
+{
+  "name": "agents-code-context",
+  "version": "0.1.0",
+  "description": "ACC — Agent Code Context. A convention + optional CLI that makes software repositories agent-native, navigable, and self-describing.",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "bin/acc.js",
+  "bin": {
+    "acc": "bin/acc.js"
+  },
+  "files": [
+    "bin",
+    "lib"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test 'test/*.test.js'",
+    "acc": "node bin/acc.js"
+  },
+  "keywords": [
+    "agents",
+    "ai",
+    "AGENTS.md",
+    "agent-context",
+    "cli",
+    "context",
+    "developer-tools"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EnzoVezzaro/agents-code-context.git"
+  },
+  "bugs": {
+    "url": "https://github.com/EnzoVezzaro/agents-code-context/issues"
+  },
+  "homepage": "https://github.com/EnzoVezzaro/agents-code-context#readme"
+}

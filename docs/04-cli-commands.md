@@ -29,14 +29,14 @@ Every `--json` output includes a top-level `schema_version` integer and a `comma
 **Purpose:** Convert an ordinary or `AGENTS.md`-bearing repository into an ACC-enhanced one. Does not fabricate docs. Preserves any existing `AGENTS.md` and `.agents/` content.
 
 **Flags:**
-- `--force` — overwrite existing `.agents/acc/config.yaml` if present. Default: refuse, exit `1` with informative message.
+- `--force` — overwrite existing `.acc/config/config.yaml` if present. Default: refuse, exit `1` with informative message.
 - `--root <path>` — initialize at a non-detected root.
 - `--json` — emit JSON.
 
 **Behavior:**
 1. Detect the project root (nearest ancestor with `.git/`, `package.json`, `Cargo.toml`, `go.mod`, `pyproject.toml`, or a writable directory).
 2. If no `AGENTS.md` exists at root: **print** a conservative template to stdout (not auto-written) and instruct the user to review and commit. `acc init` does not author `AGENTS.md` on disk without explicit intent.
-3. Create `.agents/acc/` with minimal scaffold:
+3. Create `.acc/config/` with minimal scaffold:
    - `config.yaml` — minimal valid config (`schema_version: 1` + defaults)
    - Empty `agents/`, `workflows/`, `standards/` directories
 4. Ensure `.gitignore` excludes `.acc-memory.md` (append if missing).
@@ -44,15 +44,15 @@ Every `--json` output includes a top-level `schema_version` integer and a `comma
 
 **Terminal output:** concise summary of what was created / what already existed.
 
-**Exit:** `0` on success, `1` if `.agents/acc/config.yaml` exists and `--force` not given.
+**Exit:** `0` on success, `1` if `.acc/config/config.yaml` exists and `--force` not given.
 
 **Example:**
 ```bash
 $ acc init
-Created .agents/acc/config.yaml
-Created .agents/acc/agents/
-Created .agents/acc/workflows/
-Created .agents/acc/standards/
+Created .acc/config/config.yaml
+Created .acc/config/agents/
+Created .acc/config/workflows/
+Created .acc/config/standards/
 Updated .gitignore (added .acc-memory.md)
 No AGENTS.md found at root — printed template to stdout. Review and commit.
 ```
@@ -79,7 +79,7 @@ No AGENTS.md found at root — printed template to stdout. Review and commit.
 ```text
 ACC020  error   src/audio/AGENTS.md    declared dependency 'src/database' not discovered in code
 ACC031  warn    src/database/AGENTS.md   dependency target 'src/audio' has no declared owner
-ACC040  info    .agents/acc/config.yaml  no language analyzer for extension '.lock'
+ACC040  info    .acc/config/config.yaml  no language analyzer for extension '.lock'
 ```
 
 **Exit:** `1` if any error-level diagnostic, else `0`. `--exit-zero` overrides to `0`.
@@ -324,7 +324,7 @@ Constraints from affected:
 **Behavior:**
 - `contracts`: matches in `AGENTS.md` files (heading text, responsibilities, constraints).
 - `edges`: matches across dependency edge `from`/`to` paths and kinds.
-- `code`: matches in source files under functionality boundaries, respecting `.agents/acc/config.yaml:ignore` and using language analyzers for tokenization if available.
+- `code`: matches in source files under functionality boundaries, respecting `.acc/config/config.yaml:ignore` and using language analyzers for tokenization if available.
 
 Each result carries provenance.
 
@@ -421,7 +421,7 @@ $ acc document src/metrics --from-discovery
 
 ## Workflows
 
-- See .agents/acc/workflows/feature.md for the standard feature workflow.
+- See .acc/config/workflows/feature.md for the standard feature workflow.
 ```
 
 ---
@@ -463,7 +463,7 @@ Truncate the file (with `--force`; otherwise prompts). The file remains (empty) 
 - `--refresh` — force re-discovery of project tools and plugins.
 
 **Behavior:**
-1. Load tool registry from `.agents/acc/config.yaml` and project detection.
+1. Load tool registry from `.acc/config/config.yaml` and project detection.
 2. Return core tools, detected project tools, and plugins with capabilities.
 3. Include permission model and project type.
 
@@ -581,7 +581,7 @@ auth :: tests::test_refresh_flow ... ok
 
 | Command | Purpose | Modifies repo? |
 |---------|---------|----------------|
-| `acc init` | Initialize `.agents/acc/`, preserve `AGENTS.md`. | Yes — adds files. |
+| `acc init` | Initialize `.acc/config/`, preserve `AGENTS.md`. | Yes — adds files. |
 | `acc check` | Validate, emit diagnostics. | No. |
 | `acc inspect <path>` | roles/owners/deps/constraints/memory. | No. |
 | `acc context <path>` | Focused, progressive context. | No. |
@@ -619,3 +619,20 @@ auth :: tests::test_refresh_flow ... ok
 - JSON shape per command is versioned via `schema_version`; breaking changes require a major version bump (see [07](./07-json-schema.md)).
 - CLI flag names are stable post-1.0; adding flags is minor; renaming is forbidden.
 - Terminal prose is informational and MAY change between versions; agents consume JSON, not prose.
+
+---
+
+## V1 Implementation Status
+
+The reference implementation (`bin/acc.js`, zero runtime dependencies)
+implements the core commands in this document: `init`, `check`, `inspect`,
+`context`, `graph`, `dependencies`, `dependents`, `impact`, `search`,
+`discover`, `document`, `memory`, and `tools`. Language analyzers fall back
+on filesystem structure per [03 §7](./03-epistemology.md#7-language-analyzers--optional-accuracy).
+
+`acc tool`, `acc shell`, and `acc agents` are reserved and documented for
+future versions (see [11 — Tooling Subsystem](./11-tooling.md) and
+[10 — Multi-Agent Orchestration](./10-multi-agent-orchestration.md)).
+
+`acc battle` launches the standalone ABA benchmark harness — ABA is a
+separate application and is never required by the framework.

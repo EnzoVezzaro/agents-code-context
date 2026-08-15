@@ -22,7 +22,7 @@ Diagnostic codes are the load-bearing contract for `acc check`, `acc discover`, 
 | `ACC030`–`ACC039` | Ownership |
 | `ACC040`–`ACC049` | Language analyzers / interpretation |
 | `ACC050`–`ACC059` | Memory |
-| `ACC060`–`ACC069` | Configuration / `.agents/acc/` |
+| `ACC060`–`ACC069` | Configuration / `.acc/config/` |
 | `ACC070`–`ACC079` | Stale docs / contracts |
 | `ACC080`–`ACC089` | Security / safety |
 | `ACC090`–`ACC099` | Reserved |
@@ -78,7 +78,7 @@ Truth resolution per [03 §5](./03-epistemology.md#5-truth-resolution).
 | `ACC021` | error | `declared/discovered direction mismatch: declared '<a> → <b>', discovered '<b> → <a>'` | Declared and discovered edges go in opposite directions. |
 | `ACC022` | warn | `discovered dependency '<a> → <b>' not declared in any AGENTS.md` | Discovered edge with no declared counterpart. Surfaces as a `missing-dependency` suggestion in `acc discover`. |
 | `ACC023` | info | `declared and discovered dependency '<a> → <b>' agree` | Aligned edge. Emitted only in `acc check --verbose` or JSON `include_aligned: true` mode — by default aligned edges are silent. |
-| `ACC024` | error | `forbidden dependency detected: '<a> → <b>'` | A discovered or declared edge matches a `forbidden_deps` rule in `.agents/acc/config.yaml`. |
+| `ACC024` | error | `forbidden dependency detected: '<a> → <b>'` | A discovered or declared edge matches a `forbidden_deps` rule in `.acc/config/config.yaml`. |
 | `ACC025` | warn | `forbidden dependency declared but unenforced: '<a> → <b>'` | A `forbidden_deps` rule references a path pair that never actually appears in declared or discovered edges; the rule is inert. |
 
 ---
@@ -121,9 +121,9 @@ Truth resolution per [03 §5](./03-epistemology.md#5-truth-resolution).
 
 | Code | Severity | Message pattern | Trigger |
 |------|----------|-----------------|---------|
-| `ACC060` | error | `malformed .agents/acc/config.yaml: <reason>` | Config exists but is not valid YAML or violates schema. |
-| `ACC061` | warn | `unknown key '<key>' in .agents/acc/config.yaml` | Config contains a key not recognized by this ACC version. |
-| `ACC062` | info | `.agents/acc/config.yaml absent; using defaults` | No control plane config. Informational; ACC still works. |
+| `ACC060` | error | `malformed .acc/config/config.yaml: <reason>` | Config exists but is not valid YAML or violates schema. |
+| `ACC061` | warn | `unknown key '<key>' in .acc/config/config.yaml` | Config contains a key not recognized by this ACC version. |
+| `ACC062` | info | `.acc/config/config.yaml absent; using defaults` | No control plane config. Informational; ACC still works. |
 | `ACC063` | warn | `config references unknown language analyzer '<name>'` | `language_analyzers` enables an analyzer that is not compiled in. |
 | `ACC064` | error | `ignore pattern '<pat>' invalid: <reason>` | A glob in `ignore` is malformed. |
 | `ACC065` | warn | `forbidden_deps rule references unknown path '<path>'` | A `forbidden_deps` entry names a path that doesn't exist. |
@@ -225,7 +225,7 @@ See [07 — JSON Output Schema](./07-json-schema.md). Each diagnostic in JSON ou
 
 ## 18. Adding a New Diagnostic Code
 
-See `.agents/acc/workflows/diagnostic.md` for the mandatory procedure. Summary:
+See `.acc/config/workflows/diagnostic.md` for the mandatory procedure. Summary:
 
 1. Pick the next available number in the correct category range.
 2. Fix the severity permanently.

@@ -9,7 +9,7 @@ schema, memory semantics, and the `AGENTS.md` authoring guide.
 ## Responsibilities
 
 - Define the hard invariant and agent-agnostic philosophy.
-- Specify the `.agents/acc/` control plane and `.acc-memory.md` memory layer.
+- Specify the `.acc/config/` control plane and `.acc-memory.md` memory layer.
 - Define the derived architecture graph and truth categorization.
 - Specify the `acc` CLI surface, flags, and stable exit codes.
 - Maintain the `ACC0xx` diagnostic code registry and JSON `schema_version`.
@@ -22,7 +22,7 @@ Owner: EnzoVezzaro/agents-code-context
 ## Inputs
 
 - The framework design decisions made in the root `AGENTS.md` and in
-  `.agents/acc/standards/architecture.md`.
+  `.acc/config/standards/architecture.md`.
 
 ## Outputs
 
@@ -38,8 +38,8 @@ Owner: EnzoVezzaro/agents-code-context
 - Specifications MUST NOT require an ACC-specific agent.
 - Diagnostic codes (`ACC0xx`) and JSON `schema_version` are stable;
   renumbering/renaming is forbidden.
-- The hard invariant MUST hold: removing `.agents/` leaves a valid
-  `AGENTS.md` repository.
+- The hard invariant MUST hold: removing `.acc/` leaves a valid
+  agents.md repository.
 - All CLI behavior described here must be deterministic and offline.
 
 ## Architecture
@@ -58,4 +58,4 @@ covers one area:
 - `09-authoring-guide.md` — how to write `AGENTS.md` for ACC.
 
 Changes to the CLI surface MUST be reflected here before release (see
-`.agents/acc/workflows/release.md`).
+`.acc/config/workflows/release.md`).

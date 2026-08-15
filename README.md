@@ -29,34 +29,45 @@ Modern AI coding agents (Claude Code, Cursor, Codex, OpenCode, Gemini, etc.) are
 | No persistent memory between agents | `.acc-memory.md` captures durable agent knowledge |
 | No validation of architectural intent | `acc check` emits stable `ACC0xx` diagnostics |
 | Context is ad-hoc and token-heavy | `acc context` produces focused, provenance-tagged context |
-| Agent-specific configs fragment the project | Single `.agents/acc/` control plane, agent-agnostic |
+| Agent-specific configs fragment the project | Single `.acc/config/` control plane, agent-agnostic |
 
 ---
 
 ## Core Principles
 
-- **🏗️ Convention over Configuration** — Builds on `AGENTS.md`, the emerging standard for agent instructions
+- **🏗️ Convention over Configuration** — Built on the open [agents.md](https://agents.md/) standard: plain `AGENTS.md`, no schema
 - **🔄 Agent-Agnostic** — Works with *any* coding agent; no wrapper, runtime, or API required
 - **📁 Filesystem-First** — Repository is the sole source of truth; no database, no network calls
 - **🔒 Offline & Secure** — No telemetry, no code execution, safe on untrusted repos
 - **📊 Deterministic** — Same repo state + same flags = byte-identical output (critical for CI/agents)
-- **🔗 Compatibility Invariant** — Removing `.agents/` leaves a perfectly valid `AGENTS.md` repository
+- **🔗 Compatibility Invariant** — Removing `.acc/` and the CLI leaves a perfectly valid agents.md repository
 
 ---
 
 ## Quickstart
 
 ### Prerequisites
-- A git repository with source code
+- Node.js 18+ and a git repository with source code
 - Any coding agent (Cursor, Claude Code, Codex, OpenCode, etc.)
 
-### 1. Initialize ACC in your project
+> **The CLI is optional.** ACC is a convention — any coding agent reads the
+> repository directly from `AGENTS.md` files. The `acc` CLI is a
+> deterministic accelerator for humans and agents: install it when you want
+> speed and machine-checkable guarantees.
+
+### 1. Install the CLI (optional)
 
 ```bash
-# Install the CLI (when available)
-# cargo install acc-cli  # or your preferred method
+npm install -g agents-code-context
+# or, from a clone of this repository:
+# npm link
 
-# Initialize ACC structure
+acc --version
+```
+
+### 2. Initialize ACC in your project
+
+```bash
 acc init
 ```
 
@@ -64,8 +75,8 @@ This creates:
 ```
 your-project/
 ├── AGENTS.md                 # Project-wide agent instructions (preserved if exists)
-├── .agents/
-│   └── acc/
+├── .acc/
+│   └── config/
 │       ├── config.yaml       # ACC configuration (optional, sensible defaults)
 │       ├── agents/           # Project-specific agent profiles
 │       ├── workflows/        # Reproducible procedures (feature, release, etc.)
@@ -73,7 +84,7 @@ your-project/
 └── .gitignore                # Updated to exclude .acc-memory.md
 ```
 
-### 2. Define a functionality boundary
+### 3. Define a functionality boundary
 
 ```bash
 # Create a functionality directory with its contract
@@ -83,7 +94,7 @@ acc document src/auth --apply
 
 Edit `src/auth/AGENTS.md` to declare purpose, dependencies, ownership, constraints.
 
-### 3. Let your agent work naturally
+### 4. Let your agent work naturally
 
 Your agent reads `AGENTS.md`, follows the instructions, and optionally uses `acc` commands:
 
@@ -98,7 +109,7 @@ acc context src/auth --depth 1
 acc check
 ```
 
-### 4. Capture durable knowledge
+### 5. Capture durable knowledge
 
 ```bash
 # After a session, agent saves lessons learned
@@ -143,7 +154,7 @@ acc context src/auth --include memory
 Enable structured multi-agent workflows with graph-driven partitioning, isolation, and deterministic validation.
 
 ```yaml
-# .agents/acc/config.yaml
+# .acc/config/config.yaml
 multi_agent:
   enabled: true
   max_concurrency: 4
@@ -157,6 +168,63 @@ Search contracts, dependencies, and code with functionality-boundary awareness.
 acc search "authentication" --kind contracts
 acc search "database" --kind edges
 ```
+
+---
+
+## The CLI (Optional Accelerator)
+
+The `acc` CLI is **not required** — the framework is plain files and works
+without any tool. When present, it gives you and your agents deterministic,
+offline, provenance-tagged answers about the repository.
+
+```bash
+acc init                # Scaffold .acc/config/ + .gitignore entry
+acc check               # Validate; stable ACC0xx diagnostics
+acc context <path>      # Focused, progressive agent context
+acc graph [path]        # Derived architecture graph (text/mermaid/dot/json)
+acc inspect <path>      # Roles, owners, deps, constraints, memory
+acc dependencies <p>    # What a path depends on (declared vs discovered)
+acc dependents <p>      # What depends on a path
+acc impact <path>       # Blast radius: dependents, tests, constraints
+acc search <query>      # Architecture-aware search (contracts/edges/code)
+acc discover            # Suggestions from declared-vs-discovered diffs
+acc document <path>     # Conservative AGENTS.md template
+acc memory show|add|clear <path>   # Durable .acc-memory.md read/write
+acc tools               # List capabilities (core + detected)
+acc battle <project>    # Launch the standalone ABA benchmark (see below)
+```
+
+Every command supports `--json` for deterministic, machine-readable output
+(a versioned envelope, see [docs/07](./docs/07-json-schema.md)), and the
+terminal output is designed to be read by both humans and agents.
+
+```bash
+acc check --json        # CI-friendly
+acc context src/auth --depth 1 --max-bytes 32768
+acc graph --format mermaid
+```
+
+Zero runtime dependencies. Offline. Deterministic: the same repository
+state plus the same flags always produces byte-identical output.
+
+Exit codes: `0` success · `1` ACC error · `2` usage error · `3` panic.
+
+---
+
+## ACC Battle Arena (ABA) — Standalone Test Harness
+
+[ABA](./aba/) (ACC Battle Arena) is a **standalone application** for
+benchmarking and testing the ACC framework in isolated containers. It is
+**not part of the framework** — the framework never requires it and works
+without it. The CLI can launch it as a convenience:
+
+```bash
+acc battle ./my-project
+# or run it directly:
+node aba/index.cjs ./my-project
+```
+
+See [aba/README.md](./aba/README.md) for details.
 
 ---
 
@@ -181,7 +249,7 @@ acc search "database" --kind edges
 │  Memory                │  .acc-memory.md read/write         │
 │  (Durable)             │  Well-known headings, provenance   │
 ├─────────────────────────────────────────────────────────────┤
-│  Control Plane         │  .agents/acc/config, agents,       │
+│  Control Plane         │  .acc/config/config, agents,       │
 │  (Project Config)      │  workflows, standards              │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -208,6 +276,7 @@ acc search "database" --kind edges
 | [08 — Memory Semantics](./docs/08-memory-semantics.md) | `.acc-memory.md` lifecycle, format, rules |
 | [09 — Authoring Guide](./docs/09-authoring-guide.md) | Writing effective `AGENTS.md` files |
 | [10 — Multi-Agent](./docs/10-multi-agent-orchestration.md) | Orchestration substrate, partitioning, isolation |
+| [11 — Tooling Subsystem](./docs/11-tooling.md) | Automatic tool detection, plugins, permissions |
 
 ---
 
@@ -218,7 +287,7 @@ ACC describes itself using ACC:
 ```
 agents-code-context/
 ├── AGENTS.md                          # Root contract
-├── .agents/acc/                       # Control plane
+├── .acc/config/                       # Control plane
 │   ├── config.yaml
 │   ├── agents/architect.md            # Architecture reviewer agent
 │   ├── workflows/                     # feature.md, diagnostic.md, release.md
@@ -227,7 +296,7 @@ agents-code-context/
 │   ├── README.md                      # Documentation index
 │   ├── 01-philosophy.md
 │   ├── ...
-│   └── 10-multi-agent-orchestration.md
+│   └── 11-tooling.md
 └── .acc-memory.md                     # Root memory (gitignored)
 ```
 
@@ -259,8 +328,7 @@ We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for:
 
 - **GitHub Discussions** — Questions, ideas, show-and-tell
 - **Issues** — Bug reports, feature requests
-- **Discord** — Real-time chat (link TBD)
-- **Twitter/X** — [@ACCFramework](https://twitter.com/ACCFramework) (placeholder)
+- **Discord / X** — coming soon
 
 ---
 

@@ -1,21 +1,15 @@
 {
-  "name": "vitepress-project",
+  "name": "acc-docs",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vitepress dev docs",
-    "build": "vitepress build docs",
-    "serve": "vitepress serve docs"
+    "docs:sync": "node scripts/sync-docs.mjs",
+    "dev": "npm run docs:sync && vitepress dev docs",
+    "build": "npm run docs:sync && vitepress build docs",
+    "preview": "vitepress serve docs"
   },
   "devDependencies": {
-    "vue": "3.2.44",
-    "vitepress": "1.0.0-alpha.28"
-  },
-  "pnpm": {
-    "peerDependencyRules": {
-      "ignoreMissing": [
-        "@algolia/client-search"
-      ]
-    }
+    "vitepress": "^1.6.4",
+    "vue": "^3.5.13"
   }
 }

@@ -57,7 +57,7 @@ Multi-agent support MUST NOT require a specific coding agent.
 
 Multi-agent functionality MUST be explicitly configurable.
 
-### Configuration (`.agents/acc/config.yaml`)
+### Configuration (`.acc/config/config.yaml`)
 
 ```yaml
 multi_agent:
@@ -497,7 +497,7 @@ DETERMINISTIC VALIDATION
 
 ## 22. Configuration Reference
 
-### Full `.agents/acc/config.yaml` with Multi-Agent Section
+### Full `.acc/config/config.yaml` with Multi-Agent Section
 
 ```yaml
 schema_version: 1

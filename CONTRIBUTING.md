@@ -94,7 +94,7 @@ cd analyzers/python && pytest
 
 - Fix typos, clarify explanations, add examples.
 - Update `docs/` specification files.
-- Update `.agents/acc/` workflows, agents, standards if relevant.
+- Update `.acc/config/` workflows, agents, standards if relevant.
 - Run `acc check` after changes.
 
 ### 🔧 Diagnostic Codes
@@ -150,7 +150,7 @@ See [Adding Diagnostic Codes](#adding-diagnostic-codes) below — this has a str
 
 ## Coding Standards
 
-See [.agents/acc/standards/coding.md](./.agents/acc/standards/coding.md) for detailed language-specific standards.
+See [.acc/config/standards/coding.md](./.acc/config/standards/coding.md) for detailed language-specific standards.
 
 **Summary:**
 - Rust: `rustfmt`, `clippy -D warnings`, MSRV 1.75
@@ -163,7 +163,7 @@ See [.agents/acc/standards/coding.md](./.agents/acc/standards/coding.md) for det
 
 ## Testing
 
-See [.agents/acc/standards/testing.md](./.agents/acc/standards/testing.md) for detailed standards.
+See [.acc/config/standards/testing.md](./.acc/config/standards/testing.md) for detailed standards.
 
 **Requirements:**
 - Unit tests for all public functions
@@ -181,14 +181,14 @@ See [docs/09-authoring-guide.md](./docs/09-authoring-guide.md) for `AGENTS.md` c
 **Specification updates:**
 - CLI changes → `docs/04-cli-commands.md` + `docs/07-json-schema.md`
 - Diagnostic codes → `docs/06-diagnostic-codes.md`
-- Architecture → `docs/03-epistemology.md` + `.agents/acc/standards/architecture.md`
+- Architecture → `docs/03-epistemology.md` + `.acc/config/standards/architecture.md`
 - All docs use numbered format; keep index in `docs/README.md` current.
 
 ---
 
 ## Adding Diagnostic Codes
 
-**This is a load-bearing stability contract.** Follow `.agents/acc/workflows/diagnostic.md` exactly:
+**This is a load-bearing stability contract.** Follow `.acc/config/workflows/diagnostic.md` exactly:
 
 1. Pick next available code in correct category range (see `docs/06-diagnostic-codes.md` §2).
 2. Fix severity permanently (`error`/`warn`/`info`).
@@ -210,14 +210,14 @@ See [docs/09-authoring-guide.md](./docs/09-authoring-guide.md) for `AGENTS.md` c
 
 ## Release Process
 
-See `.agents/acc/workflows/release.md` for the full checklist.
+See `.acc/config/workflows/release.md` for the full checklist.
 
 **Stability gates (blocking):**
 - No diagnostic code renumbering/removal
 - No JSON field removal/type change without major `schema_version` bump
 - No CLI flag renaming
 - No diagnostic severity changes
-- Hard invariant holds (remove `.agents/` → valid `AGENTS.md` repo)
+- Hard invariant holds (remove `.acc/` → valid agents.md repo)
 - No code execution, network calls
 - Deterministic JSON output
 

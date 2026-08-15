@@ -41,7 +41,7 @@ ACC's heuristic parser looks for these headings (case-insensitive, prefix-matche
 | `Dependencies` | Other functionality paths this depends on. | Declared edges (`dependency`). |
 | `Constraints` | Invariants that MUST hold. | `context` Constraints, `check`. |
 | `Architecture` | High-level architecture description. | `inspect`, `context`. |
-| `Workflows` | Pointer to `.agents/acc/workflows/<name>.md`. | `discover`, `context`. |
+| `Workflows` | Pointer to `.acc/config/workflows/<name>.md`. | `discover`, `context`. |
 
 No file needs all of them. No file is rejected for missing any.
 
@@ -90,7 +90,7 @@ Owner: <team or module path>
 
 ## Workflows
 
-- See `.agents/acc/workflows/feature.md` for the standard feature workflow.
+- See `.acc/config/workflows/feature.md` for the standard feature workflow.
 ```
 
 ACC's `acc document <path>` produces this template (optionally pre-filled from discovery with `<!-- inferred -->` markers).
@@ -189,7 +189,7 @@ This is deliberate: constraints are often domain-specific prose ("must preserve 
 ```markdown
 ## Architecture
 
-See `.agents/acc/standards/architecture.md` for the project's
+See `.acc/config/standards/architecture.md` for the project's
 architecture expectations. This module follows the layered pattern
 described there.
 ```
@@ -231,11 +231,11 @@ deps: [src/database]
 ---
 ```
 
-ACC does not parse frontmatter. The hard invariant ([01](./01-philosophy.md#the-hard-invariant-technical-restatement)) forbids enforcing proprietary schemas in `AGENTS.md`. Put ownership and dependencies in Markdown sections instead.
+ACC does not parse frontmatter. The hard invariant ([01](./01-philosophy.md#13-the-hard-invariant-technical-restatement)) forbids enforcing proprietary schemas in `AGENTS.md`. Put ownership and dependencies in Markdown sections instead.
 
 ### Competing Instruction Standards
 
-`AGENTS.md` is the primary instruction interface. Don't add `CLAUDE.md`/`CURSOR.md`/`CODEX.md` competing files — those split authority. If you need agent-specific notes, put them in `.agents/acc/agents/<name>.md` (profiles) or `.acc-memory.md` (durable agent knowledge).
+`AGENTS.md` is the primary instruction interface. Don't add `CLAUDE.md`/`CURSOR.md`/`CODEX.md` competing files — those split authority. If you need agent-specific notes, put them in `.acc/config/agents/<name>.md` (profiles) or `.acc-memory.md` (durable agent knowledge).
 
 ### Putting Memory in `AGENTS.md`
 
@@ -297,7 +297,7 @@ Owner: auth-team
 ## Architecture
 
 This module follows the layered pattern from
-`.agents/acc/standards/architecture.md`:
+`.acc/config/standards/architecture.md`:
 
 - `src/auth/token/` — token issuance, validation, rotation
 - `src/auth/scope/` — scope evaluation and authorization
@@ -308,8 +308,8 @@ Token validation is the hot path; it uses a lock-free cache backed by
 
 ## Workflows
 
-- See `.agents/acc/workflows/feature.md` for the standard feature workflow.
-- See `.agents/acc/workflows/security.md` for security-sensitive changes.
+- See `.acc/config/workflows/feature.md` for the standard feature workflow.
+- See `.acc/config/workflows/security.md` for security-sensitive changes.
 ```
 
 ---

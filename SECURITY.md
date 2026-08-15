@@ -71,7 +71,7 @@ ACC is designed with security as a core principle:
 
 ## Security-Related Configuration
 
-See `.agents/acc/config.yaml` for security-relevant settings:
+See `.acc/config/config.yaml` for security-relevant settings:
 - `ignore` patterns to exclude untrusted paths
 - `forbidden_deps` to enforce architectural boundaries
 - `multi_agent.resource_limits` to bound resource usage

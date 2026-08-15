@@ -6,7 +6,7 @@
 
 ACC is **agent-agnostic**. The repository itself communicates the
 framework through standard, agent-readable files (`AGENTS.md`,
-`.agents/.acc/`, `.acc-memory.md`). Any coding agent — Codex, Claude
+`.acc/config/`, `.acc-memory.md`). Any coding agent — Codex, Claude
 Code, Cursor, OpenCode, Gemini, local agents, future agents — can enter
 an ACC-enabled project and naturally follow the framework just by
 reading files, running commands, and editing code.
@@ -19,7 +19,7 @@ prerequisite for understanding a project.
 ## What ACC is
 
 - A **convention** layered on the existing `AGENTS.md` ecosystem.
-- A **control plane** (`.agents/.acc/`) for project-specific agents,
+- A **control plane** (`.acc/config/`) for project-specific agents,
   workflows, and standards.
 - A **memory layer** (`.acc-memory.md`, gitignored) for durable,
   functionality-local agent knowledge.
@@ -38,9 +38,9 @@ prerequisite for understanding a project.
 
 ## The hard invariant (compatibility)
 
-> **Repository + `AGENTS.md` + `.agents/` = ACC-enhanced.**
-> Removing `.agents/` (and `.acc-memory.md`, and `acc` itself) MUST leave
-> a perfectly valid `AGENTS.md` repository.
+> **Repository + `AGENTS.md` + `.acc/` = ACC-enhanced.**
+> Removing `.acc/` (and `.acc-memory.md`, and `acc` itself) MUST leave
+> a perfectly valid agents.md repository.
 
 ACC augments standard conventions; it never replaces them.
 
@@ -51,7 +51,7 @@ ACC augments standard conventions; it never replaces them.
 | Document | Scope |
 |---|---|
 | [01 — Philosophy & Agent-Agnostic Operation](./01-philosophy.md) | Core principles, why ACC, what it guarantees. |
-| [02 — Repository Structure](./02-repository-structure.md) | `AGENTS.md`, `.agents/.acc/`, `.acc-memory.md`, dogfooding layout. |
+| [02 — Repository Structure](./02-repository-structure.md) | `AGENTS.md`, `.acc/config/`, `.acc-memory.md`, dogfooding layout. |
 | [03 — Epistemology & Architecture Graph](./03-epistemology.md) | Declared / Discovered / Inferred truth, derived graph, ownership. |
 | [04 — CLI Command Specification](./04-cli-commands.md) | The `acc` CLI: every command, flags, stable diagnostic codes. |
 | [05 — Context Engine](./05-context-engine.md) | `acc context`, progressive depth, provenance, output contract. |
@@ -69,7 +69,7 @@ ACC augments standard conventions; it never replaces them.
 ```text
 AGENTS.md
     ↓
-.agents/.acc/
+.agents/AGENTS.md (if present)
     ↓
 functionality/
     ↓

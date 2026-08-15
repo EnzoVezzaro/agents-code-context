@@ -111,10 +111,10 @@ Every `--json` response wraps results in this envelope:
 {
   "root": "/abs/path/to/project",
   "created": [
-    ".agents/acc/config.yaml",
-    ".agents/acc/agents/",
-    ".agents/acc/workflows/",
-    ".agents/acc/standards/"
+    ".acc/config/config.yaml",
+    ".acc/config/agents/",
+    ".acc/config/workflows/",
+    ".acc/config/standards/"
   ],
   "existing": ["AGENTS.md"],
   "gitignore_updated": true,
