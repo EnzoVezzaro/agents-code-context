@@ -4,333 +4,134 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
-
-env:
-  RUST_VERSION: "1.75"
-  NODE_VERSION: "20"
-  GO_VERSION: "1.21"
-  PYTHON_VERSION: "3.11"
 
 jobs:
   # ---------------------------------------------------------------------------
-  # Linting
+  # Framework CLI — unit + end-to-end tests (zero runtime dependencies)
   # ---------------------------------------------------------------------------
-  lint-rust:
-    name: Lint Rust
+  test-cli:
+    name: Test CLI
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: ${{ env.RUST_VERSION }}
-          components: rustfmt, clippy
-      - name: Check formatting
-        run: cargo fmt --all -- --check
-      - name: Run clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
-
-  lint-typescript:
-    name: Lint TypeScript
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: analyzers/typescript
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
-      - name: Run prettier
-        run: npx prettier --check .
-      - name: Run eslint
-        run: npx eslint .
-
-  lint-go:
-    name: Lint Go
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: analyzers/go
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ${{ env.GO_VERSION }}
-      - name: Run gofmt
-        run: test -z "$(gofmt -l .)"
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v6
-        with:
-          version: latest
-
-  lint-python:
-    name: Lint Python
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: analyzers/python
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install ruff black mypy
-      - name: Run ruff
-        run: ruff check .
-      - name: Run black
-        run: black --check .
-      - name: Run mypy
-        run: mypy --strict .
+          node-version: "20"
+      - name: Run tests
+        run: node --test 'test/*.test.js'
 
   # ---------------------------------------------------------------------------
-  # Unit Tests
-  # ---------------------------------------------------------------------------
-  test-rust:
-    name: Test Rust
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: ${{ env.RUST_VERSION }}
-      - name: Run tests
-        run: cargo test --all-features
-      - name: Upload coverage
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage/lcov.info
-          flags: rust
-
-  test-typescript:
-    name: Test TypeScript
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: analyzers/typescript
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
-      - name: Run tests
-        run: npm test -- --coverage
-      - name: Upload coverage
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage/lcov.info
-          flags: typescript
-
-  test-go:
-    name: Test Go
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: analyzers/go
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ${{ env.GO_VERSION }}
-      - name: Run tests
-        run: go test -v -race -coverprofile=coverage.out ./...
-      - name: Upload coverage
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage.out
-          flags: go
-
-  test-python:
-    name: Test Python
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: analyzers/python
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pytest pytest-cov
-      - name: Run tests
-        run: pytest --cov=src --cov-report=xml
-      - name: Upload coverage
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage.xml
-          flags: python
-
-  # ---------------------------------------------------------------------------
-  # Dogfooding: ACC validates itself
+  # Dogfooding: the CLI validates its own repository
   # ---------------------------------------------------------------------------
   dogfood:
     name: Dogfood (ACC validates ACC)
     runs-on: ubuntu-latest
-    needs: [lint-rust, test-rust]
     steps:
       - uses: actions/checkout@v4
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          toolchain: ${{ env.RUST_VERSION }}
-      - name: Build ACC CLI
-        run: cargo build --release
+          node-version: "20"
       - name: Run acc check
-        run: ./target/release/acc check --json
+        run: node bin/acc.js check --json
       - name: Run acc graph
-        run: ./target/release/acc graph --format json
+        run: node bin/acc.js graph --json
       - name: Run acc context
-        run: ./target/release/acc context docs --depth 1 --json
+        run: node bin/acc.js context docs --depth 1 --json
       - name: Run acc inspect
-        run: ./target/release/acc inspect docs --json
+        run: node bin/acc.js inspect docs --json
       - name: Run acc discover
-        run: ./target/release/acc discover --json
+        run: node bin/acc.js discover --json
 
   # ---------------------------------------------------------------------------
-  # Determinism Tests
+  # Determinism: identical JSON output across runs
   # ---------------------------------------------------------------------------
   determinism:
     name: Determinism (JSON output stability)
     runs-on: ubuntu-latest
-    needs: [lint-rust, test-rust]
     steps:
       - uses: actions/checkout@v4
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          toolchain: ${{ env.RUST_VERSION }}
-      - name: Build ACC CLI
-        run: cargo build --release
+          node-version: "20"
       - name: Test determinism - acc context
         run: |
-          ./target/release/acc context docs --depth 1 --json > /tmp/run1.json
-          ./target/release/acc context docs --depth 1 --json > /tmp/run2.json
+          node bin/acc.js context docs --depth 1 --json > /tmp/run1.json
+          node bin/acc.js context docs --depth 1 --json > /tmp/run2.json
           diff /tmp/run1.json /tmp/run2.json
       - name: Test determinism - acc graph
         run: |
-          ./target/release/acc graph --format json > /tmp/graph1.json
-          ./target/release/acc graph --format json > /tmp/graph2.json
+          node bin/acc.js graph --json > /tmp/graph1.json
+          node bin/acc.js graph --json > /tmp/graph2.json
           diff /tmp/graph1.json /tmp/graph2.json
       - name: Test determinism - acc check
         run: |
-          ./target/release/acc check --json > /tmp/check1.json
-          ./target/release/acc check --json > /tmp/check2.json
+          node bin/acc.js check --json > /tmp/check1.json
+          node bin/acc.js check --json > /tmp/check2.json
           diff /tmp/check1.json /tmp/check2.json
 
   # ---------------------------------------------------------------------------
-  # Schema Validation
+  # JSON schema validation: every --json command emits valid JSON
   # ---------------------------------------------------------------------------
   schema-validation:
     name: JSON Schema Validation
     runs-on: ubuntu-latest
-    needs: [lint-rust, test-rust]
     steps:
       - uses: actions/checkout@v4
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          toolchain: ${{ env.RUST_VERSION }}
-      - name: Build ACC CLI
-        run: cargo build --release
-      - name: Validate JSON outputs against schema
+          node-version: "20"
+      - name: Validate JSON outputs
         run: |
-          # This would use a JSON schema validator
-          # For now, just verify all --json commands produce valid JSON
-          ./target/release/acc check --json | jq . > /dev/null
-          ./target/release/acc graph --format json | jq . > /dev/null
-          ./target/release/acc context docs --depth 1 --json | jq . > /dev/null
-          ./target/release/acc inspect docs --json | jq . > /dev/null
-          ./target/release/acc discover --json | jq . > /dev/null
-          ./target/release/acc dependencies docs --json | jq . > /dev/null
-          ./target/release/acc dependents docs --json | jq . > /dev/null
-          ./target/release/acc impact docs --json | jq . > /dev/null
-          ./target/release/acc search "test" --json | jq . > /dev/null
+          for cmd in "check" "graph" "inspect docs" "discover" "dependencies docs" "dependents docs" "impact docs"; do
+            node bin/acc.js $cmd --json | jq -e . > /dev/null || { echo "invalid JSON: acc $cmd"; exit 1; }
+          done
 
   # ---------------------------------------------------------------------------
-  # Documentation Checks
+  # Documentation site: builds from the canonical docs/ (single source of truth)
   # ---------------------------------------------------------------------------
   docs:
-    name: Documentation Checks
+    name: Docs Site Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check docs structure
-        run: |
-          # Verify docs/README.md index is current
-          # Verify all numbered docs exist
-          for i in {01..10}; do
-            if [ ! -f "docs/${i}-*.md" ]; then
-              echo "Missing docs/${i}-*.md"
-              exit 1
-            fi
-          done
-      - name: Check for broken links
-        run: |
-          # Simple markdown link check
-          grep -r ']\(' docs/ | grep -v 'http' | while read line; do
-            # Extract link and check if file exists
-            echo "Checking: $line"
-          done
-
-  # ---------------------------------------------------------------------------
-  # Integration Tests (if applicable)
-  # ---------------------------------------------------------------------------
-  integration:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-    needs: [lint-rust, test-rust]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          toolchain: ${{ env.RUST_VERSION }}
-      - name: Build ACC CLI
-        run: cargo build --release
-      - name: Run integration tests
-        run: |
-          # Test on fixture repositories
-          cargo test --test integration 2>/dev/null || echo "No integration tests yet"
+          node-version: "20"
+      - name: Install dependencies
+        working-directory: docs
+        run: npm install
+      - name: Build site
+        working-directory: docs
+        run: npm run build
 
   # ---------------------------------------------------------------------------
-  # Release Readiness
+  # Hard invariant: removing the .acc/ control plane leaves a valid
+  # agents.md repository (AGENTS.md hierarchy still parses and checks clean)
   # ---------------------------------------------------------------------------
-  release-readiness:
-    name: Release Readiness Check
+  invariant:
+    name: Hard Invariant (framework survives without ACC tooling)
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [lint-rust, test-rust, dogfood, determinism, schema-validation]
     steps:
       - uses: actions/checkout@v4
-      - name: Check diagnostic code stability
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Verify AGENTS.md hierarchy parses standalone
         run: |
-          # Verify no ACC0xx codes were renumbered/removed
-          echo "Checking diagnostic code stability..."
-      - name: Check JSON schema version
-        run: |
-          # Verify schema_version in JSON outputs
-          echo "Checking schema version..."
-      - name: Verify hard invariant
-        run: |
-          # Test that removing .acc/ leaves valid agents.md repo
-          echo "Verifying hard invariant..."
+          node -e "
+            const { parse } = require('./lib/agents.js');
+            const fs = require('fs');
+            const path = require('path');
+            const { walkFiles } = require('./lib/util.js');
+            const files = walkFiles('.', '.', [], []);
+            const agentsFiles = files.filter((f) => path.basename(f).toLowerCase() === 'agents.md');
+            if (!agentsFiles.length) { console.error('no AGENTS.md found'); process.exit(1); }
+            for (const f of agentsFiles) parse(fs.readFileSync(f, 'utf8'));
+            console.log('OK: ' + agentsFiles.length + ' AGENTS.md files parse without ACC tooling');
+          "

@@ -368,6 +368,37 @@ footer { border-top: 1px solid var(--hair); padding: 56px 0 40px; margin-top: 0;
 .foot-bottom .eq { color: var(--ink); }
 .foot-bottom .eq .pri { color: var(--primary); }
 
+/* ---- GitHub about / releases / packages ---- */
+.github-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.gh-card {
+  border: 1px solid var(--hair-strong);
+  border-radius: 10px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--bg);
+}
+.gh-card h3 {
+  font-family: var(--mono); font-size: 13px; color: var(--primary);
+  letter-spacing: 0.02em; margin-bottom: 0;
+}
+.gh-card .desc { font-size: 14.5px; color: var(--muted); line-height: 1.55; margin: 0; }
+.gh-card .desc code { color: var(--primary-ink); background: var(--surface); padding: 1px 5px; border-radius: 3px; font-size: 0.85em; }
+.gh-card .meta { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin: 0; }
+.gh-card .link {
+  margin-top: auto;
+  font-family: var(--mono); font-size: 13px; color: var(--primary);
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.gh-card .link + .link { margin-top: 2px; }
+.gh-card .link svg { transition: transform .18s ease; }
+.gh-card:hover .link svg { transform: translateX(3px); }
+
 /* ---- Reveal motion (progressive, gated on IO) ---- */
 .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s cubic-bezier(.22,1,.36,1), transform .6s cubic-bezier(.22,1,.36,1); }
 .reveal.in { opacity: 1; transform: none; }
@@ -375,6 +406,7 @@ footer { border-top: 1px solid var(--hair); padding: 56px 0 40px; margin-top: 0;
 /* ---- Responsive ---- */
 @media (max-width: 980px) {
   .hero-grid, .flow .wrap, .prov-pair { grid-template-columns: 1fr; }
+  .github-grid { grid-template-columns: 1fr; }
   .cli-bento { grid-template-columns: repeat(2, 1fr); }
   .cell.span3, .cell.span2 { grid-column: span 2; }
   .layers { grid-template-columns: 1fr; }
@@ -785,6 +817,44 @@ Discovered:
   </div>
 </section>
 
+<!-- GITHUB: ABOUT / RELEASES / PACKAGES -->
+<section class="section" id="github">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="label">open source</div>
+      <h2>About, releases, and packages.</h2>
+      <p>Everything lives on GitHub and npm — MIT licensed, no telemetry, no lock-in.</p>
+    </div>
+    <div class="github-grid">
+      <article class="gh-card">
+        <h3>About</h3>
+        <p class="desc">ACC — Agent Code Context. A convention + optional CLI that makes any software repository agent-native, navigable, and self-describing.</p>
+        <p class="meta">MIT License · Agent-agnostic · Offline-first · Deterministic</p>
+        <a class="link" href="https://github.com/EnzoVezzaro/agents-code-context" target="_blank" rel="noopener">github.com/EnzoVezzaro/agents-code-context
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8L22 12L18 16"/><path d="M2 12H22"/></svg>
+        </a>
+      </article>
+      <article class="gh-card">
+        <h3>Releases</h3>
+        <p class="desc">Versioned releases on GitHub with changelogs — every <code>v0.x</code> tagged and documented.</p>
+        <a class="link" href="https://github.com/EnzoVezzaro/agents-code-context/releases" target="_blank" rel="noopener">View releases
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8L22 12L18 16"/><path d="M2 12H22"/></svg>
+        </a>
+      </article>
+      <article class="gh-card">
+        <h3>Packages</h3>
+        <p class="desc">Published to npm: <code>acc-agents</code> — install with <code>npm i -g acc-agents</code>.</p>
+        <a class="link" href="https://www.npmjs.com/package/acc-agents" target="_blank" rel="noopener">npm package
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8L22 12L18 16"/><path d="M2 12H22"/></svg>
+        </a>
+        <a class="link" href="https://github.com/EnzoVezzaro/agents-code-context/packages" target="_blank" rel="noopener">GitHub packages
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8L22 12L18 16"/><path d="M2 12H22"/></svg>
+        </a>
+      </article>
+    </div>
+  </div>
+</section>
+
 <!-- FOOTER -->
 <footer>
   <div class="wrap">
@@ -809,7 +879,9 @@ Discovered:
       </div>
       <div class="foot-col">
         <h4>Project</h4>
-        <a href="https://github.com/EnzoVezzaro/agents-code-context" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="https://github.com/EnzoVezzaro/agents-code-context" target="_blank" rel="noopener">About ↗</a>
+        <a href="https://github.com/EnzoVezzaro/agents-code-context/releases" target="_blank" rel="noopener">Releases ↗</a>
+        <a href="https://github.com/EnzoVezzaro/agents-code-context/packages" target="_blank" rel="noopener">Packages ↗</a>
         <a href="docs/08-memory-semantics.md">Memory</a>
         <a href="docs/09-authoring-guide.md">Authoring guide</a>
         <a href="AGENTS.md">AGENTS.md</a>

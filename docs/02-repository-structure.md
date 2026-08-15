@@ -56,7 +56,7 @@ The strict boundary:
 
 ### Role
 
-`AGENTS.md` follows the hierarchical inheritance convention defined by the agents.md standard (agents automatically read the nearest file in the directory tree):
+`AGENTS.md` follows the hierarchical inheritance convention defined by the open [agents.md](https://agents.md/) standard (agents automatically read the nearest file in the directory tree):
 
 ```text
 project/AGENTS.md          → project-wide context

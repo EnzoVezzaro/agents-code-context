@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![ACC Logo](https://img.shields.io/badge/ACC-Agent%20Code%20Context-4F46E5?style=for-the-badge&logo=github)
+![ACC Logo](https://img.shields.io/badge/ACC-Agent%20Code%20Context-red?style=for-the-badge&logo=github)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub stars](https://img.shields.io/github/stars/EnzoVezzaro/agents-code-context?style=social)](https://github.com/EnzoVezzaro/agents-code-context/stargazers)
@@ -58,7 +58,7 @@ Modern AI coding agents (Claude Code, Cursor, Codex, OpenCode, Gemini, etc.) are
 ### 1. Install the CLI (optional)
 
 ```bash
-npm install -g agents-code-context
+npm install -g acc-agents
 # or, from a clone of this repository:
 # npm link
 
@@ -204,8 +204,9 @@ acc context src/auth --depth 1 --max-bytes 32768
 acc graph --format mermaid
 ```
 
-Zero runtime dependencies. Offline. Deterministic: the same repository
-state plus the same flags always produces byte-identical output.
+Offline. Deterministic: the same repository state plus the same flags
+always produces byte-identical output. The CLI's own code is
+zero-dependency; ABA is an optional dependency used only by `acc battle`.
 
 Exit codes: `0` success · `1` ACC error · `2` usage error · `3` panic.
 
@@ -213,18 +214,27 @@ Exit codes: `0` success · `1` ACC error · `2` usage error · `3` panic.
 
 ## ACC Battle Arena (ABA) — Standalone Test Harness
 
-[ABA](./aba/) (ACC Battle Arena) is a **standalone application** for
-benchmarking and testing the ACC framework in isolated containers. It is
-**not part of the framework** — the framework never requires it and works
-without it. The CLI can launch it as a convenience:
+ABA (ACC Battle Arena) is a **standalone application** that answers "does
+the ACC framework help an AI agent work with a repository better than no
+ACC?" It spawns a local **Vite web app** (battle arena) that runs the same
+repo + task series side by side — one panel with the ACC framework
+installed, one without — with per-panel provider/model choice, live
+streaming, and per-metric comparisons.
+
+ABA lives in **its own repository** ([`aba/`](./aba/) is a self-contained
+git repo — never pushed with this one), has **its own license** (MIT for
+ABA code + FSL-1.1-MIT for the isbetter.ai-derived arena UI), and is
+published to npm as **`acc-battle-arena`**. This package depends on it, so
+`acc battle` works out of the box:
 
 ```bash
-acc battle ./my-project
-# or run it directly:
-node aba/index.cjs ./my-project
+acc battle ./my-project          # open the battle arena
+acc battle ./my-project --headless   # terminal benchmark
+# or run it directly from the package:
+npx acc-battle-arena ./my-project
 ```
 
-See [aba/README.md](./aba/README.md) for details.
+See the ABA repo's [README](./aba/README.md) for details.
 
 ---
 
@@ -340,7 +350,11 @@ MIT License — see [LICENSE](./LICENSE) for details.
 
 ## Acknowledgments
 
-- The `AGENTS.md` ecosystem pioneers (Codex, Claude Code, Cursor, Copilot)
+- **[agents.md](https://agents.md/)** — the open AGENTS.md standard this project is built on. The format emerged from collaborative efforts across the AI coding ecosystem (OpenAI Codex, Amp, Google Jules, Cursor, and Factory) and is stewarded by the Agentic AI Foundation under the Linux Foundation.
+- **[Agent Skills](https://agentskills.io/)** — the open SKILL.md format for reusable, portable agent capabilities.
+- **[MCP (Model Context Protocol)](https://modelcontextprotocol.io/)** — the open protocol for connecting agents to tools and services.
+- **[llms.txt](https://llmstxt.org/)** — the open convention for machine-readable project information.
+- The coding agents that brought AGENTS.md into the mainstream (OpenAI Codex, Claude Code, Cursor, GitHub Copilot, Google Gemini CLI, and more)
 - Open-source projects demonstrating agent-native patterns
 - Contributors who believe repositories should be self-describing
 

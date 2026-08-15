@@ -8,48 +8,51 @@ on:
         required: true
         type: string
       prerelease:
-        description: "Is this a pre-release?"
+        description: "Publish as pre-release tag (e.g., beta, rc)"
         required: false
         type: boolean
         default: false
 
 permissions:
   contents: write
-  issues: write
-  pull-requests: write
 
 jobs:
   release:
-    name: Create Release
+    name: Publish to npm
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          toolchain: "1.75"
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
 
-      - name: Build
-        run: cargo build --release
+      - name: Run tests
+        run: node --test 'test/*.test.js'
 
-      - name: Run full test suite
+      - name: Verify version
         run: |
-          cargo test --all-features
-          ./target/release/acc check --json
-          ./target/release/acc graph --format json
-          ./target/release/acc context docs --depth 1 --json
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "$PKG_VERSION" != "${{ github.event.inputs.version }}" ]; then
+            echo "package.json version ($PKG_VERSION) does not match release version (${{ github.event.inputs.version }})"
+            exit 1
+          fi
 
-      - name: Verify determinism
+      - name: Publish to npm
         run: |
-          ./target/release/acc context docs --depth 1 --json > /tmp/run1.json
-          ./target/release/acc context docs --depth 1 --json > /tmp/run2.json
-          diff /tmp/run1.json /tmp/run2.json
+          if [ "${{ github.event.inputs.prerelease }}" == "true" ]; then
+            npm publish --tag beta
+          else
+            npm publish
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Create Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.event.inputs.version }}
@@ -62,25 +65,16 @@ jobs:
             ### Installation
 
             ```bash
-            cargo install acc-cli --version ${{ github.event.inputs.version }}
+            npm install -g acc-agents
             ```
 
-            ### Verification
+            ### Usage
 
             ```bash
             acc --version
-            acc check  # Should pass on any ACC-enhanced repo
+            acc check  # validates an ACC-enhanced repository
             ```
-
           draft: false
           prerelease: ${{ github.event.inputs.prerelease }}
-          files: |
-            target/release/acc
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish to crates.io
-        if: github.event.inputs.prerelease == 'false'
-        run: cargo publish --token ${{ secrets.CRATES_IO_TOKEN }}
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}

@@ -14,7 +14,9 @@ with security updates:
 
 **Please do NOT report security vulnerabilities through public GitHub issues.**
 
-Instead, please report them via email to **security@acc-framework.dev** (placeholder).
+Instead, please report them privately via the repository's
+[Security Advisories](https://github.com/EnzoVezzaro/agents-code-context/security/advisories)
+feature, which keeps the report confidential until a fix is released.
 
 Include the following information:
 - Description of the vulnerability
@@ -38,14 +40,13 @@ ACC is designed with security as a core principle:
 - All operations are filesystem-local.
 
 ### Path Safety
-- Paths escaping the project root are refused (ACC080).
-- Symlinks escaping the project root are not followed (ACC082).
 - All paths are resolved relative to the detected project root.
+- Files and directories are validated against the configured `ignore` patterns.
 
 ### Input Validation
-- All file reads are UTF-8 validated (ACC001, ACC081).
-- YAML/JSON parsing uses safe libraries with size limits.
-- Glob patterns are validated (ACC064).
+- All file reads are UTF-8 validated (ACC001).
+- YAML parsing is lenient by design (no code execution); config is validated
+  against known keys (ACC060) with sensible defaults when absent (ACC062).
 
 ### Deterministic Operations
 - Same repo state + same flags = byte-identical output.
@@ -61,7 +62,6 @@ ACC is designed with security as a core principle:
 | Path traversal | All paths canonicalized and bounded to project root |
 | Resource exhaustion | `--max-bytes`, configurable limits |
 | Supply chain (JSON) | Deterministic output, schema validation |
-| Analyzer exploits | Optional, sandboxed, size-limited |
 
 ## Disclosure Policy
 
@@ -72,10 +72,9 @@ ACC is designed with security as a core principle:
 ## Security-Related Configuration
 
 See `.acc/config/config.yaml` for security-relevant settings:
-- `ignore` patterns to exclude untrusted paths
-- `forbidden_deps` to enforce architectural boundaries
-- `multi_agent.resource_limits` to bound resource usage
+- `ignore` patterns to exclude untrusted paths from scanning
+- `diagnostics.warn_only` to downgrade specific codes
 
 ## Contact
 
-For security questions or concerns: **security@acc-framework.dev** (placeholder)
+For security questions or concerns, open a [security advisory](https://github.com/EnzoVezzaro/agents-code-context/security/advisories) or email the maintainers via the contact details on the repository profile.

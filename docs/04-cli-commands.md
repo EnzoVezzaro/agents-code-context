@@ -635,4 +635,9 @@ future versions (see [11 — Tooling Subsystem](./11-tooling.md) and
 [10 — Multi-Agent Orchestration](./10-multi-agent-orchestration.md)).
 
 `acc battle` launches the standalone ABA benchmark harness — ABA is a
-separate application and is never required by the framework.
+separate application and is never required by the framework. By default it
+spawns the ABA web app (battle arena: side-by-side ACC vs no-ACC
+benchmarks, live streaming, per-panel provider/model); `--headless` runs a
+single terminal benchmark instead. Docker is optional for ABA: benchmarks
+run on an isolated snapshot copy, in a container when Docker is available
+and on the host otherwise (`--local` forces host mode).

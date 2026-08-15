@@ -1,11 +1,19 @@
 # Git
 .git/
 
+# macOS
+.DS_Store
+
 # Build outputs (language-specific; safe defaults)
 target/
 node_modules/
 dist/
 build/
+
+# Docs site (VitePress) — build output and dependency cache
+# The site is built directly from docs/; see docs/.vitepress/config.ts
+docs/.vitepress/dist/
+docs/.vitepress/cache/
 
 # Dependency locks
 *.lock
@@ -17,3 +25,7 @@ go.sum
 # ACC durable memory — local, agent-written, never committed.
 # See docs/08-memory-semantics.md.
 .acc-memory.md
+
+# ABA — standalone project (own git repo), never pushed with ACC.
+# See aba/ for its own repo, package, and license.
+aba/

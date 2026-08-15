@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **ABA is now its own repository and npm package**: `acc-battle-arena` (MIT + FSL-1.1-MIT for the isbetter.ai-derived UI). The `aba/` directory is a self-contained git repo, never pushed with ACC; `acc-agents` depends on the npm package so `acc battle` works out of the box
+- ACC licensed under the same MIT license as the [agents.md](https://agents.md) standard
 - Initial ACC framework specification and documentation
 - CLI commands: `init`, `check`, `inspect`, `context`, `graph`, `dependencies`, `dependents`, `impact`, `search`, `discover`, `document`, `memory`
 - Multi-agent orchestration specification (optional, config-gated)
@@ -22,7 +24,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - agents.md compliance: ACC is a strict superset of the AGENTS.md standard; skills use the SKILL.md format; MCP bridges reference standard configs
 - Implemented the reference `acc` CLI (zero runtime dependencies, offline, deterministic) in `bin/acc.js` + `lib/`
 - ABA (ACC Battle Arena) is a standalone benchmark application, launchable via `acc battle`; it is not part of the framework
-- Documentation site (VitePress) builds directly from the canonical docs via `docs-vitepress/scripts/sync-docs.mjs`
+- ABA runs without Docker: benchmarks always run on an isolated snapshot copy; Docker is used when available and falls back to the host otherwise (`--local` forces host mode)
+- ABA spawns a Vite web app (battle arena) by default: side-by-side ACC vs no-ACC benchmarks with per-panel provider/model (Vercel AI SDK, keys stay in the browser), live streaming, metric pills with per-metric winners, blind mode, answer/code views, local history, and switchable repo; `--headless` keeps the terminal flow
+- Published to npm as `acc-agents` (v0.1.0, renamed from `agents-code-context`); ABA generates the ACC panel context via the npm-installed CLI (npx fallback)
+- Documentation site (VitePress) builds directly from `docs/` — the numbered spec files are the site's pages (`docs/.vitepress/config.ts`); no separate content copy or sync step
+- CI rewritten for the Node CLI: tests, dogfood, determinism, schema validation, docs build, hard-invariant check
+- `CONTRIBUTING.md` rewritten for the Node CLI project; `SECURITY.md` corrected to the implemented diagnostic codes
+
+### Removed
+- Dead code: `aba/models.cjs`, broken `aba/bin/aba.js` stub, duplicated helpers in `aba/importer.cjs` and `aba/results.cjs`, unused imports across `aba/` and `lib/`
+- Fictional Rust/analyzer CI, release, and dependabot configurations
+- Tracked junk: `.DS_Store`, legacy `site/` landing page, committed VitePress cache and generated pages
+- Empty placeholder directories under `aba/`
 
 ### Fixed
 - N/A (initial release)

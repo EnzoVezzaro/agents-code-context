@@ -34,7 +34,7 @@ An agent clones the repository and understands the framework by reading standard
 
 ## 2. `AGENTS.md` Is the Primary Agent Interface
 
-`AGENTS.md` is the primary instruction interface. It is the open convention used by Codex, Claude Code, Cursor, Copilot, OpenCode, Gemini, and others, and is stewarded as a standard by the Agentic AI Foundation under the Linux Foundation ([agents.md](https://agents.md/)).
+`AGENTS.md` is the primary instruction interface. It is the open convention used by Codex, Claude Code, Cursor, Copilot, OpenCode, Gemini, and others. The format emerged from collaborative efforts across the AI coding ecosystem — OpenAI Codex, Amp, Google Jules, Cursor, and Factory — and is stewarded as a standard by the Agentic AI Foundation under the Linux Foundation ([agents.md](https://agents.md/)).
 
 ACC follows this convention rather than inventing a competing format. The framework's operational rules are expressed in plain Markdown that **any** coding agent can understand:
 
@@ -140,8 +140,8 @@ ACC is built on the agents.md standard and uses it verbatim:
 ACC also interoperates with the adjacent open standards rather than reinventing them:
 
 - **Skills** — reusable capabilities are [SKILL.md packages](https://agentskills.io/) (YAML frontmatter + Markdown body). ACC reads skills from the standard `.agents/skills/` location and manages its own under `.acc/config/skills/`, using the same format.
-- **MCP** — tool bridges reference standard MCP server configurations (`.mcp.json` and agent-native configs). ACC does not define a competing format.
-- **`llms.txt`** — ACC leaves project PRD files untouched; they compose freely with ACC's instruction surface.
+- **MCP** — tool bridges reference standard [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server configurations (`.mcp.json` and agent-native configs). ACC does not define a competing format.
+- **`llms.txt`** — ACC leaves project PRD files untouched; they compose freely with ACC's instruction surface (per the [llms.txt](https://llmstxt.org/) convention).
 
 Because the standard surface is never forked, an ACC repository is always a valid agents.md repository — today and after any future evolution of the standard.
 

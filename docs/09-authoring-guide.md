@@ -316,7 +316,7 @@ Token validation is the hot path; it uses a lock-free cache backed by
 
 ## 12. Relationship to the AGENTS.md Ecosystem
 
-ACC follows the inheritance convention used by Codex, Claude Code, Cursor, Copilot, OpenCode:
+ACC follows the inheritance convention defined by the open [agents.md](https://agents.md/) standard — the same convention used by Codex, Claude Code, Cursor, Copilot, OpenCode, and others:
 
 ```text
 project/AGENTS.md          → project-wide context

@@ -1,12 +1,16 @@
 # Contributing to ACC
 
-Thank you for your interest in contributing to Agent Code Context (ACC)! This document outlines the process for contributing code, documentation, diagnostic codes, and more.
+Thank you for your interest in contributing to Agent Code Context (ACC)! This
+document outlines how to contribute code, documentation, diagnostic codes, and
+more. We're glad you're here — this is an open source project built for the
+open source community.
 
 ## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
 - [Development Setup](#development-setup)
+- [What to Work On](#what-to-work-on)
 - [Contribution Types](#contribution-types)
 - [Pull Request Process](#pull-request-process)
 - [Coding Standards](#coding-standards)
@@ -19,7 +23,9 @@ Thank you for your interest in contributing to Agent Code Context (ACC)! This do
 
 ## Code of Conduct
 
-This project follows our [Code of Conduct](./CODE_OF_CONDUCT.md). By participating, you agree to uphold it.
+This project follows our [Code of Conduct](./CODE_OF_CONDUCT.md). By
+participating, you agree to uphold it. Be kind, be constructive, assume good
+intent.
 
 ---
 
@@ -27,13 +33,22 @@ This project follows our [Code of Conduct](./CODE_OF_CONDUCT.md). By participati
 
 1. **Fork the repository** on GitHub.
 2. **Clone your fork** locally:
+
    ```bash
    git clone https://github.com/YOUR-USERNAME/agents-code-context.git
    cd agents-code-context
    ```
-3. **Add upstream remote:**
+
+3. **Add the upstream remote:**
+
    ```bash
    git remote add upstream https://github.com/EnzoVezzaro/agents-code-context.git
+   ```
+
+4. **Create a feature branch:**
+
+   ```bash
+   git checkout -b feat/your-feature-name
    ```
 
 ---
@@ -42,35 +57,54 @@ This project follows our [Code of Conduct](./CODE_OF_CONDUCT.md). By participati
 
 ### Prerequisites
 
-- **Rust** 1.75+ (for CLI): `rustup install stable`
-- **Node.js** 20+ (for TypeScript analyzer): `nvm install 20`
-- **Go** 1.21+ (for Go analyzer): `go install`
-- **Python** 3.11+ (for Python analyzer): `pyenv install 3.11`
-- **Git** 2.40+
+- **Node.js 18+** (the CLI's own code runs on stock Node)
+- **Git 2.40+**
+- **Docker** (optional, only for the standalone ABA benchmark harness — ABA
+  falls back to host mode without it, and the framework itself never
+  requires either)
+
+### Project layout
+
+```
+bin/acc.js          # CLI entry point
+lib/                # CLI implementation (config, graph, diagnostics, commands)
+test/               # Unit + end-to-end tests (node:test, no framework)
+docs/               # Canonical specification — also the VitePress site root
+.acc/config/        # This repository's own ACC control plane (dogfood)
+aba/                # ABA — standalone repo (never pushed with ACC);
+                    # published to npm as acc-battle-arena, this package depends on it
+```
 
 ### Build & Test
 
-```bash
-# Build the CLI
-cargo build --release
+There is no build step — the CLI runs directly on Node:
 
-# Run all tests
-cargo test
-cd analyzers/typescript && npm test
-cd analyzers/go && go test ./...
-cd analyzers/python && pytest
+```bash
+# Run the test suite (25 tests, zero dependencies)
+node --test 'test/*.test.js'
 
 # Run ACC on itself (dogfooding)
-./target/release/acc check
-./target/release/acc graph --format mermaid
-./target/release/acc context docs --depth 1
+node bin/acc.js check
+node bin/acc.js graph
+node bin/acc.js context docs --depth 1
 ```
 
 ### IDE Setup
 
-- **VS Code**: Install `rust-analyzer`, `ESLint`, `Go`, `Python` extensions.
-- **CLion/IntelliJ**: Rust plugin, Go plugin, Python plugin.
-- **Neovim**: `rust-tools.nvim`, `nvim-lspconfig` for all languages.
+The project is plain CommonJS JavaScript with JSDoc comments. Any editor
+works; VS Code with the built-in TypeScript checker gives you JSDoc-aware
+intellisense out of the box.
+
+---
+
+## What to Work On
+
+- **Issues labeled `good first issue`** are a great starting point.
+- **Check existing issues and discussions** before starting work to avoid
+  duplicating effort.
+- **RFC-style proposals** for architecture changes: open an issue describing
+  the problem and the proposed design first — architecture changes need
+  maintainer discussion.
 
 ---
 
@@ -80,59 +114,69 @@ cd analyzers/python && pytest
 
 1. Search existing [issues](https://github.com/EnzoVezzaro/agents-code-context/issues) first.
 2. Create a minimal reproduction if possible.
-3. Fix with a test case.
-4. Run `acc check` to ensure no regressions.
+3. Fix the bug **with a test case** (see [Testing](#testing)).
+4. Run `acc check` to ensure no regressions on the ACC repo itself.
 
 ### ✨ New Features
 
 1. Open an issue to discuss the feature first.
 2. For CLI commands: update `docs/04-cli-commands.md` and `docs/07-json-schema.md`.
 3. For diagnostic codes: follow [Adding Diagnostic Codes](#adding-diagnostic-codes).
-4. Add tests and documentation.
+4. Add tests and documentation in the same PR.
 
 ### 📚 Documentation
 
 - Fix typos, clarify explanations, add examples.
-- Update `docs/` specification files.
-- Update `.acc/config/` workflows, agents, standards if relevant.
-- Run `acc check` after changes.
+- Update the canonical spec files in `docs/`.
+- Update `.acc/config/` workflows, agents, and standards if relevant.
+- The docs site is built **directly from `docs/`** (the numbered spec files
+  are the site's pages — see `docs/.vitepress/config.ts`). There is no
+  separate copy to keep in sync:
+  ```bash
+  cd docs && npm run build
+  ```
 
 ### 🔧 Diagnostic Codes
 
-See [Adding Diagnostic Codes](#adding-diagnostic-codes) below — this has a strict process.
+See [Adding Diagnostic Codes](#adding-diagnostic-codes) below — this has a
+strict stability process.
 
 ---
 
 ## Pull Request Process
 
-1. **Create a feature branch:**
+1. **Make your changes** following our [Coding Standards](#coding-standards).
+
+2. **Run the full test suite:**
+
    ```bash
-   git checkout -b feat/your-feature-name
+   node --test 'test/*.test.js'
    ```
 
-2. **Make your changes** following our [Coding Standards](#coding-standards).
+3. **Dogfood validation** (the CLI must pass on its own repo):
 
-3. **Run the full test suite:**
    ```bash
-   cargo test
-   cargo clippy --all-targets --all-features -- -D warnings
-   cargo fmt --all -- --check
-   # Plus language-specific linters
+   node bin/acc.js check
    ```
 
-4. **Dogfood validation:**
+4. **Verify determinism** (same input → byte-identical output):
+
    ```bash
-   ./target/release/acc check
-   ./target/release/acc graph
+   node bin/acc.js graph --json > /tmp/a.json
+   node bin/acc.js graph --json > /tmp/b.json
+   diff /tmp/a.json /tmp/b.json
    ```
 
 5. **Commit with conventional commits:**
+
    ```bash
    git commit -m "feat: add --watch flag to acc check"
    ```
+
    Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `perf`, `security`.
 
 6. **Push and open a PR:**
+
    ```bash
    git push origin feat/your-feature-name
    ```
@@ -142,62 +186,69 @@ See [Adding Diagnostic Codes](#adding-diagnostic-codes) below — this has a str
    - [ ] `acc check` passes on the ACC repo
    - [ ] Tests added for new functionality
    - [ ] Documentation updated
-   - [ ] No breaking changes without major version bump discussion
+   - [ ] Deterministic output preserved (no timestamps, no random data)
+   - [ ] No breaking changes without a major version bump discussion
 
-8. **Review:** At least one maintainer approval required. Architecture changes need architect review.
+8. **Review:** At least one maintainer approval required. Architecture changes
+   need maintainer discussion first.
 
 ---
 
 ## Coding Standards
 
-See [.acc/config/standards/coding.md](./.acc/config/standards/coding.md) for detailed language-specific standards.
+See [.acc/config/standards/coding.md](./.acc/config/standards/coding.md) for the
+detailed standards this repo dogfoods.
 
 **Summary:**
-- Rust: `rustfmt`, `clippy -D warnings`, MSRV 1.75
-- TypeScript: `prettier`, `eslint`, strict mode
-- Go: `gofmt`, `golangci-lint`
-- Python: `black` (100 cols), `ruff`, `mypy` strict
-- All: deterministic JSON, sorted keys, RFC3339 UTC timestamps
+- **JavaScript (CommonJS)**: 2-space indent, `'use strict'`, JSDoc on public
+  functions, `const` over `let` where possible
+- **No runtime dependencies** for the framework CLI — keep it that way
+- **Determinism**: stable sorts, sorted JSON keys, no timestamps or random
+  values in command output (memory entries are the only timestamped output)
+- **POSIX paths** in all output; relative paths from the project root
 
 ---
 
 ## Testing
 
-See [.acc/config/standards/testing.md](./.acc/config/standards/testing.md) for detailed standards.
+See [.acc/config/standards/testing.md](./.acc/config/standards/testing.md).
 
 **Requirements:**
-- Unit tests for all public functions
-- Integration tests for CLI commands
+- Tests use the built-in `node:test` runner — no test framework dependency
+- Unit tests for all public functions in `lib/`
+- End-to-end tests for CLI commands (see `test/cli.test.js`)
 - Determinism tests for JSON output
-- Coverage: ≥80% overall, ≥90% critical paths
-- Dogfooding: `acc check` on ACC repo must pass
+- Every bug fix ships with a regression test
 
 ---
 
 ## Documentation
 
-See [docs/09-authoring-guide.md](./docs/09-authoring-guide.md) for `AGENTS.md` conventions.
+See [docs/09-authoring-guide.md](./docs/09-authoring-guide.md) for `AGENTS.md`
+authoring conventions.
 
 **Specification updates:**
 - CLI changes → `docs/04-cli-commands.md` + `docs/07-json-schema.md`
 - Diagnostic codes → `docs/06-diagnostic-codes.md`
 - Architecture → `docs/03-epistemology.md` + `.acc/config/standards/architecture.md`
-- All docs use numbered format; keep index in `docs/README.md` current.
+- All docs use the numbered `NN-name.md` format; keep the index in `docs/README.md` current
 
 ---
 
 ## Adding Diagnostic Codes
 
-**This is a load-bearing stability contract.** Follow `.acc/config/workflows/diagnostic.md` exactly:
+**This is a load-bearing stability contract.** Follow
+`.acc/config/workflows/diagnostic.md` exactly:
 
-1. Pick next available code in correct category range (see `docs/06-diagnostic-codes.md` §2).
+1. Pick the next available code in the correct category range (see
+   `docs/06-diagnostic-codes.md` §2).
 2. Fix severity permanently (`error`/`warn`/`info`).
-3. Define exact trigger predicate (repository state only, not agent behavior).
-4. Define JSON `detail` payload shape.
-5. Add to category table in `docs/06-diagnostic-codes.md`.
-6. Wire emission site in derivation/check pipeline.
+3. Define the exact trigger predicate (repository state only, not agent behavior).
+4. Define the JSON `detail` payload shape.
+5. Add to the category table in `docs/06-diagnostic-codes.md`.
+6. Wire the emission site in the derivation/check pipeline (`lib/diagnostics.js`).
 7. Unit test the trigger predicate.
-8. Dogfood: `acc check` on ACC repo — new code must NOT fire spuriously.
+8. Dogfood: `acc check` on the ACC repo — the new code must NOT fire spuriously.
 9. Bump versions: minor `acc_version` + minor `schema_version`.
 
 **Forbidden:**
@@ -214,14 +265,14 @@ See `.acc/config/workflows/release.md` for the full checklist.
 
 **Stability gates (blocking):**
 - No diagnostic code renumbering/removal
-- No JSON field removal/type change without major `schema_version` bump
+- No JSON field removal/type change without a major `schema_version` bump
 - No CLI flag renaming
 - No diagnostic severity changes
-- Hard invariant holds (remove `.acc/` → valid agents.md repo)
-- No code execution, network calls
+- Hard invariant holds (remove `.acc/` → still a valid agents.md repository)
+- No code execution, no network calls
 - Deterministic JSON output
 
-**Maintainers** handle version bumping, tagging, and publishing.
+**Maintainers** handle version bumping, tagging, and publishing to npm.
 
 ---
 

@@ -1,0 +1,93 @@
+/* ---------------------------------------------------------------------------
+   ACC design tokens — carried over from site/index.html (the original landing
+   page). Defined on :root so both the HomePage component and the VitePress
+   default theme (docs pages) share one palette:
+   light surface · committed-red primary · black ink.
+--------------------------------------------------------------------------- */
+:root {
+  --bg: oklch(1 0 0);
+  --surface: oklch(0.975 0.005 355);
+  --ink: oklch(0.18 0.012 355);
+  --muted: oklch(0.52 0.014 355);
+  --hair: oklch(0.9 0.006 355);
+  --hair-strong: oklch(0.82 0.01 355);
+  --primary: oklch(0.58 0.22 355);
+  --primary-ink: oklch(0.42 0.2 355);
+  --cool: oklch(0.5 0.025 250);
+  --code-bg: oklch(0.16 0.008 355);
+  --code-fg: oklch(0.93 0.005 355);
+  --code-red: oklch(0.72 0.19 355);
+  --code-cool: oklch(0.7 0.1 220);
+  --code-mute: oklch(0.55 0.012 355);
+  --font: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --maxw: 1120px;
+  --gut: clamp(20px, 4vw, 56px);
+
+  /* VitePress default-theme overrides — docs pages inherit the same look */
+  --vp-font-family-base: var(--font);
+  --vp-font-family-mono: var(--mono);
+  --vp-c-brand-1: var(--primary);
+  --vp-c-brand-2: var(--primary-ink);
+  --vp-c-brand-3: var(--primary);
+  --vp-c-brand-soft: oklch(0.95 0.02 355);
+  --vp-c-bg: var(--bg);
+  --vp-c-bg-alt: var(--surface);
+  --vp-c-bg-soft: var(--surface);
+  --vp-c-text-1: var(--ink);
+  --vp-c-text-2: var(--muted);
+  --vp-c-text-3: var(--muted);
+  --vp-c-border: var(--hair);
+  --vp-c-divider: var(--hair);
+  --vp-code-color: var(--primary-ink);
+  --vp-code-bg: oklch(0.965 0.008 355);
+  --vp-custom-block-tip-border: var(--primary);
+  --vp-custom-block-tip-text: var(--primary-ink);
+  --vp-custom-block-tip-bg: oklch(0.97 0.015 355);
+  --vp-button-brand-bg: var(--primary);
+  --vp-button-brand-hover-bg: var(--primary-ink);
+  --vp-button-brand-active-bg: var(--primary-ink);
+  --vp-button-brand-text: var(--bg);
+  --vp-sidebar-bg-color: var(--bg);
+  --vp-local-search-highlight-bg: oklch(0.93 0.04 355);
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* Hairline brand mark at the very top edge, as on the original page. */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--primary);
+  z-index: 100;
+}
+
+::selection {
+  background: var(--primary);
+  color: var(--bg);
+}
+
+a {
+  text-decoration: none;
+}
+
+/* Default-theme headings use the display font with the original letter-spacing */
+.VPDoc h1,
+.VPDoc h2,
+.VPDoc h3 {
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+/* Keep the code look consistent with the landing page */
+.vp-doc code {
+  font-family: var(--mono);
+  font-variant-ligatures: none;
+}
