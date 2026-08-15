@@ -16,7 +16,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "acc-battle-arena": "^0.1.0"
+    "acc-battle-arena": "^0.1.8"
   },
   "scripts": {
     "test": "node --test test/*.test.js",
