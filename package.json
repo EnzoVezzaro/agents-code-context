@@ -19,7 +19,7 @@
     "acc-battle-arena": "^0.1.0"
   },
   "scripts": {
-    "test": "node --test 'test/*.test.js'",
+    "test": "node --test test/*.test.js",
     "acc": "node bin/acc.js"
   },
   "keywords": [

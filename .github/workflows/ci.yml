@@ -17,9 +17,9 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
       - name: Run tests
-        run: node --test 'test/*.test.js'
+        run: node --test test/*.test.js
 
   # ---------------------------------------------------------------------------
   # Dogfooding: the CLI validates its own repository
@@ -32,7 +32,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
       - name: Run acc check
         run: node bin/acc.js check --json
       - name: Run acc graph
@@ -55,7 +55,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
       - name: Test determinism - acc context
         run: |
           node bin/acc.js context docs --depth 1 --json > /tmp/run1.json
@@ -83,7 +83,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
       - name: Validate JSON outputs
         run: |
           for cmd in "check" "graph" "inspect docs" "discover" "dependencies docs" "dependents docs" "impact docs"; do
@@ -101,7 +101,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
       - name: Install dependencies
         working-directory: docs
         run: npm install
@@ -121,7 +121,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
       - name: Verify AGENTS.md hierarchy parses standalone
         run: |
           node -e "

@@ -28,11 +28,11 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           registry-url: "https://registry.npmjs.org"
 
       - name: Run tests
-        run: node --test 'test/*.test.js'
+        run: node --test test/*.test.js
 
       - name: Verify version
         run: |
