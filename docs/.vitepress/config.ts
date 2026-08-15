@@ -16,6 +16,9 @@ export default defineConfig({
 
   cleanUrls: true,
 
+  // Deployed to GitHub Pages at /agents-code-context/ (see .github/workflows/pages.yml).
+  base: '/agents-code-context/',
+
   // Bricolage Grotesque + JetBrains Mono — the original landing page fonts.
   head: [
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
