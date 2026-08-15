@@ -1,6 +1,7 @@
 <script setup>
 // Progressive reveal — gated on IntersectionObserver, skipped on reduced motion.
 import { onMounted } from 'vue'
+import { withBase } from 'vitepress'
 
 onMounted(() => {
   if (typeof window === 'undefined') return
@@ -30,7 +31,7 @@ onMounted(() => {
     <!-- TOP BAR -->
     <div class="topbar">
       <div class="wrap">
-        <a href="/" class="brand"><span class="glyph">acc</span>Agent&nbsp;Code&nbsp;Context</a>
+        <a :href="withBase('/')" class="brand"><span class="glyph">acc</span>Agent&nbsp;Code&nbsp;Context</a>
         <nav class="nav-links" aria-label="Primary">
           <a href="#cli">Commands</a>
           <a href="#flow">Navigation</a>
@@ -38,7 +39,7 @@ onMounted(() => {
           <a href="#diagnostics">Diagnostics</a>
         </nav>
         <div class="nav-actions">
-          <a class="btn btn-ghost" href="/philosophy">Docs</a>
+          <a class="btn btn-ghost" :href="withBase('/philosophy')">Docs</a>
           <a class="btn btn-primary" href="https://github.com/EnzoVezzaro/agents-code-context" target="_blank" rel="noopener">GitHub<span class="arr">↗</span></a>
         </div>
       </div>
@@ -330,7 +331,7 @@ Discovered:
 
 <span class="c">## Constraints</span>
 - Must not depend on src/ui.</pre>
-            <a class="link" href="/authoring-guide">Authoring guide
+            <a class="link" :href="withBase('/authoring-guide')">Authoring guide
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8L22 12L18 16" /><path d="M2 12H22" /></svg>
             </a>
           </article>
@@ -344,7 +345,7 @@ Discovered:
 ├─ agents/architect.md
 ├─ workflows/feature.md
 └─ standards/architecture.md</pre>
-            <a class="link" href="/repository-structure">Repository structure
+            <a class="link" :href="withBase('/repository-structure')">Repository structure
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8L22 12L18 16" /><path d="M2 12H22" /></svg>
             </a>
           </article>
@@ -358,7 +359,7 @@ Discovered:
 
 <span class="c">## Tried &amp; Rejected</span>
 - Split into a crate; overhead not worth it.</pre>
-            <a class="link" href="/memory-semantics">Memory semantics
+            <a class="link" :href="withBase('/memory-semantics')">Memory semantics
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8L22 12L18 16" /><path d="M2 12H22" /></svg>
             </a>
           </article>
@@ -428,30 +429,30 @@ Discovered:
       <div class="wrap">
         <div class="foot-grid">
           <div class="foot-brand">
-            <a href="/" class="brand"><span class="glyph">acc</span>Agent&nbsp;Code&nbsp;Context</a>
+            <a :href="withBase('/')" class="brand"><span class="glyph">acc</span>Agent&nbsp;Code&nbsp;Context</a>
             <p>A convention and tooling layer for agent-native repositories. MIT licensed, offline-first, safe on untrusted repos.</p>
           </div>
           <div class="foot-col">
             <h4>Spec</h4>
-            <a href="/philosophy">Philosophy</a>
-            <a href="/repository-structure">Structure</a>
-            <a href="/epistemology">Epistemology</a>
-            <a href="/philosophy">All docs</a>
+            <a :href="withBase('/philosophy')">Philosophy</a>
+            <a :href="withBase('/repository-structure')">Structure</a>
+            <a :href="withBase('/epistemology')">Epistemology</a>
+            <a :href="withBase('/philosophy')">All docs</a>
           </div>
           <div class="foot-col">
             <h4>Commands</h4>
-            <a href="/cli-commands">CLI spec</a>
-            <a href="/context-engine">Context engine</a>
-            <a href="/diagnostic-codes">Diagnostic codes</a>
-            <a href="/json-schema">JSON schema</a>
+            <a :href="withBase('/cli-commands')">CLI spec</a>
+            <a :href="withBase('/context-engine')">Context engine</a>
+            <a :href="withBase('/diagnostic-codes')">Diagnostic codes</a>
+            <a :href="withBase('/json-schema')">JSON schema</a>
           </div>
           <div class="foot-col">
             <h4>Project</h4>
             <a href="https://github.com/EnzoVezzaro/agents-code-context" target="_blank" rel="noopener">About ↗</a>
             <a href="https://github.com/EnzoVezzaro/agents-code-context/releases" target="_blank" rel="noopener">Releases ↗</a>
             <a href="https://github.com/EnzoVezzaro/agents-code-context/packages" target="_blank" rel="noopener">Packages ↗</a>
-            <a href="/memory-semantics">Memory</a>
-            <a href="/authoring-guide">Authoring guide</a>
+            <a :href="withBase('/memory-semantics')">Memory</a>
+            <a :href="withBase('/authoring-guide')">Authoring guide</a>
             <a href="https://github.com/EnzoVezzaro/agents-code-context/blob/main/AGENTS.md" target="_blank" rel="noopener">AGENTS.md</a>
           </div>
         </div>
