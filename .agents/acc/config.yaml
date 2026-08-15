@@ -1,0 +1,44 @@
+# ACC control-plane configuration
+#
+# This file is optional. When absent, ACC uses sensible defaults and
+# every command still works. See docs/02-repository-structure.md.
+---
+
+schema_version: 1
+
+# Language analyzers improve discovered-edge accuracy. When an analyzer
+# is disabled or unavailable, ACC falls back to declared edges from
+# AGENTS.md and filesystem structure. Disabling an analyzer never breaks
+# the graph — the core is language-agnostic.
+language_analyzers:
+  rust: true
+  typescript: true
+  go: true
+
+# Paths excluded from graph derivation and search. Globs are matched
+# relative to the project root.
+ignore:
+  - "target/"
+  - "node_modules/"
+  - "*.lock"
+  - ".git/"
+
+# Diagnostic tuning. The canonical severity of an code is fixed by
+# docs/06-diagnostic-codes.md; `warn_only` MAY downgrade a code from
+# error to warn for this project only. Upgrading above canonical is
+# forbidden.
+diagnostics:
+  warn_only: []
+
+# Forbidden dependency edges. A declared or discovered edge matching a
+# rule emits ACC024 (error). `from` is the dependee, `to` is the
+# forbidden target.
+forbidden_deps: []
+
+# Ownership configuration.
+ownership:
+  # true → duplicate ownership (ACC030) is an error and fails `acc check`.
+  # false → ACC030 is still emitted as an error per the code's canonical
+  # severity; this flag only controls whether ACC stops on the first
+  # ownership conflict or continues to collect them all.
+  strict: false

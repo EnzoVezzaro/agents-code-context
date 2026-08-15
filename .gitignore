@@ -1,0 +1,19 @@
+# Git
+.git/
+
+# Build outputs (language-specific; safe defaults)
+target/
+node_modules/
+dist/
+build/
+
+# Dependency locks
+*.lock
+package-lock.json
+yarn.lock
+Cargo.lock
+go.sum
+
+# ACC durable memory — local, agent-written, never committed.
+# See docs/08-memory-semantics.md.
+.acc-memory.md
