@@ -1,0 +1,86 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (e.g., 0.1.0)"
+        required: true
+        type: string
+      prerelease:
+        description: "Is this a pre-release?"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.75"
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Run full test suite
+        run: |
+          cargo test --all-features
+          ./target/release/acc check --json
+          ./target/release/acc graph --format json
+          ./target/release/acc context docs --depth 1 --json
+
+      - name: Verify determinism
+        run: |
+          ./target/release/acc context docs --depth 1 --json > /tmp/run1.json
+          ./target/release/acc context docs --depth 1 --json > /tmp/run2.json
+          diff /tmp/run1.json /tmp/run2.json
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          name: ACC v${{ github.event.inputs.version }}
+          body: |
+            ## ACC v${{ github.event.inputs.version }}
+
+            See [CHANGELOG.md](./CHANGELOG.md) for details.
+
+            ### Installation
+
+            ```bash
+            cargo install acc-cli --version ${{ github.event.inputs.version }}
+            ```
+
+            ### Verification
+
+            ```bash
+            acc --version
+            acc check  # Should pass on any ACC-enhanced repo
+            ```
+
+          draft: false
+          prerelease: ${{ github.event.inputs.prerelease }}
+          files: |
+            target/release/acc
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to crates.io
+        if: github.event.inputs.prerelease == 'false'
+        run: cargo publish --token ${{ secrets.CRATES_IO_TOKEN }}
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}

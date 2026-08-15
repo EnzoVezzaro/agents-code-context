@@ -1,51 +1,42 @@
 # 01 — Philosophy & Agent-Agnostic Operation
 
-## Core principle
+## Core Principle
 
-> ACC does not own the agent.
-> ACC does not replace the agent.
-> ACC does not require the agent.
-> ACC makes the repository easier for **any** agent to understand,
-> navigate, modify, and validate.
+> **ACC does not own the agent.**
+> **ACC does not replace the agent.**
+> **ACC does not require the agent.**
+> **ACC makes the repository easier for any agent to understand, navigate, modify, and validate.**
 
 The ideal result:
 
 ```text
-Any agent
+Any capable coding agent
     +
 Any ACC-enabled repository
     =
-Natural development with persistent project context.
+Natural development with persistent, structured project context
 ```
 
 ---
 
-## 1. No wrapper requirement
+## 1. No Wrapper Requirement
 
-An ACC-enabled project MUST NOT require:
+An ACC-enabled project **MUST NOT** require any of the following for basic framework compliance:
 
-- `acc-agent`
-- an ACC-specific LLM wrapper
-- a proprietary API
-- an ACC-specific IDE
-- an ACC-specific runtime
+- `acc-agent` or any ACC-specific runtime
+- An ACC-specific LLM wrapper or proprietary API
+- An ACC-specific IDE or editor plugin
+- A protocol handshake or registration step
 
-for basic framework compliance.
-
-An agent clones the repository and understands the framework by reading
-the repository's standard instruction files. No installation step,
-no plugin, no protocol handshake.
+An agent clones the repository and understands the framework by reading standard instruction files (`AGENTS.md`, `.agents/acc/`, `.acc-memory.md`). No installation, no plugin, no proprietary integration.
 
 ---
 
-## 2. `AGENTS.md` is the primary agent interface
+## 2. `AGENTS.md` Is the Primary Agent Interface
 
-`AGENTS.md` remains the primary instruction interface.
+`AGENTS.md` remains the **primary instruction interface**—it is the established convention used by Codex, Claude Code, Cursor, Copilot, OpenCode, and others.
 
-ACC follows the established `AGENTS.md` convention rather than inventing
-a competing instruction format. The framework's operational rules are
-expressed in `AGENTS.md` in language that **any** coding agent can
-understand:
+ACC follows this convention rather than inventing a competing format. The framework's operational rules are expressed in plain Markdown that **any** coding agent can understand:
 
 ```markdown
 When modifying a functionality:
@@ -58,66 +49,64 @@ When modifying a functionality:
 6. Update durable functionality knowledge when appropriate.
 ```
 
-An agent that has never heard of ACC still understands these
-instructions — they are plain Markdown.
+An agent that has never heard of ACC still understands these instructions—they are plain Markdown.
 
 ---
 
-## 3. ACC is a convention + tooling layer
+## 3. ACC Is a Convention + Tooling Layer
 
-The framework consists of:
+The framework consists of five composable layers:
 
-- standard agent instructions (`AGENTS.md`)
-- functionality-local documentation (`functionality/AGENTS.md`)
-- functionality-local memory (`functionality/.acc-memory.md`)
-- project-level `.agents/.acc/` configuration
-- deterministic ACC tooling (`acc` CLI)
+| Layer | Artifact | Purpose |
+|-------|----------|---------|
+| **Standard Instructions** | `AGENTS.md` | Primary agent interface (ecosystem convention) |
+| **Local Contracts** | `functionality/AGENTS.md` | Functionality-scoped declarations |
+| **Durable Memory** | `functionality/.acc-memory.md` | Agent-written, gitignored knowledge |
+| **Control Plane** | `.agents/acc/` | Project config, agents, workflows, standards |
+| **Deterministic Tooling** | `acc` CLI | Graph derivation, context, validation, search |
 
-The agent is free to interact with these through filesystem operations,
-shell commands, standard tools, or ACC CLI commands. **No proprietary
-integration is required.**
+The agent is free to interact with these through filesystem operations, shell commands, standard tools, or ACC CLI commands. **No proprietary integration is required.**
 
 ---
 
-## 4. Self-describing project
+## 4. Self-Describing Project
 
-An ACC-enabled project MUST be understandable by an agent even if:
+An ACC-enabled project **MUST** be understandable by an agent even if:
 
 - ACC is not installed
-- the agent has never used ACC
-- the agent does not support ACC-specific tools
+- The agent has never used ACC
+- The agent does not support ACC-specific tools
 
-The repository MUST contain enough standard documentation for the agent
-to understand:
+The repository MUST contain enough standard documentation for the agent to understand:
 
-- project structure
-- functionality boundaries
-- local instructions
-- architectural constraints
-- expected workflow
-- memory semantics
+- Project structure and functionality boundaries
+- Local instructions and architectural constraints
+- Expected workflows and memory semantics
+- Ownership and dependency relationships
 
 ACC enhances this understanding but does not monopolize it.
 
 ---
 
-## 5. Optional ACC tooling
+## 5. Optional ACC Tooling
 
-ACC MAY provide optimized tools:
+ACC MAY provide optimized tools that accelerate common operations:
 
-- `acc context` — optimized context representation
-- `acc graph` — derived architecture graph
-- `acc inspect` — path-level inspection
-- `acc check` — deterministic validation
-- `acc memory` — memory operations
-- `acc impact` — blast-radius analysis
-- `acc dependencies` / `acc dependents`
-- `acc search`
-- `acc discover`
-- `acc document`
+| Command | Purpose |
+|---------|---------|
+| `acc context` | Focused, progressive, provenance-tagged context |
+| `acc graph` | Derived architecture graph (text/mermaid/dot/json) |
+| `acc inspect` | Path-level roles, owners, dependencies, constraints |
+| `acc check` | Deterministic validation with stable `ACC0xx` codes |
+| `acc memory` | Read/write `.acc-memory.md` |
+| `acc impact` | Blast-radius analysis for changes |
+| `acc dependencies` / `acc dependents` | Relationship traversal |
+| `acc search` | Architecture-aware search |
+| `acc discover` | Architectural suggestions (dry-run by default) |
+| `acc document` | Conservative `AGENTS.md` templates |
+| `acc init` | Initialize ACC structure in a repo |
 
-An agent MAY use these when available. Their absence MUST NOT make the
-repository unintelligible. The standard fallback remains:
+An agent MAY use these when available. Their absence MUST NOT make the repository unintelligible. The standard fallback remains:
 
 ```text
 read AGENTS.md
@@ -129,59 +118,53 @@ inspect project structure
 
 ---
 
-## 6. Agent automatic behavior
+## 6. Automatic Agent Behavior
 
-The project's `AGENTS.md` SHOULD instruct compatible agents to follow
-the framework automatically. The agent should naturally:
+The project's root `AGENTS.md` SHOULD instruct compatible agents to follow the framework automatically. The agent should naturally:
 
-1. discover the relevant functionality
-2. read its instructions
-3. read its `.acc-memory.md`
-4. inspect relevant source
-5. understand relationships
-6. make changes
-7. validate changes
-8. update relevant documentation/memory
+1. Discover the relevant functionality boundary
+2. Read its `AGENTS.md` contract
+3. Read its `.acc-memory.md` for durable knowledge
+4. Inspect relevant source code
+5. Understand graph relationships (via `acc graph` or manual inspection)
+6. Make changes
+7. Validate changes (`acc check` or manual review)
+8. Update relevant documentation and memory
 
-The user SHOULD NOT need to know the ACC workflow.
-
----
-
-## 7. ACC CLI as deterministic accelerator
-
-The `acc` CLI provides deterministic operations that make the framework
-faster and more reliable.
-
-`acc context <path>` may provide an optimized representation of
-information an agent could otherwise discover manually.
-`acc check` provides deterministic validation.
-
-The CLI is an **accelerator and validator**, not the sole mechanism
-through which agents understand the project.
+The user SHOULD NOT need to know the ACC workflow—the agent handles it.
 
 ---
 
-## 8. Agent compatibility principle
+## 7. ACC CLI as Deterministic Accelerator
+
+The `acc` CLI provides deterministic operations that make the framework faster and more reliable:
+
+- `acc context <path>` produces an optimized representation of information an agent could otherwise discover manually
+- `acc check` provides deterministic validation against stable diagnostic codes
+- `acc graph` derives the architecture graph on demand from the repository
+
+The CLI is an **accelerator and validator**, not the sole mechanism through which agents understand the project.
+
+---
+
+## 8. Agent Compatibility Principle
 
 ACC MUST prefer existing agent conventions over proprietary conventions.
 
-If an established agent standard can represent a requirement, ACC SHOULD
-use that standard. ACC SHOULD NOT require agents to learn a new protocol
-merely to understand an ACC-enabled repository.
-
-New ACC-specific metadata SHOULD augment standard conventions rather
-than replace them.
+- If an established agent standard can represent a requirement, ACC SHOULD use that standard
+- ACC SHOULD NOT require agents to learn a new protocol merely to understand an ACC-enabled repository
+- New ACC-specific metadata SHOULD augment standard conventions rather than replace them
 
 ---
 
-## 9. Universal entry point
+## 9. Universal Entry Point
 
-The universal entry point for an agent is the repository itself.
+The universal entry point for an agent is the repository itself:
 
 ```text
 AGENTS.md
     ↓
-.agents/.acc/
+.agents/acc/
     ↓
 functionality/
     ↓
@@ -198,48 +181,46 @@ This navigation model MUST work with any capable coding agent.
 
 ---
 
-## 10. Portability guarantee
+## 10. Portability Guarantee
 
-If a user switches from Cursor today to Claude tomorrow, the project's
-accumulated context does not disappear. Context lives in the repository
-and in `.acc-memory.md` — both are agent-agnostic and tool-agnostic.
+If a user switches from Cursor today to Claude tomorrow, the project's accumulated context does not disappear.
 
-This is one of the strongest reasons ACC is architected this way:
-**context persistence across agents** is a property of the repository,
-not the agent.
+**Context lives in the repository**—in `AGENTS.md` (committed) and `.acc-memory.md` (local, gitignored)—both are agent-agnostic and tool-agnostic.
+
+This is one of the strongest reasons ACC is architected this way: **context persistence across agents is a property of the repository, not the agent.**
 
 ---
 
-## 11. Technical & security constraints
+## 11. Technical & Security Constraints
 
 | Constraint | Rule |
-|---|---|
-| Filesystem-first | Paths and names are canonical references. No arbitrary opaque IDs. |
-| Language-agnostic core | Core graph logic relies on files, folders, and Markdown. Language analyzers (Rust, TS, Go) are optional abstraction layers to improve accuracy. |
-| No database | V1 uses an in-memory graph. The repository is the sole source of truth. |
-| Offline-first | No telemetry, no uploads, no hidden network calls. |
-| Strict security | Inspection is safe on untrusted repos. Never execute arbitrary code, npm scripts, Makefiles, or build scripts. |
+|------------|------|
+| **Filesystem-first** | Paths and names are canonical references. No arbitrary opaque IDs. |
+| **Language-agnostic core** | Core graph logic relies on files, folders, and Markdown. Language analyzers (Rust, TypeScript, Go, Python, etc.) are optional accuracy layers. |
+| **No database** | V1 uses an in-memory graph. The repository is the sole source of truth. |
+| **Offline-first** | No telemetry, no uploads, no hidden network calls. |
+| **Strict security** | Inspection is safe on untrusted repos. Never execute arbitrary code, npm scripts, Makefiles, or build scripts. |
 
 ---
 
-## 12. Dogfooding requirement
+## 12. Dogfooding Requirement
 
-ACC MUST describe itself using ACC. The ACC repository contains
-`AGENTS.md` contracts for its own modules and an `.agents/.acc/` control
-plane. It is fully navigable using its own CLI commands.
+ACC MUST describe itself using ACC. The ACC repository contains:
 
-This is both a validation of the framework and a reference
-implementation: if ACC cannot describe itself, the framework is
-over-constrained.
+- `AGENTS.md` contracts for its own modules
+- An `.agents/acc/` control plane with config, agents, workflows, and standards
+- Full navigability using its own CLI commands
+
+This is both a validation of the framework and a reference implementation: if ACC cannot describe itself, the framework is over-constrained.
 
 ---
 
-## The hard invariant (technical restatement)
+## 13. The Hard Invariant (Technical Restatement)
 
 Formally:
 
 ```text
-ACC-enhanced  =  Repository  +  AGENTS.md  +  .agents/.acc/
+ACC-enhanced  =  Repository  +  AGENTS.md  +  .agents/acc/
 ```
 
 ```text
@@ -251,6 +232,4 @@ remove(acc CLI)   →  valid AGENTS.md repository  (still usable by any agent)
 remove(AGENTS.md)  →  ordinary repository  (ACC offers no added value here)
 ```
 
-The invariant is load-bearing: it shapes every design decision in the
-following documents. Any ACC feature that would violate it is rejected
-by specification.
+The invariant is load-bearing: it shapes every design decision in the following documents. Any ACC feature that would violate it is rejected by specification.

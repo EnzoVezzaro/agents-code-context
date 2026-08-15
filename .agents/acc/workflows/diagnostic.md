@@ -1,4 +1,4 @@
-# diagnostic.md — Add a new diagnostic code
+# diagnostic.md — Add a New Diagnostic Code
 
 A reproducible procedure for minting a new `ACC0xx` diagnostic code.
 Stability of codes is a load-bearing contract (see

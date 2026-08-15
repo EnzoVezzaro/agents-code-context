@@ -1,4 +1,4 @@
-# release.md — Release checklist
+# release.md — Release Checklist
 
 Stable contract checklist before publishing an `acc` release. The
 hard rules below MUST pass — they are load-bearing for downstream agents

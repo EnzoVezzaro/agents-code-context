@@ -59,6 +59,8 @@ ACC augments standard conventions; it never replaces them.
 | [07 — JSON Output Schema](./07-json-schema.md) | Deterministic, versioned JSON contract for every command. |
 | [08 — Memory Semantics](./08-memory-semantics.md) | `.acc-memory.md`: lifecycle, format, read/write rules. |
 | [09 — AGENTS.md Authoring Guide](./09-authoring-guide.md) | How to write functional `AGENTS.md`, sections, cross-references. |
+| [10 — Multi-Agent Orchestration](./10-multi-agent-orchestration.md) | Graph-driven partitioning, dynamic concurrency, isolation, handoff. |
+| [11 — Tooling Subsystem](./11-tooling.md) | Automatic tool detection, plugins, permissions, capability discovery. |
 
 ---
 

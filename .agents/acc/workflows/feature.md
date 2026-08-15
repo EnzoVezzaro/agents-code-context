@@ -1,4 +1,4 @@
-# feature.md — Add a new functionality
+# feature.md — Add a New Functionality
 
 A reproducible procedure for adding a new functionality boundary to an
 ACC-enhanced project.

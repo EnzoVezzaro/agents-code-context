@@ -72,6 +72,10 @@ Layers (top to bottom):
 
 See docs/README.md for the full documentation index.
 
+## Multi-Agent Orchestration
+
+See [10 — Multi-Agent Orchestration](./docs/10-multi-agent-orchestration.md) for the agent-agnostic coordination substrate: graph-driven partitioning, dynamic concurrency, functionality ownership, isolation, structured handoff, and deterministic validation.
+
 ## Workflows
 
 - See `.agents/acc/workflows/feature.md` for adding a new functionality.
