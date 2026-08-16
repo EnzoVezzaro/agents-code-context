@@ -1,5 +1,4 @@
-Por donde empezar, no quiero repetir lo mencionado en el [post](https://medium.com/@enzovezzaro/markdown-is-all-you-need-so-i-built-acc-6f9f7283b758?postPublishedType=repub), ni explicar [codigo]
-(https://github.com/EnzoVezzaro/agents-code-context), aqui quisiera expresar algo de desarrollador a desarrollador. 
+Por donde empezar, no quiero repetir lo mencionado en el [post](https://medium.com/@enzovezzaro/markdown-is-all-you-need-so-i-built-acc-6f9f7283b758?postPublishedType=repub), ni explicar [codigo](https://github.com/EnzoVezzaro/agents-code-context), aqui quisiera expresar algo de desarrollador a desarrollador. 
 
 Quisiera contarles a todos un poco de mí, un poco del por qué empecé a hacerles las tareas a mi esposa sin saber que esa se convertiría en mi profesión un día. El por qué yo empecé a programar hace 12 años es la misma razón por la que creo que vale la pena contar esta historia.
 
