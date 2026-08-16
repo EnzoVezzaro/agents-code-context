@@ -56,7 +56,7 @@ Declared wins over discovered when they disagree; the disagreement
 becomes a diagnostic. Inferred is never asserted as architecture.
 Memory is never used for graph derivation.
 
-See docs/03-epistemology.md.
+See docs/04-epistemology.md.
 
 ## Stability Contracts
 

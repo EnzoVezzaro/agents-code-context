@@ -1,4 +1,4 @@
-# 03 — Epistemology & Architecture Graph
+# 04 — Epistemology & Architecture Graph
 
 > **What this page is about:** every fact ACC shows you has a *source*
 > and an *authority level*. When ACC says "this module depends on that
@@ -39,23 +39,23 @@ from* and *how much to trust it*.
 Architectural authority explicitly written in `AGENTS.md`.
 
 **Examples:**
-- `Dependencies:` section in `src/audio/AGENTS.md` listing `src/database/` as a dependency
+- `Dependencies:` section in `src/payments/AGENTS.md` listing `src/database/` as a dependency
 - `Ownership:` section in `src/database/AGENTS.md` naming the database team/module
 - `Constraints:` section stating "Must not depend on `src/ui/`"
 
-**Source:** `src/audio/AGENTS.md` (human-authored, committed)
+**Source:** `src/payments/AGENTS.md` (human-authored, committed)
 
 **Authority:** **Authoritative**. Declared facts override discovered
 facts when they conflict. The graph shows the declared fact; discovered
-facts that contradict it become diagnostics (see [06 — Diagnostic Codes](./06-diagnostic-codes.md)).
+facts that contradict it become diagnostics (see [07 — Diagnostic Codes](./07-diagnostic-codes.md)).
 
 ### Discovered 🔍
 
 Observed from implementation by language analyzers or filesystem heuristics.
 
 **Examples:**
-- `src/audio/mod.rs` imports `src/database::Connection` → discovered dependency `audio → database`
-- `tests/audio_test.go` imports `src/audio` → discovered dependent `audio-test → audio`
+- `src/payments/mod.rs` imports `src/database::Connection` → discovered dependency `payments → database`
+- `tests/payments_test.go` imports `src/payments` → discovered dependent `payments-test → payments`
 - No language analyzer available → fallback: structural relationships from filesystem
 
 **Source:** `Discovered from Rust imports`, `Discovered from filesystem structure`, etc.
@@ -72,9 +72,9 @@ Suggestions/guesses produced by ACC, usually from a diff between declared
 and discovered.
 
 **Examples:**
-- `acc discover` finds that `src/database/` imports `src/audio/` but no `AGENTS.md` declares this dependency → suggests adding it
+- `acc discover` finds that `src/database/` imports `src/payments/` but no `AGENTS.md` declares this dependency → suggests adding it
 - A directory has no `AGENTS.md` but contains substantial code → suggests creating one (via `acc document`)
-- Two `AGENTS.md` files both claim ownership of `src/audio/`
+- Two `AGENTS.md` files both claim ownership of `src/payments/`
 
 **Source:** `Inferred by acc discover from declared/discovered diff`
 
@@ -92,10 +92,10 @@ human decision, never a fact on its own.
 Agent-authored durable knowledge from `.acc-memory.md`.
 
 **Examples:**
-- "The audio decoder in `decoder.rs` is non-reentrant"
-- "Gapless playback deferred to v2. Reason: decode reentrancy"
+- "The payment gateway client in `gateway.rs` is non-reentrant"
+- "Idempotent retries deferred to v2. Reason: gateway reentrancy"
 
-**Source:** `src/audio/.acc-memory.md`
+**Source:** `src/payments/.acc-memory.md`
 
 **Authority:** **Orientational**. Memory is agent knowledge, not
 architectural authority. ACC MUST NOT use memory to derive graph edges,
@@ -110,10 +110,10 @@ Every piece of context emitted by any ACC command carries a provenance
 tag:
 
 ```text
-Source: src/audio/AGENTS.md                         → Declared
+Source: src/payments/AGENTS.md                     → Declared
 Source: Discovered from Rust imports                → Discovered
 Source: Inferred by acc discover                    → Inferred
-Source: src/audio/.acc-memory.md                    → Memory
+Source: src/payments/.acc-memory.md                 → Memory
 ```
 
 ### In JSON Output
@@ -122,7 +122,7 @@ Source: src/audio/.acc-memory.md                    → Memory
 {
   "provenance": {
     "kind": "declared",                          // "declared" | "discovered" | "inferred" | "memory"
-    "source": "src/audio/AGENTS.md",
+    "source": "src/payments/AGENTS.md",
     "detail": "Dependencies section"
   }
 }
@@ -145,20 +145,20 @@ inheriting an `AGENTS.md`.
 
 ```json
 {
-  "id": "src/audio",
-  "path": "src/audio",
-  "name": "audio",
+  "id": "src/payments",
+  "path": "src/payments",
+  "name": "payments",
   "has_local_contract": true,
-  "owners": ["audio-team"],          // declared, optional
+  "owners": ["payments-team"],       // declared, optional
   "roles": ["module"],               // declared, optional
   "provenance": {
     "kind": "declared",
-    "source": "src/audio/AGENTS.md"
+    "source": "src/payments/AGENTS.md"
   }
 }
 ```
 
-- `id` = canonical POSIX path of the functionality directory. Paths are canonical references (see [02 §7](./02-repository-structure.md#7-path-conventions-used-by-this-spec)).
+- `id` = canonical POSIX path of the functionality directory. Paths are canonical references (see [02 §7](./03-repository-structure.md#7-path-conventions-used-by-this-spec)).
 - No arbitrary opaque IDs. A node's name is its path — you never need a lookup table.
 - A directory with no `AGENTS.md` is a structural node with `has_local_contract: false`; it inherits context from the nearest ancestor with a contract.
 
@@ -168,12 +168,12 @@ An edge is a directed relationship between two functionality boundaries.
 
 ```json
 {
-  "from": "src/audio",
+  "from": "src/payments",
   "to": "src/database",
   "kind": "dependency",              // "dependency" | "dependents" | "ownership"
   "provenance": {
     "kind": "declared",              // or "discovered", "inferred"
-    "source": "src/audio/AGENTS.md",
+    "source": "src/payments/AGENTS.md",
     "detail": "Dependencies section"
   }
 }
@@ -198,7 +198,7 @@ deterministic answer:
 
 1. **Declared wins** for architecture authority. The graph reflects declared intent.
 2. **Discovered facts are retained** as edge annotations and become diagnostics.
-3. **The disagreement is surfaced**, never buried. Diagnostic codes from [06 — Diagnostic Codes](./06-diagnostic-codes.md) apply.
+3. **The disagreement is surfaced**, never buried. Diagnostic codes from [07 — Diagnostic Codes](./07-diagnostic-codes.md) apply.
 
 | Situation | Resolution |
 |-----------|------------|
@@ -225,7 +225,7 @@ Found in `AGENTS.md` under an `Ownership` heading (heuristic) or similar prose.
 ```markdown
 ## Ownership
 
-Owner: audio-team
+Owner: payments-team
 ```
 
 ### Ownership Conflicts

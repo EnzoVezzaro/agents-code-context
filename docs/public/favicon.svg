@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <!-- Paper badge surface (same identity as the landing badge) -->
+  <rect width="32" height="32" rx="7" fill="#ffffff"/>
+  <rect x="0.5" y="0.5" width="31" height="31" rx="6.5" stroke="#c9c8c2"/>
+
+  <!-- Markdown file: folded-corner document. Strokes are deliberately
+       bold — favicons are rendered at 16px, where hairline strokes vanish. -->
+  <path
+    d="M8.32,4.48 h10.24 l5.12,5.12 v16.64 a1.28,1.28 0 0 1 -1.28,1.28 H8.32 a1.28,1.28 0 0 1 -1.28,-1.28 V5.76 a1.28,1.28 0 0 1 1.28,-1.28 z"
+    fill="#ffffff"
+    stroke="#16161a"
+    stroke-width="2.2"
+    stroke-linejoin="round"
+  />
+
+  <!-- Fold crease -->
+  <path
+    d="M18.56,4.48 v5.12 h5.12"
+    fill="none"
+    stroke="#55565c"
+    stroke-width="1.5"
+    stroke-linecap="round"
+  />
+
+  <!-- heading mark: # -->
+  <path
+    d="M10.88,12.16 h8.32"
+    fill="none"
+    stroke="#c62828"
+    stroke-width="2.4"
+    stroke-linecap="round"
+  />
+
+  <!-- list line: - -->
+  <path
+    d="M13.76,17.28 h7.68"
+    fill="none"
+    stroke="#16161a"
+    stroke-width="1.6"
+    stroke-linecap="round"
+    opacity="0.8"
+  />
+</svg>

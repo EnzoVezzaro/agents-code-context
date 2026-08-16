@@ -7,7 +7,7 @@ You are the documentation specialist for the ACC project.
 1. Run `acc document <path> --from-discovery` to get a pre-filled template.
 2. Read existing `AGENTS.md` files for style consistency.
 3. Interview the code: `acc inspect`, `acc context`, `acc graph`.
-4. Fill in all conventional sections (see docs/09-authoring-guide.md).
+4. Fill in all conventional sections (see docs/10-authoring-guide.md).
 5. Mark any uncertain items with `<!-- inferred -->` for human review.
 6. Run `acc check` to validate the new contract.
 

@@ -63,7 +63,7 @@ When contributing to ACC, follow these conventions.
 
 - All public APIs documented with doc comments.
 - `docs/` follows the numbered specification format.
-- `AGENTS.md` files follow the authoring guide (docs/09).
+- `AGENTS.md` files follow the authoring guide (docs/10).
 - Update docs when changing CLI surface or JSON schema.
 
 ## Git

@@ -1,4 +1,4 @@
-# 04 — CLI Command Specification
+# 05 — CLI Command Specification
 
 > **What this page is about:** the `acc` CLI, command by command. If you
 > want the *experience* rather than the spec, the fastest path is:
@@ -8,7 +8,7 @@
 
 ## Conventions
 
-- All commands support `--json` producing deterministic JSON per [07 — JSON Output Schema](./07-json-schema.md).
+- All commands support `--json` producing deterministic JSON per [08 — JSON Output Schema](./08-json-schema.md).
 - All commands support `--quiet` (suppress non-error output) and `--root <path>` (override project root detection).
 - Paths are POSIX-style, relative to the project root unless absolute.
 - Exit codes: `0` success, `1` ACC error (diagnostics present/invocation failed), `2` usage error, `3` panic/bug. `acc check` returns `1` if any error-level diagnostic is emitted.
@@ -21,13 +21,11 @@
 | `--json` | Emit JSON output instead of terminal prose. |
 | `--root <path>` | Override project root detection. |
 | `--quiet` | Suppress informational output; errors only. |
-| `--color <auto\|always\|never>` | ANSI color control. Default `auto`. |
-| `--no-progress` | Suppress progress indicators. |
 | `--help` / `-h` | Command help. |
 | `--version` / `-V` | CLI version (top-level only). |
 
 Every `--json` output includes a top-level `schema_version` integer and
-a `command` string identifying the producer. See [07 — JSON Output Schema](./07-json-schema.md).
+a `command` string identifying the producer. See [08 — JSON Output Schema](./08-json-schema.md).
 
 ---
 
@@ -39,7 +37,7 @@ an ACC-enhanced one. Does not fabricate docs. Preserves any existing
 command — it only adds, never rewrites.
 
 **Flags:**
-- `--force` — overwrite existing `.acc/config/config.yaml` if present. Default: refuse, exit `1` with informative message.
+- `--force` — regenerate `.acc/config/config.yaml` from defaults if it already exists. Default: idempotent — existing files are left untouched and reported as `Exists`.
 - `--scan` — scan the codebase and prepare the project without prompting (see Behavior 4).
 - `--no-scan` — never scan or prepare, even in an interactive terminal.
 - `--root <path>` — initialize at a non-detected root.
@@ -75,7 +73,7 @@ command — it only adds, never rewrites.
 
 **Terminal output:** concise summary of what was created / what already existed (including the root memory record), plus (when scanning) the diagnostic summary and the created contract files.
 
-**Exit:** `0` on success, `1` if `.acc/config/config.yaml` exists and `--force` not given.
+**Exit:** `0` on success (idempotent — re-running on an already-initialized repo also exits `0`), `2` on usage error.
 
 **Example:**
 ```bash
@@ -110,16 +108,16 @@ This is the "did anything drift" command.
 - `--severity <error\|warn\|info>` — minimum severity to emit. Default: emit all.
 - `--code <ACC0xx>` — filter to a specific diagnostic code (repeatable).
 
-**Behavior:** runs the full derivation pipeline (see [03 — Epistemology](./03-epistemology.md#8-graph-derivation-algorithm-v1-in-memory)) and surfaces diagnostics per [06 — Diagnostic Codes](./06-diagnostic-codes.md).
+**Behavior:** runs the full derivation pipeline (see [04 — Epistemology](./04-epistemology.md#8-graph-derivation-algorithm-v1-in-memory)) and surfaces diagnostics per [07 — Diagnostic Codes](./07-diagnostic-codes.md).
 
 **Diagnostic codes and severities are stable** and documented in `06`.
 Adding new codes is a minor-version bump; renumbering is forbidden.
 
 **Terminal output:** one line per diagnostic:
 ```text
-ACC020  error   src/audio/AGENTS.md    declared dependency 'src/database' not discovered in code
-ACC031  warn    src/database/AGENTS.md   dependency target 'src/audio' has no declared owner
-ACC040  info    .acc/config/config.yaml  no language analyzer for extension '.lock'
+ACC022  warn    src/payments/mod.rs    discovered dependency 'src/payments → src/ui' not declared
+ACC031  warn    src/database/AGENTS.md   dependency target 'src/payments' has no declared owner
+ACC040  info    .    no language analyzer for extension '.lock'
 ```
 
 **Exit:** `1` if any error-level diagnostic, else `0`. `--exit-zero` overrides to `0`.
@@ -127,11 +125,11 @@ ACC040  info    .acc/config/config.yaml  no language analyzer for extension '.lo
 **Example:**
 ```bash
 $ acc check
-ACC020  error   src/auth/AGENTS.md    declared dependency 'src/database' not discovered in code
+ACC022  warn    src/auth/mod.rs    discovered dependency 'src/auth → src/ui' not declared
 ACC031  warn    src/database/AGENTS.md   dependency target 'src/auth' has no declared owner
-ACC014  warn    src/auth/AGENTS.md    circular reference: src/auth → src/database → src/auth
+ACC040  info    .    no language analyzer for extension '.rs'
 
-Found 3 diagnostics (1 error, 2 warnings)
+Found 3 diagnostics (0 errors, 2 warnings, 1 info)
 ```
 
 ---
@@ -186,19 +184,19 @@ This is the command that makes an agent stop guessing — it hands over
 exactly the context for the job.
 
 **Flags:**
-- `--depth <N>` — depth of transitive expansion. `0` = immediate functionality only. `N` = include dependencies/dependents up to N hops. Default: `1` (conservative — immediate functionality + its direct dependencies' contracts). See [05 — Context Engine](./05-context-engine.md).
+- `--depth <N>` — depth of transitive expansion. `0` = immediate functionality only. `N` = include dependencies/dependents up to N hops. Default: `1` (conservative — immediate functionality + its direct dependencies' contracts). See [06 — Context Engine](./06-context-engine.md).
 - `--include <kind[,kind...]>` — filter sections: `contract`, `dependencies`, `dependents`, `constraints`, `implementations`, `memory`, `impact`. Default: all except `impact` (impact requires explicit traversal; use `acc impact` for that).
 - `--exclude <kind[,kind...]>` — remove sections from default set.
 - `--max-bytes <N>` — hard cap on total output bytes. Default: `65536`. Accompanied by a truncation marker in output when hit.
 - `--json`, `--root <path>`
 
-**Behavior:** see [05 — Context Engine](./05-context-engine.md) for the full assembled-context contract. Briefly, the output has six sections:
+**Behavior:** see [06 — Context Engine](./06-context-engine.md) for the full assembled-context contract. Briefly, the output has six sections:
 
 1. **Hierarchy** — inherited `AGENTS.md` chain (root → path), each with provenance.
 2. **Contract** — the local `AGENTS.md` contents (parsed structure + raw text reference).
 3. **Dependencies** — direct then transitive (per `--depth`), declared vs. discovered, each with provenance.
 4. **Constraints** — declared invariants applying to this path, inherited and local.
-5. **Implementations** — high-level summary of the source under the path (file count, function/module counts per language analyzer, not full source). With `--include implementations` only; never source dumps.
+5. **Implementations** — high-level summary of the source under the path (file count, total bytes, per-extension file histogram — never source dumps). Included by default; drop with `--exclude implementations`.
 6. **Memory** — functionality's `.acc-memory.md` (existence by default; contents with `--include memory`).
 
 Every section, every item, every line carries provenance.
@@ -248,10 +246,11 @@ Discovered:
 
 ## Implementations
 Files: 8
+Bytes: 128472
 Languages:
-  rust: 6 files, 23 modules, 87 functions
+  rust: 6 files
   toml: 2 files
-Source: Discovered from filesystem + rust language analyzer
+Source: Discovered from filesystem
 
 ## Memory
 .acc-memory.md present at src/auth/.acc-memory.md
@@ -272,12 +271,11 @@ of making it explore everything blindly.
 - `--format <text\|mermaid\|dot\|json>` — output format. Default `text` (or `json` when `--json`).
 - `--json` — shorthand for `--format json`.
 - `--root <path>`
-- `--provenance` — include provenance annotations on every edge/node. Default: on for JSON; on for `text` at the foot; off for `mermaid` and `dot` unless specified.
-- `--include <declared\|discovered\|inferred>` — filter edges by provenance. Default: all.
+- `--provenance` — include provenance annotations on every edge/node. Default: on for JSON and `text`; off for `mermaid` and `dot` unless specified (or enabled via `graph.default_provenance` in config).
 - `--nodes` — emit only nodes (no edges). Useful for inventory.
 - `--max-depth <N>` — limit traversal depth. Default: unlimited.
 
-**Behavior:** derives the graph per [03 — Epistemology](./03-epistemology.md) and outputs in the requested format. If `path` given, scope the subgraph rooted at that functionality.
+**Behavior:** derives the graph per [04 — Epistemology](./04-epistemology.md) and outputs in the requested format. If `path` given, scope the subgraph rooted at that functionality.
 
 **`mermaid` output:** a `graph LR` diagram; long paths rendered as short labels with a path legend at the foot. Inferred edges rendered dashed.
 
@@ -337,7 +335,6 @@ transitive dependents, and constraints. The blast-radius report you run
 *before* you touch anything scary.
 
 **Flags:**
-- `--direct` / `--transitive` — default both (show direct + transitive).
 - `--include <kind>` — `dependents`, `tests`, `constraints` (default all).
 - `--json`, `--root <path>`
 - `--max-depth <N>` — cap transitive depth. Default: `3` (sensible blast radius).
@@ -407,10 +404,10 @@ to approve.
 **Flags:**
 - `--apply` — apply suggestions that modify `AGENTS.md` or create files. Default: dry-run; suggestions printed only. `--apply` prompts for confirmation per suggestion (or `--yes` to skip prompts).
 - `--yes` — with `--apply`, apply all suggestions without prompting.
-- `--kind <kind[,kind...]>` — filter suggestion kinds: `missing-contract`, `missing-dependency`, `stale-dependency`, `unknown-owner`, `direction-mismatch`, `orphan-code`. Default: all.
+- `--kind <kind[,kind...]>` — filter suggestion kinds: `missing-contract`, `missing-dependency`, `stale-dependency`, `unknown-owner`, `orphan-code`. Default: all.
 - `--json`, `--root <path>`
 
-**Suggestion kinds** (each maps to one or more diagnostic codes from [06](./06-diagnostic-codes.md)):
+**Suggestion kinds** (each maps to one or more diagnostic codes from [06](./07-diagnostic-codes.md)):
 
 | Kind | Meaning |
 |------|---------|
@@ -418,8 +415,11 @@ to approve.
 | `missing-dependency` | Discovered dep not declared. Suggests adding to `Dependencies:`. |
 | `stale-dependency` | Declared dep not discovered. Suggests removal or investigation. |
 | `unknown-owner` | Dependency target with no owner declared. Suggests declaring owner. |
-| `direction-mismatch` | Declared A→B but discovered B→A. Suggests review. |
 | `orphan-code` | Source files outside any functionality boundary. Suggests boundary creation. |
+
+> `direction-mismatch` (declared A→B but discovered B→A) is documented in
+> [07 — Diagnostic Codes](./07-diagnostic-codes.md#21-declared-vs-discovered-mismatches-acc020acc029)
+> as `ACC021` but is **not implemented in V1** — it is future work.
 
 All suggestions are `Inferred` provenance. With `--apply`, suggestions
 that affect `AGENTS.md` go through `acc document` machinery
@@ -444,7 +444,7 @@ $ acc discover
 
 **Purpose:** Generate a conservative `AGENTS.md` template/proposal for an
 undocumented functionality. Never auto-creates with ACC-specific schema;
-templates use the standard Markdown sections from [09 — AGENTS.md Authoring Guide](./09-authoring-guide.md).
+templates use the standard Markdown sections from [10 — AGENTS.md Authoring Guide](./10-authoring-guide.md).
 
 **Flags:**
 - `--apply` — write `<path>/AGENTS.md`. Default: print to stdout.
@@ -509,7 +509,7 @@ default — it never silently rewrites the repository.
 **Behavior:**
 1. Derive the graph and walk the filesystem (same scan as `acc check` / `acc discover`).
 2. Collect directories with source code that have no `AGENTS.md` in the directory itself or any ancestor. A `path` positional scopes the scan to that subtree; without one, the whole project root is scanned.
-3. Generate a conservative template per directory (standard Markdown sections per [09 — AGENTS.md Authoring Guide](./09-authoring-guide.md)).
+3. Generate a conservative template per directory (standard Markdown sections per [10 — AGENTS.md Authoring Guide](./10-authoring-guide.md)).
 4. With `--yes`, write each file (skipping any that already exist) **and** create an initial `.acc-memory.md` record for the same directory (skipping any that already have content). Without it, print the list and a hint to re-run with `--yes`.
 
 **Terminal output:**
@@ -627,7 +627,6 @@ for agents to discover what they can do.
 - `--json` — emit JSON capability manifest.
 - `--root <path>`
 - `--category <core\|detected\|plugins\|all>` — filter by category. Default: `all`.
-- `--refresh` — force re-discovery of project tools and plugins.
 
 **Behavior:**
 1. Load tool registry from `.acc/config/config.yaml` and project detection.
@@ -637,28 +636,24 @@ for agents to discover what they can do.
 **Terminal output:**
 ```text
 Core tools
-  ✓ filesystem
-  ✓ search
-  ✓ shell
-  ✓ git
-  ✓ project
-  ✓ context
-  ✓ graph
-  ✓ memory
-  ✓ check
+  ✓ filesystem (read, write, glob)
+  ✓ search (contracts, edges, code)
+  ✓ context (progressive_depth, provenance)
+  ✓ graph (text, mermaid, dot, json)
+  ✓ check (diagnostics, severity_filter)
+  ✓ memory (read, write)
+  ✓ inspect (roles, owners, dependencies)
+  ✓ impact (dependents, tests, constraints)
 
-Detected project tools (Node.js)
-  ✓ npm
-  ✓ vitest
-  ✓ eslint
-  ✓ tsc
+Detected project tools (from package.json scripts)
+  ✓ build — npm run build
+  ✓ test — vitest run
 
-Optional plugins
+Plugins (from .acc/config/tools/)
   ○ docker
-  ○ github
 ```
 
-**JSON output:** See [11 — Tooling Subsystem](./11-tooling.md#9-agent-capability-discovery) for full schema.
+**JSON output:** See [12 — Tooling Subsystem](./12-tooling.md#9-agent-capability-discovery) for full schema.
 
 **Exit:** `0` on success, `1` if registry invalid.
 
@@ -779,14 +774,14 @@ auth :: tests::test_refresh_flow ... ok
 | `acc agents logs <id>` | View agent logs. | No. |
 
 **Note:** These commands are not part of V1. They are documented here for
-forward compatibility. See [10 — Multi-Agent Orchestration](./10-multi-agent-orchestration.md).
+forward compatibility. See [11 — Multi-Agent Orchestration](./11-multi-agent-orchestration.md).
 
 ---
 
 ## Stability Contract
 
-- Diagnostic codes (`ACC0xx`) are stable; renumbering forbidden (see [06](./06-diagnostic-codes.md)).
-- JSON shape per command is versioned via `schema_version`; breaking changes require a major version bump (see [07](./07-json-schema.md)).
+- Diagnostic codes (`ACC0xx`) are stable; renumbering forbidden (see [06](./07-diagnostic-codes.md)).
+- JSON shape per command is versioned via `schema_version`; breaking changes require a major version bump (see [07](./08-json-schema.md)).
 - CLI flag names are stable post-1.0; adding flags is minor; renaming is forbidden.
 - Terminal prose is informational and MAY change between versions; agents consume JSON, not prose.
 
@@ -802,11 +797,11 @@ The reference implementation (`bin/acc.js`, zero runtime dependencies)
 implements the core commands in this document: `init`, `check`, `inspect`,
 `context`, `graph`, `dependencies`, `dependents`, `impact`, `search`,
 `discover`, `document`, `build`, `fill`, `memory`, and `tools`. Language
-analyzers fall back on filesystem structure per [03 §7](./03-epistemology.md#7-language-analyzers--optional-accuracy).
+analyzers fall back on filesystem structure per [03 §7](./04-epistemology.md#7-language-analyzers--optional-accuracy).
 
 `acc tool`, `acc shell`, and `acc agents` are reserved and documented for
-future versions (see [11 — Tooling Subsystem](./11-tooling.md) and
-[10 — Multi-Agent Orchestration](./10-multi-agent-orchestration.md)).
+future versions (see [12 — Tooling Subsystem](./12-tooling.md) and
+[11 — Multi-Agent Orchestration](./11-multi-agent-orchestration.md)).
 
 `acc battle` launches the standalone ABA benchmark harness — ABA is a
 separate application and is never required by the framework. It is

@@ -48,14 +48,18 @@ The documentation index lives at `docs/README.md`. Each numbered file
 covers one area:
 
 - `01-philosophy.md` — core principles, agent-agnostic operation.
-- `02-repository-structure.md` — layout, control plane, memory.
-- `03-epistemology.md` — declared/discovered/inferred, graph model.
-- `04-cli-commands.md` — every command, flags, exit codes.
-- `05-context-engine.md` — `acc context`, progressive depth.
-- `06-diagnostic-codes.md` — the `ACC0xx` registry.
-- `07-json-schema.md` — deterministic JSON envelope and payloads.
-- `08-memory-semantics.md` — `.acc-memory.md` lifecycle and format.
-- `09-authoring-guide.md` — how to write `AGENTS.md` for ACC.
+- `02-markdown-is-all-you-need.md` — the readings behind ACC and the framework's alignment.
+- `03-repository-structure.md` — layout, control plane, memory.
+- `04-epistemology.md` — declared/discovered/inferred, graph model.
+- `05-cli-commands.md` — every command, flags, exit codes.
+- `06-context-engine.md` — `acc context`, progressive depth.
+- `07-diagnostic-codes.md` — the `ACC0xx` registry.
+- `08-json-schema.md` — deterministic JSON envelope and payloads.
+- `09-memory-semantics.md` — `.acc-memory.md` lifecycle and format.
+- `10-authoring-guide.md` — how to write `AGENTS.md` for ACC.
+- `11-multi-agent-orchestration.md` — graph-driven partitioning, concurrency, handoff.
+- `12-tooling.md` — automatic tool detection, plugins, permissions.
+- `13-security.md` — the security model: offline guarantees, read/write surface, untrusted input.
 
 Changes to the CLI surface MUST be reflected here before release (see
 `.acc/config/workflows/release.md`).

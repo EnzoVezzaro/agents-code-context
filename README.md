@@ -195,7 +195,7 @@ acc battle <project>    # Launch the standalone ABA benchmark (see below)
 ```
 
 Every command supports `--json` for deterministic, machine-readable output
-(a versioned envelope, see [docs/07](./docs/07-json-schema.md)), and the
+(a versioned envelope, see [docs/08](./docs/08-json-schema.md)), and the
 terminal output is designed to be read by both humans and agents.
 
 ```bash
@@ -277,16 +277,18 @@ See the ABA repo's [README](./aba/README.md) for details.
 | Document | Description |
 |----------|-------------|
 | [01 — Philosophy](./docs/01-philosophy.md) | Core principles, agent-agnostic operation |
-| [02 — Repository Structure](./docs/02-repository-structure.md) | Layout, control plane, memory, compatibility |
-| [03 — Epistemology & Graph](./docs/03-epistemology.md) | Truth categorization, graph model, resolution |
-| [04 — CLI Reference](./docs/04-cli-commands.md) | Every command, flags, exit codes |
-| [05 — Context Engine](./docs/05-context-engine.md) | Progressive depth, provenance, output contract |
-| [06 — Diagnostic Codes](./docs/06-diagnostic-codes.md) | `ACC0xx` registry, stability contract |
-| [07 — JSON Schema](./docs/07-json-schema.md) | Deterministic envelope, versioning policy |
-| [08 — Memory Semantics](./docs/08-memory-semantics.md) | `.acc-memory.md` lifecycle, format, rules |
-| [09 — Authoring Guide](./docs/09-authoring-guide.md) | Writing effective `AGENTS.md` files |
-| [10 — Multi-Agent](./docs/10-multi-agent-orchestration.md) | Orchestration substrate, partitioning, isolation |
-| [11 — Tooling Subsystem](./docs/11-tooling.md) | Automatic tool detection, plugins, permissions |
+| [02 — "Markdown Is All You Need"](./docs/02-markdown-is-all-you-need.md) | The readings behind ACC, and where ACC takes it further |
+| [03 — Repository Structure](./docs/03-repository-structure.md) | Layout, control plane, memory, compatibility |
+| [04 — Epistemology & Graph](./docs/04-epistemology.md) | Truth categorization, graph model, resolution |
+| [05 — CLI Reference](./docs/05-cli-commands.md) | Every command, flags, exit codes |
+| [06 — Context Engine](./docs/06-context-engine.md) | Progressive depth, provenance, output contract |
+| [07 — Diagnostic Codes](./docs/07-diagnostic-codes.md) | `ACC0xx` registry, stability contract |
+| [08 — JSON Schema](./docs/08-json-schema.md) | Deterministic envelope, versioning policy |
+| [09 — Memory Semantics](./docs/09-memory-semantics.md) | `.acc-memory.md` lifecycle, format, rules |
+| [10 — Authoring Guide](./docs/10-authoring-guide.md) | Writing effective `AGENTS.md` files |
+| [11 — Multi-Agent](./docs/11-multi-agent-orchestration.md) | Orchestration substrate, partitioning, isolation |
+| [12 — Tooling Subsystem](./docs/12-tooling.md) | Automatic tool detection, plugins, permissions |
+| [13 — Security Model](./docs/13-security.md) | Offline guarantees, read/write surface, untrusted input |
 
 ---
 
@@ -305,8 +307,9 @@ agents-code-context/
 ├── docs/                              # Specification (this directory)
 │   ├── README.md                      # Documentation index
 │   ├── 01-philosophy.md
+│   ├── 02-markdown-is-all-you-need.md
 │   ├── ...
-│   └── 11-tooling.md
+│   └── 13-security.md
 └── .acc-memory.md                     # Root memory (gitignored)
 ```
 
@@ -338,7 +341,13 @@ We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for:
 
 - **GitHub Discussions** — Questions, ideas, show-and-tell
 - **Issues** — Bug reports, feature requests
-- **Discord / X** — coming soon
+- **Sponsor** — [Support the project on GitHub](https://github.com/sponsors/EnzoVezzaro) ❤️
+
+<div align="center">
+
+<iframe src="https://github.com/sponsors/EnzoVezzaro/button" title="Sponsor EnzoVezzaro" height="32" width="114" style="border: 0; border-radius: 6px;"></iframe>
+
+</div>
 
 ---
 
@@ -354,9 +363,12 @@ MIT License — see [LICENSE](./LICENSE) for details.
 - **[Agent Skills](https://agentskills.io/)** — the open SKILL.md format for reusable, portable agent capabilities.
 - **[MCP (Model Context Protocol)](https://modelcontextprotocol.io/)** — the open protocol for connecting agents to tools and services.
 - **[llms.txt](https://llmstxt.org/)** — the open convention for machine-readable project information.
+- **[isbetter.ai](https://github.com/midudev/isbetter.ai)** by [midudev](https://github.com/midudev) — the battle arena behind ABA ([`aba/`](./aba/)) is adapted from it (MIT / FSL-1.1-MIT).
+- **[Freebuff2API](https://github.com/Quorinex/Freebuff2API)** (MIT) — the optional local Freebuff proxy vendored into ABA.
 - The coding agents that brought AGENTS.md into the mainstream (OpenAI Codex, Claude Code, Cursor, GitHub Copilot, Google Gemini CLI, and more)
 - Open-source projects demonstrating agent-native patterns
 - Contributors who believe repositories should be self-describing
+- **The open source community** — thank you for the revolutionary contributions that make projects like this possible. Gracias por los aportes. 🙌
 
 ---
 

@@ -9,6 +9,9 @@ import { defineConfig } from 'vitepress'
  * of the built site. There is no separate content copy and no sync step.
  */
 
+// Deployed to GitHub Pages at /agents-code-context/ (see .github/workflows/pages.yml).
+const base = '/agents-code-context/'
+
 export default defineConfig({
   title: 'ACC — Agent Code Context',
   description:
@@ -16,11 +19,24 @@ export default defineConfig({
 
   cleanUrls: true,
 
-  // Deployed to GitHub Pages at /agents-code-context/ (see .github/workflows/pages.yml).
-  base: '/agents-code-context/',
+  base,
+
+  // Terminal examples in the landing templates rely on literal newlines
+  // inside .term / .term-block — Vue's default whitespace condensation
+  // collapses them into single lines, so preserve whitespace in SFCs.
+  vue: {
+    template: {
+      compilerOptions: {
+        whitespace: 'preserve'
+      }
+    }
+  },
 
   // Bricolage Grotesque + JetBrains Mono — the original landing page fonts.
   head: [
+    // Base-prefixed: VitePress does not rewrite head hrefs, and the site
+    // is served from a sub-path on GitHub Pages.
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}favicon.svg` }],
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
     [
@@ -35,16 +51,18 @@ export default defineConfig({
   // Numbered spec files become clean page names: 01-philosophy.md → /philosophy
   rewrites: {
     '01-philosophy.md': 'philosophy.md',
-    '02-repository-structure.md': 'repository-structure.md',
-    '03-epistemology.md': 'epistemology.md',
-    '04-cli-commands.md': 'cli-commands.md',
-    '05-context-engine.md': 'context-engine.md',
-    '06-diagnostic-codes.md': 'diagnostic-codes.md',
-    '07-json-schema.md': 'json-schema.md',
-    '08-memory-semantics.md': 'memory-semantics.md',
-    '09-authoring-guide.md': 'authoring-guide.md',
-    '10-multi-agent-orchestration.md': 'multi-agent-orchestration.md',
-    '11-tooling.md': 'tooling.md'
+    '03-repository-structure.md': 'repository-structure.md',
+    '04-epistemology.md': 'epistemology.md',
+    '05-cli-commands.md': 'cli-commands.md',
+    '06-context-engine.md': 'context-engine.md',
+    '07-diagnostic-codes.md': 'diagnostic-codes.md',
+    '08-json-schema.md': 'json-schema.md',
+    '09-memory-semantics.md': 'memory-semantics.md',
+    '10-authoring-guide.md': 'authoring-guide.md',
+    '11-multi-agent-orchestration.md': 'multi-agent-orchestration.md',
+    '12-tooling.md': 'tooling.md',
+    '02-markdown-is-all-you-need.md': 'markdown-is-all-you-need.md',
+    '13-security.md': 'security.md'
   },
 
   // Repo meta files — not site pages.
@@ -61,6 +79,7 @@ export default defineConfig({
 
     sidebar: [
       { text: 'Philosophy', link: '/philosophy' },
+      { text: '"Markdown is all you need"', link: '/markdown-is-all-you-need' },
       { text: 'Repository structure', link: '/repository-structure' },
       { text: 'Epistemology & graph', link: '/epistemology' },
       { text: 'CLI commands', link: '/cli-commands' },
@@ -70,7 +89,8 @@ export default defineConfig({
       { text: 'Memory semantics', link: '/memory-semantics' },
       { text: 'AGENTS.md authoring guide', link: '/authoring-guide' },
       { text: 'Multi-agent orchestration', link: '/multi-agent-orchestration' },
-      { text: 'Tooling subsystem', link: '/tooling' }
+      { text: 'Tooling subsystem', link: '/tooling' },
+      { text: 'Security model', link: '/security' }
     ],
 
     footer: {

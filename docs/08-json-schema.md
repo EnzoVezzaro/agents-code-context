@@ -1,4 +1,4 @@
-# 07 — JSON Output Schema
+# 08 — JSON Output Schema
 
 > **What this page is about:** the machine contract. If you're wiring
 > `acc` into an agent, a script, or CI, this is the page that tells you
@@ -10,7 +10,7 @@
 1. **Deterministic.** Same repo state + same flags → byte-identical JSON across runs. No timestamps, no random ordering, no locale-dependent formatting.
 2. **Versioned.** Every JSON payload carries `schema_version`. Breaking shape changes require a major version bump. Additive changes (new optional fields) bump the minor version.
 3. **Documented & Stable.** Agents consume JSON, not terminal prose. JSON shape is a public API.
-4. **Provenance Everywhere.** No architectural fact appears without a `provenance` object (see [03 — Epistemology](./03-epistemology.md#3-provenance-contract)).
+4. **Provenance Everywhere.** No architectural fact appears without a `provenance` object (see [04 — Epistemology](./04-epistemology.md#3-provenance-contract)).
 5. **No Opaque IDs.** Paths and names are canonical references.
 
 ---
@@ -39,7 +39,7 @@ Every `--json` response wraps results in this envelope:
 | `acc_version` | yes | Semver of the `acc` binary. |
 | `root` | yes | Absolute resolved project root. |
 | `result` | yes | Command-specific payload (see §4). `null` if the command emits no result. |
-| `diagnostics` | yes | Array of diagnostics (see [06](./06-diagnostic-codes.md#16-json-shape)). Empty if none. |
+| `diagnostics` | yes | Array of diagnostics (see [06](./07-diagnostic-codes.md#16-json-shape)). Empty if none. |
 | `truncated` | yes | `true` when `--max-bytes` clipped output. |
 | `truncated_bytes_omitted` | yes | Bytes omitted due to truncation (0 when not truncated). |
 

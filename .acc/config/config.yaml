@@ -1,7 +1,7 @@
 # ACC Control Plane Configuration
 #
 # This file is optional. When absent, ACC uses sensible defaults and
-# every command still works. See docs/02-repository-structure.md.
+# every command still works. See docs/03-repository-structure.md.
 #
 # All keys are optional. Comments explain each option.
 #
@@ -22,6 +22,7 @@ language_analyzers:
   typescript: true
   go: true
   python: true
+  javascript: true
   # java: false
   # csharp: false
   # cpp: false
@@ -49,6 +50,12 @@ ignore:
   - "vendor/"
   - "__pycache__/"
   - "*.pyc"
+  # VitePress build cache and output — generated bundles would pollute
+  # discovered edges with false dependencies.
+  - "docs/.vitepress/"
+  # Static site assets (favicon, brand images) — no analyzable source;
+  # keeps `acc check` quiet about extensions with no language analyzer.
+  - "docs/public/"
   # aba/ is its own self-contained repository (acc-battle-arena), never
   # pushed with ACC; excluded so the parent graph stays clean.
   - "aba/"
@@ -56,7 +63,7 @@ ignore:
 # -----------------------------------------------------------------------------
 # Diagnostic Tuning
 # -----------------------------------------------------------------------------
-# The canonical severity of a code is fixed by docs/06-diagnostic-codes.md.
+# The canonical severity of a code is fixed by docs/07-diagnostic-codes.md.
 # `warn_only` MAY downgrade a code from error to warn for this project only.
 # Upgrading above canonical severity is forbidden.
 diagnostics:
@@ -90,7 +97,7 @@ ownership:
 # Multi-Agent Orchestration
 # -----------------------------------------------------------------------------
 # When enabled, the active coding agent MAY create and coordinate additional
-# agents to complete a task. See docs/10-multi-agent-orchestration.md.
+# agents to complete a task. See docs/11-multi-agent-orchestration.md.
 multi_agent:
   # Master switch. When false, no multi-agent orchestration occurs.
   enabled: false
@@ -174,7 +181,7 @@ discover:
 # Tooling Subsystem
 # -----------------------------------------------------------------------------
 # Automatic, deterministic, project-aware tool management.
-# See docs/11-tooling.md for full specification.
+# See docs/12-tooling.md for full specification.
 tools:
   # Master switch for auto-discovery of project tools
   auto_discover: true

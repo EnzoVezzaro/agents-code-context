@@ -1,4 +1,4 @@
-# 05 — Context Engine
+# 06 — Context Engine
 
 > **What this page is about:** `acc context` is the command you'll reach
 > for most. It's the answer to the question "what does the agent actually
@@ -90,14 +90,12 @@ Provenance: declared (`src/auth/AGENTS.md`).
 
 Direct then transitive (per `--depth`). Each dependency row:
 - `to` path
-- edge kind (`dependency`)
-- provenance: declared or discovered (both shown when they agree)
-- declared constraints between `path` and the dependency, if any
+- `hop` count (`0` = direct dependency, `1` = one hop away, …)
+- provenance: declared or discovered
 
-Rows are sorted: declared first, then discovered, then inferred. Within
-each bucket: lexicographic by path.
-
-Transitive rows carry a `hop` count (1 = direct, 2 = one hop away, etc.).
+Terminal output groups rows by provenance — `Declared:` then
+`Discovered:` — and within each group sorts lexicographically by target
+path. JSON output sorts all rows lexicographically by target path.
 Transitive expansion stops at `--depth`.
 
 **Example (terminal):**
@@ -119,19 +117,21 @@ Declared invariants applying to `<path>`:
 - inherited (declared in ancestor `AGENTS.md` files that apply to this subtree)
 
 Each carries provenance. Inferred constraints are never emitted here;
-constraints are declared-only by definition (see [03 — Epistemology](./03-epistemology.md#2-strict-categorization-of-truth)). A constraint
+constraints are declared-only by definition (see [04 — Epistemology](./04-epistemology.md#2-strict-categorization-of-truth)). A constraint
 you see in context output is something a human wrote down on purpose.
 
 ### 3.5 Implementations
 
 A high-level summary of the source under `<path>`:
 - file count
-- per-language summary (if a language analyzer is available): number of modules, top-level functions/classes, exported symbols — counts only, NOT source text.
-- if no analyzer is available: file count + total bytes + extension histogram.
+- total bytes
+- per-extension histogram (file count per extension)
 
 This section is included by default but can be excluded via
 `--exclude implementations`. It NEVER contains source code dumps. It's
-the "what's in here, roughly" section, not the code itself.
+the "what's in here, roughly" section, not the code itself. Deeper
+language analysis (modules, functions, exported symbols) is future work;
+V1 summarizes from filesystem structure.
 
 Provenance: discovered (from filesystem / language analysis).
 
@@ -150,7 +150,7 @@ Every section, every row, every line of context output has an explicit
 provenance tag.
 
 - Terminal format: a `Source: <ref>` annotation per row.
-- JSON format: a `provenance` object per item (see [07 — JSON Output Schema](./07-json-schema.md)).
+- JSON format: a `provenance` object per item (see [08 — JSON Output Schema](./08-json-schema.md)).
 
 The context engine MUST refuse to emit a context item without
 provenance. This is a hard contract, not a best-effort behavior — it's
@@ -206,7 +206,7 @@ section, with provenance `Source: <path>/.acc-memory.md`. Memory is
 treated as agent-authored durable knowledge — neither declared nor
 discovered architecture; it has its own provenance kind `memory`.
 
-See [08 — Memory Semantics](./08-memory-semantics.md).
+See [09 — Memory Semantics](./09-memory-semantics.md).
 
 ---
 
@@ -276,10 +276,11 @@ Discovered:
 
 ## Implementations
 Files: 8
+Bytes: 128472
 Languages:
-  rust: 6 files, 23 modules, 87 functions
+  rust: 6 files
   toml: 2 files
-Source: Discovered from filesystem + rust language analyzer
+Source: Discovered from filesystem
 
 ## Memory
 .acc-memory.md present at src/auth/.acc-memory.md

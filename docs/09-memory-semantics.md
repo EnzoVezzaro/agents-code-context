@@ -1,4 +1,4 @@
-# 08 — Memory Semantics
+# 09 — Memory Semantics
 
 > `.acc-memory.md` is the **durable, functionality-local, agent-written,
 > gitignored Markdown** memory layer. It is the scratchpad for durable
@@ -51,7 +51,7 @@ the project root, which may or may not have one). Memory is scoped to
 the functionality boundary, not to arbitrary directories.
 
 If a directory has no `AGENTS.md` and no ancestor with one,
-`.acc-memory.md` there is an orphan and ACC emits `ACC050` (see [06 — Diagnostic Codes](./06-diagnostic-codes.md#9-memory-acc050-acc059)).
+`.acc-memory.md` there is an orphan and ACC emits `ACC050` (see [07 — Diagnostic Codes](./07-diagnostic-codes.md#9-memory-acc050-acc059)).
 
 ### Lifecycle
 
@@ -167,7 +167,7 @@ for; it never tells you how the system *should* be built.
 
 - `acc memory add <path> <text>` appends a timestamped entry.
 - `acc memory clear <path>` truncates the file (the file is left empty, not deleted, to preserve the convention marker). Requires `--force` or interactive confirmation.
-- `acc init` creates the root `.acc-memory.md` initial record when the file is missing or empty, seeded with project provenance (clone date, GitHub origin — see [04 — CLI Commands](./04-cli-commands.md#acc-init)).
+- `acc init` creates the root `.acc-memory.md` initial record when the file is missing or empty, seeded with project provenance (clone date, GitHub origin — see [05 — CLI Commands](./05-cli-commands.md#acc-init)).
 - `acc build --yes` creates an initial `.acc-memory.md` record for every directory whose `AGENTS.md` contract it creates.
 - These two commands are the only writers outside `acc memory`. Both are **create-if-missing only**: they never append to or overwrite an existing non-empty memory file. `acc check`, `acc context`, `acc graph`, `acc discover`, `acc document`, `acc search` are pure reads and never modify memory.
 - `acc discover --apply` updates `AGENTS.md`, NOT `.acc-memory.md`. The two stores are separate.

@@ -312,7 +312,7 @@ test('acc fill classifies missing and empty sections and reports complete files'
       '## Inputs',
       '- code',
       '## Outputs',
-      '- docs',
+      '- report',
       '## Dependencies',
       '- src/x',
       '## Constraints',

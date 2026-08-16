@@ -50,15 +50,15 @@ Owner: EnzoVezzaro/agents-code-context
 - MUST NOT make telemetry calls or upload repository contents (offline-first).
 - MUST NOT require a database; V1 uses an in-memory graph.
 - Declared facts win over discovered facts; inferred facts are never
-  asserted as authoritative (see docs/03-epistemology.md).
+  asserted as authoritative (see docs/04-epistemology.md).
 - Diagnostic codes (`ACC0xx`) and JSON `schema_version` are stable;
   renumbering/renaming is forbidden after release.
 
 ## Architecture
 
 The project is organized as a set of functionality boundaries, each with
-its own `AGENTS.md`. V1 implementation language: see `docs/04-cli-commands.md`
-for the CLI contract and `docs/03-epistemology.md` for the graph model.
+its own `AGENTS.md`. V1 implementation language: see `docs/05-cli-commands.md`
+for the CLI contract and `docs/04-epistemology.md` for the graph model.
 
 Layers (top to bottom):
 
@@ -74,7 +74,7 @@ See docs/README.md for the full documentation index.
 
 ## Multi-Agent Orchestration
 
-See [10 — Multi-Agent Orchestration](./docs/10-multi-agent-orchestration.md) for the agent-agnostic coordination substrate: graph-driven partitioning, dynamic concurrency, functionality ownership, isolation, structured handoff, and deterministic validation.
+See [11 — Multi-Agent Orchestration](./docs/11-multi-agent-orchestration.md) for the agent-agnostic coordination substrate: graph-driven partitioning, dynamic concurrency, functionality ownership, isolation, structured handoff, and deterministic validation.
 
 ## Workflows
 
@@ -94,8 +94,8 @@ When modifying this repository:
 5. Validate affected functionality after changes (`acc check`, `acc impact`).
 6. Update durable functionality knowledge in `.acc-memory.md` when appropriate.
 7. When changing behavior that affects the JSON or diagnostic contract,
-   bump `schema_version` per docs/07-json-schema.md and never reuse a
-   diagnostic code per docs/06-diagnostic-codes.md.
+   bump `schema_version` per docs/08-json-schema.md and never reuse a
+   diagnostic code per docs/07-diagnostic-codes.md.
 
 An agent that has never heard of ACC can follow these instructions as
 plain Markdown. The `acc` CLI commands are accelerators; the fallback is

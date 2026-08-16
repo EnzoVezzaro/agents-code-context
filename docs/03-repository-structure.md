@@ -1,4 +1,4 @@
-# 02 — Repository Structure
+# 03 — Repository Structure
 
 ## Overview
 
@@ -22,11 +22,11 @@ my-project/
 │       ├── tools/                # Tool plugins
 │       └── multi-agent/          # Orchestration configuration
 ├── src/
-│   ├── audio/
+│   ├── payments/
 │   │   ├── AGENTS.md             # Functionality contract (nearest file wins)
-│   │   ├── player.rs
-│   │   ├── buffer.rs
-│   │   ├── receiver.rs
+│   │   ├── checkout.rs
+│   │   ├── ledger.rs
+│   │   ├── gateway.rs
 │   │   └── .acc-memory.md        # Durable memory (gitignored)
 │   ├── network/
 │   │   ├── AGENTS.md
@@ -69,7 +69,7 @@ nearest file in the directory tree:
 ```text
 project/AGENTS.md          → project-wide context
   └── src/AGENTS.md        → src-specific context (nearest file wins)
-        └── src/audio/AGENTS.md  → audio-specific context
+        └── src/payments/AGENTS.md  → payments-specific context
 ```
 
 A directory containing an `AGENTS.md` represents a **functionality
@@ -85,7 +85,7 @@ most useful mental model in this whole spec.
 
 ### Authoring Reference
 
-See [09 — AGENTS.md Authoring Guide](./09-authoring-guide.md).
+See [10 — AGENTS.md Authoring Guide](./10-authoring-guide.md).
 
 ---
 
@@ -308,7 +308,7 @@ across agents:
 
 ```text
 skills/
-└── realtime-audio/
+└── payments/
     ├── SKILL.md
     └── references/
 ```
@@ -321,10 +321,10 @@ definitions that agents can opt in to use. A skill might declare:
 - Common test patterns
 - Related functionalities
 
-The actual knowledge about a specific audio system lives in
-`src/audio/AGENTS.md` and `src/audio/.acc-memory.md`, not in the skill
-definition itself. A skill is "how we do realtime audio in general"; the
-contract is "how *this* audio system works."
+The actual knowledge about a specific payments system lives in
+`src/payments/AGENTS.md` and `src/payments/.acc-memory.md`, not in the
+skill definition itself. A skill is "how we do payments in general"; the
+contract is "how *this* payments system works."
 
 ### `mcp/` — MCP Bridge Definitions
 
@@ -375,26 +375,26 @@ made concrete.
 ### Example Layout
 
 ```text
-src/audio/
-├── AGENTS.md                     # Local audio functionality rules
-├── player.rs
-├── buffer.rs
-├── receiver.rs
+src/payments/
+├── AGENTS.md                     # Local payments functionality rules
+├── checkout.rs
+├── ledger.rs
+├── gateway.rs
 └── .acc-memory.md                # Local durable memory
 ```
 
-The `src/audio/AGENTS.md` might declare:
+The `src/payments/AGENTS.md` might declare:
 
 ```markdown
-Purpose: Realtime audio processing and playback.
+Purpose: Payment processing and reconciliation.
 
-Dependencies: src/codec, src/buffer
+Dependencies: src/database, src/ledger
 
-Ownership: audio-team
+Ownership: payments-team
 
-Constraints: Must not block the audio thread.
+Constraints: Must not block the checkout path.
 
-Standards: See .acc/config/standards/realtime-streaming
+Standards: See .acc/config/standards/idempotency
 ```
 
 ---
@@ -406,7 +406,7 @@ Standards: See .acc/config/standards/realtime-streaming
 Per-functionality durable memory, agent-written and gitignored. This is
 the scratchpad where an agent writes the things it learned that shouldn't
 go in the committed contract — the "I wish I'd known this before I
-started" notes. See [08 — Memory Semantics](./08-memory-semantics.md)
+started" notes. See [09 — Memory Semantics](./09-memory-semantics.md)
 for the full semantics.
 
 Path: `<functionality-dir>/.acc-memory.md`
@@ -422,7 +422,7 @@ Path: `<functionality-dir>/.acc-memory.md`
 
 Plain Markdown. Human-readable. No schema. ACC treats unstructured prose
 as memory; structured memory uses well-known headings as keys (see
-[08 — Memory Semantics](./08-memory-semantics.md)).
+[09 — Memory Semantics](./09-memory-semantics.md)).
 
 ### Git
 

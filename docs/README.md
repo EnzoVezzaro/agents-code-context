@@ -7,7 +7,7 @@
 If you've ever spent an afternoon telling an AI coding agent things like
 *"no, that module exists because of the reentrancy thing"* or *"please stop
 touching that file"*, you already know the problem ACC tries to solve.
-Here's the short version of how I got here:
+Here's the TLDR of how I got here:
 
 > I spent a year building things side-by-side with AI agents. The agents
 > could write an absurd amount of code. The problem was never that they
@@ -16,7 +16,14 @@ Here's the short version of how I got here:
 > ACC is what happened when I got tired of explaining. **The knowledge
 > belongs to the project — so let it live with the project.**
 >
-> [Medium — the full story (placeholder)](https://medium.com/PLACEHOLDER)
+> [Medium — the full story: Markdown Is All You Need, So I Built ACC](https://medium.com/@enzovezzaro/markdown-is-all-you-need-so-i-built-acc-6f9f7283b758)
+> (see also: ["Markdown Is All You Need" — the readings](./02-markdown-is-all-you-need.md))
+
+<div align="center">
+
+<iframe src="https://github.com/sponsors/EnzoVezzaro/button" title="Sponsor EnzoVezzaro" height="32" width="114" style="border: 0; border-radius: 6px;"></iframe>
+
+</div>
 
 ACC is **agent-agnostic**. The repository itself communicates the
 framework through standard, agent-readable files (`AGENTS.md`,
@@ -67,16 +74,18 @@ furniture out and the house is still exactly the same house.
 | Document | Scope |
 |---|---|
 | [01 — Philosophy & Agent-Agnostic Operation](./01-philosophy.md) | Core principles, why ACC, what it guarantees. |
-| [02 — Repository Structure](./02-repository-structure.md) | `AGENTS.md`, `.acc/config/`, `.acc-memory.md`, dogfooding layout. |
-| [03 — Epistemology & Architecture Graph](./03-epistemology.md) | Declared / Discovered / Inferred truth, derived graph, ownership. |
-| [04 — CLI Command Specification](./04-cli-commands.md) | The `acc` CLI: every command, flags, stable diagnostic codes. |
-| [05 — Context Engine](./05-context-engine.md) | `acc context`, progressive depth, provenance, output contract. |
-| [06 — Diagnostic Codes](./06-diagnostic-codes.md) | `ACC0xx` codes, severity, stability contract. |
-| [07 — JSON Output Schema](./07-json-schema.md) | Deterministic, versioned JSON contract for every command. |
-| [08 — Memory Semantics](./08-memory-semantics.md) | `.acc-memory.md`: lifecycle, format, read/write rules. |
-| [09 — AGENTS.md Authoring Guide](./09-authoring-guide.md) | How to write functional `AGENTS.md`, sections, cross-references. |
-| [10 — Multi-Agent Orchestration](./10-multi-agent-orchestration.md) | Graph-driven partitioning, dynamic concurrency, isolation, handoff. |
-| [11 — Tooling Subsystem](./11-tooling.md) | Automatic tool detection, plugins, permissions, capability discovery. |
+| [02 — "Markdown Is All You Need"](./02-markdown-is-all-you-need.md) | The readings behind ACC, and where ACC takes the conversation further. |
+| [03 — Repository Structure](./03-repository-structure.md) | `AGENTS.md`, `.acc/config/`, `.acc-memory.md`, dogfooding layout. |
+| [04 — Epistemology & Architecture Graph](./04-epistemology.md) | Declared / Discovered / Inferred truth, derived graph, ownership. |
+| [05 — CLI Command Specification](./05-cli-commands.md) | The `acc` CLI: every command, flags, stable diagnostic codes. |
+| [06 — Context Engine](./06-context-engine.md) | `acc context`, progressive depth, provenance, output contract. |
+| [07 — Diagnostic Codes](./07-diagnostic-codes.md) | `ACC0xx` codes, severity, stability contract. |
+| [08 — JSON Output Schema](./08-json-schema.md) | Deterministic, versioned JSON contract for every command. |
+| [09 — Memory Semantics](./09-memory-semantics.md) | `.acc-memory.md`: lifecycle, format, read/write rules. |
+| [10 — AGENTS.md Authoring Guide](./10-authoring-guide.md) | How to write functional `AGENTS.md`, sections, cross-references. |
+| [11 — Multi-Agent Orchestration](./11-multi-agent-orchestration.md) | Graph-driven partitioning, dynamic concurrency, isolation, handoff. |
+| [12 — Tooling Subsystem](./12-tooling.md) | Automatic tool detection, plugins, permissions, capability discovery. |
+| [13 — Security Model](./13-security.md) | What ACC guarantees (offline, no code execution, path boundary), what it reads/writes, untrusted input. |
 
 **Where to start:** if you only read one thing, make it
 [01 — Philosophy](./01-philosophy.md). It's the *why*; the rest of the

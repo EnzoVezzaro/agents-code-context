@@ -35,10 +35,10 @@ and CI.
       `acc dependencies`, `acc dependents`, `acc search`, `acc discover`
       all run on the ACC repo without panicking.
 - [ ] `--json` output of every command parses and matches the schema in
-      docs/07-json-schema.md.
+      docs/08-json-schema.md.
 
 ## Documentation
 
 - [ ] docs/ reflects the released CLI surface.
-- [ ] Any new diagnostic code is added to docs/06-diagnostic-codes.md.
-- [ ] Any new JSON field is added to docs/07-json-schema.md.
+- [ ] Any new diagnostic code is added to docs/07-diagnostic-codes.md.
+- [ ] Any new JSON field is added to docs/08-json-schema.md.

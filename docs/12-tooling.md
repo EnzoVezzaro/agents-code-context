@@ -1,4 +1,4 @@
-# 11 — Tooling Subsystem
+# 12 — Tooling Subsystem
 
 > **What this page is about:** how ACC gives agents the right tools
 > without the agent having to ask "which tool do I need?" ACC looks at

@@ -1,12 +1,13 @@
 # 01 — Philosophy & Agent-Agnostic Operation
 
-> **The short version:** ACC doesn't own your agent. ACC doesn't replace
+> **TLDR:** ACC doesn't own your agent. ACC doesn't replace
 > your agent. ACC doesn't even require your agent. ACC just makes your
 > repository *easier* for any agent to understand, navigate, modify, and
 > validate.
 >
 > The full story of how I got here (and why "give the agent more context"
-> was never the answer) is on [Medium (placeholder)](https://medium.com/PLACEHOLDER).
+> was never the answer) is on
+> [Medium — Markdown Is All You Need, So I Built ACC](https://medium.com/@enzovezzaro/markdown-is-all-you-need-so-i-built-acc-6f9f7283b758).
 
 I'll be honest about where this comes from: a year of building things
 with AI agents, and a very specific, very repetitive pain. The agents
@@ -115,24 +116,24 @@ This is probably the rule I'm most stubborn about:
 
 ```text
 .agents/
-├── audio.md
+├── payments.md
 ├── networking.md
 ├── authentication.md
 ├── database.md
 └── ...
 ```
 
-Central docs have a half-life. Someone moves `src/audio` to
-`src/core/audio`, and `audio.md` is now a museum piece that an agent will
-confidently read and confidently get wrong.
+Central docs have a half-life. Someone moves `src/payments` to
+`src/core/payments`, and `payments.md` is now a museum piece that an
+agent will confidently read and confidently get wrong.
 
 **Better** (follows the code):
 
 ```text
-src/audio/
-├── player.rs
-├── buffer.rs
-├── receiver.rs
+src/payments/
+├── checkout.rs
+├── ledger.rs
+├── gateway.rs
 ├── AGENTS.md
 └── .acc-memory.md
 ```
@@ -141,7 +142,7 @@ The documentation travels with the functionality. If the functionality
 moves:
 
 ```bash
-git mv src/audio src/core/audio
+git mv src/payments src/core/payments
 ```
 
 its knowledge and memory move with it. No doc to update, no stale file
@@ -154,7 +155,7 @@ to hunt down.
 - Knowledge follows the **functionality boundary**, not the directory
   boundary.
 
-An agent entering `src/audio/` immediately gets, in one place:
+An agent entering `src/payments/` immediately gets, in one place:
 
 ```text
 code
@@ -213,11 +214,11 @@ instruction discovery:
         ↓
 project-wide rules
 
-src/audio/AGENTS.md
+src/payments/AGENTS.md
         ↓
-audio rules
+payments rules
 
-src/audio/player.rs
+src/payments/checkout.rs
         ↓
 implementation
 ```
@@ -305,7 +306,7 @@ Standards
 Implementation
 ```
 
-See [03 — Epistemology & Architecture Graph](./03-epistemology.md) for
+See [04 — Epistemology & Architecture Graph](./04-epistemology.md) for
 the graph model and truth categorization.
 
 ---

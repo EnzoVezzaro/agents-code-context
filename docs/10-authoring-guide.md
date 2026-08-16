@@ -1,4 +1,4 @@
-# 09 — AGENTS.md Authoring Guide
+# 10 — AGENTS.md Authoring Guide
 
 > `AGENTS.md` is plain Markdown. ACC imposes **no schema** and **no
 > mandatory sections**. This guide describes conventions that maximize
@@ -132,7 +132,7 @@ Over:
 - logging
 ```
 
-Paths are canonical references ([02 §7](./02-repository-structure.md#7-path-conventions-used-by-this-spec)). ACC resolves them to functionality boundaries. Vague names require fuzzy matching, which is less reliable and produces `ACC012` diagnostics when no matching boundary is found.
+Paths are canonical references ([02 §7](./03-repository-structure.md#7-path-conventions-used-by-this-spec)). ACC resolves them to functionality boundaries. Vague names require fuzzy matching, which is less reliable and produces `ACC012` diagnostics when no matching boundary is found.
 
 ### Relative to Project Root
 
@@ -144,7 +144,7 @@ entry is `src/database` (not `../database`).
 
 Declared dependencies are the architectural **intent**. They do not
 need to match discovered imports exactly — that's the point of
-[03 — Epistemology §5](./03-epistemology.md#5-truth-resolution):
+[04 — Epistemology §5](./04-epistemology.md#5-truth-resolution):
 declared wins; mismatches surface as diagnostics.
 
 If you declare `src/database` and the code does import `src/database`,
@@ -239,7 +239,7 @@ auth contract described in `src/auth/AGENTS.md`.
 ```
 
 Inheritance is positional (directory hierarchy), not link-based
-([02 §1](./02-repository-structure.md#1-agentsmd--standard-ecosystem)).
+([02 §1](./03-repository-structure.md#1-agentsmd--standard-ecosystem)).
 Links in prose are for the human/agent reader, not for ACC's graph
 derivation.
 

@@ -1,4 +1,4 @@
-# 10 — Multi-Agent Orchestration
+# 11 — Multi-Agent Orchestration
 
 > **What this page is about:** the day your task is too big for one
 > agent, and you want a few of them working in parallel without stepping
@@ -645,7 +645,7 @@ The following diagnostic codes relate to multi-agent orchestration:
 | `ACC104` | warn | Worker task timeout exceeded. |
 | `ACC105` | info | Multi-agent mode disabled; running sequentially. |
 
-These codes are reserved. See [06 — Diagnostic Codes](./06-diagnostic-codes.md) for the full registry.
+These codes are reserved. See [07 — Diagnostic Codes](./07-diagnostic-codes.md) for the full registry.
 
 ---
 

@@ -2,6 +2,7 @@
 // Progressive reveal — gated on IntersectionObserver, skipped on reduced motion.
 import { onMounted } from 'vue'
 import { withBase } from 'vitepress'
+import Logo from './Logo.vue'
 
 onMounted(() => {
   if (typeof window === 'undefined') return
@@ -31,13 +32,18 @@ onMounted(() => {
     <!-- TOP BAR -->
     <div class="topbar">
       <div class="wrap">
-        <a :href="withBase('/')" class="brand"><span class="glyph">acc</span>Agent&nbsp;Code&nbsp;Context</a>
         <nav class="nav-links" aria-label="Primary">
           <a href="#cli">Commands</a>
           <a href="#flow">Navigation</a>
           <a href="#layers">Layers</a>
           <a href="#diagnostics">Diagnostics</a>
         </nav>
+        <Logo
+          compact
+          name="payments"
+          :depends-on="['db', 'ledger', 'webhook']"
+          owner="@team-payments"
+        />
         <div class="nav-actions">
           <a class="btn btn-ghost" :href="withBase('/philosophy')">Docs</a>
           <a class="btn btn-primary" href="https://github.com/EnzoVezzaro/agents-code-context" target="_blank" rel="noopener">GitHub<span class="arr">↗</span></a>
@@ -50,9 +56,9 @@ onMounted(() => {
       <div class="wrap">
         <div class="hero-grid">
           <div>
-            <div class="hero-eyebrow">v0.1 · specification</div>
+            <div class="hero-eyebrow">v0.4.0 · open source</div>
             <h1>Give any codebase <em>a map</em> any agent can read.</h1>
-            <p class="lede">ACC is a framework that makes a repository <strong>self-describing</strong>: its boundaries, dependencies, owners, and constraints become plain files any coding agent can understand. A CLI is included, but the repository itself is the product — not the tool.</p>
+            <p class="lede">ACC gives your repository a voice. Boundaries, owners, dependencies, the rules nobody wants to repeat — written in plain Markdown, right next to the code. Any agent can read it. So can you.</p>
             <div class="hero-actions">
               <a class="btn btn-primary" href="#what">What is ACC?<span class="arr">→</span></a>
               <a class="btn btn-ghost" href="#flow">How agents navigate</a>
@@ -70,7 +76,7 @@ onMounted(() => {
               <span><span class="dot"></span>derived graph · <code style="color:var(--ink)">acc graph</code></span>
               <span>oklch 355 · 155</span>
             </figcaption>
-            <svg viewBox="0 0 360 280" role="img" aria-label="Derived architecture graph: audio depends on database and logging; app depends on audio; tests depend on audio.">
+            <svg viewBox="0 0 360 280" role="img" aria-label="Derived architecture graph: payments depends on database and ledger; cli depends on payments; tests depend on payments.">
               <g stroke-width="1.25" fill="none">
                 <line x1="80" y1="70" x2="200" y2="140" stroke="var(--primary)" />
                 <line x1="80" y1="70" x2="200" y2="210" stroke="var(--primary)" />
@@ -78,14 +84,14 @@ onMounted(() => {
                 <line x1="280" y1="70" x2="80" y2="70" stroke="var(--cool)" stroke-dasharray="4 3" />
               </g>
               <g font-family="var(--mono)" font-size="11" text-anchor="middle">
-                <rect x="44" y="54" width="72" height="32" rx="5" fill="var(--bg)" stroke="var(--ink)" />
-                <text x="80" y="73" fill="var(--ink)" font-weight="600">audio</text>
+                <rect x="44" y="54" width="76" height="32" rx="5" fill="var(--bg)" stroke="var(--ink)" />
+                <text x="82" y="73" fill="var(--ink)" font-weight="600">payments</text>
                 <rect x="44" y="194" width="72" height="32" rx="5" fill="var(--bg)" stroke="var(--ink)" />
-                <text x="80" y="213" fill="var(--ink)">app</text>
+                <text x="80" y="213" fill="var(--ink)">cli</text>
                 <rect x="164" y="124" width="86" height="32" rx="5" fill="var(--bg)" stroke="var(--primary)" stroke-width="1.5" />
-                <text x="207" y="143" fill="var(--primary)" font-weight="600">database</text>
+                <text x="207" y="143" fill="var(--primary)" font-weight="600">db</text>
                 <rect x="164" y="194" width="86" height="32" rx="5" fill="var(--bg)" stroke="var(--primary)" stroke-width="1.5" />
-                <text x="207" y="213" fill="var(--primary)" font-weight="600">logging</text>
+                <text x="207" y="213" fill="var(--primary)" font-weight="600">ledger</text>
                 <rect x="244" y="54" width="64" height="32" rx="5" fill="var(--bg)" stroke="var(--cool)" stroke-width="1.5" stroke-dasharray="4 3" />
                 <text x="276" y="73" fill="var(--cool)">tests</text>
               </g>
@@ -107,29 +113,29 @@ onMounted(() => {
       <div class="wrap">
         <div class="section-head" style="margin-bottom:40px">
           <div class="label">what acc is</div>
-          <h2>A convention for repos, not an agent you install.</h2>
-          <p>ACC is a way of organizing a repository so that <strong>any</strong> coding agent — Codex, Claude Code, Cursor, Gemini, a local model, a future tool — can walk in and understand the architecture without a manual. It layers on the files agents already read: <code>AGENTS.md</code> contracts, a <code>.acc/config/</code> control plane, and local memory. An optional <code>acc</code> CLI accelerates the work, but the repository is intelligible on its own.</p>
+          <h2>Make the repository explain itself.</h2>
+          <p>Walk into any ACC repository with any coding agent — Codex, Claude Code, Cursor, whatever comes next — and the project explains itself. It's just the files agents already read, organized so the story is easy to follow. The CLI is a bonus. The repository does the talking.</p>
         </div>
         <div class="caps-grid">
           <div class="cap">
-            <h3><span class="mark">◆</span>Agent-agnostic</h3>
-            <p>No ACC agent, wrapper, or runtime required. Any agent reads <code>AGENTS.md</code> and follows the framework as plain Markdown. Switch agents tomorrow; your accumulated context stays in the repo.</p>
+            <h3><span class="mark">◆</span>Bring your own agent</h3>
+            <p>Any agent reads <code>AGENTS.md</code> and gets it — it's just Markdown. Switch agents whenever you like; the context lives in the repo, not in the chat.</p>
           </div>
           <div class="cap">
-            <h3><span class="mark">◆</span>Hard invariant</h3>
-            <p>Remove <code>.acc/</code> and the <code>acc</code> CLI, and you still have a perfectly valid <code>AGENTS.md</code> repository. ACC augments the ecosystem; it never replaces it.</p>
+            <h3><span class="mark">◆</span>Leave anytime</h3>
+            <p>Delete the <code>.acc/</code> folder and the CLI tomorrow and you still have a perfectly normal repository. ACC adds to the ecosystem — it never replaces it.</p>
           </div>
           <div class="cap">
-            <h3><span class="mark">◆</span>Derived graph</h3>
-            <p>The architecture graph is computed on demand — declared in <code>AGENTS.md</code>, discovered from code. No hand-maintained <code>graph.yaml</code> to go stale.</p>
+            <h3><span class="mark">◆</span>A map that never goes stale</h3>
+            <p>The architecture is derived from what you declare and from what the code actually does — no hand-drawn diagram waiting to go stale.</p>
           </div>
           <div class="cap">
-            <h3><span class="mark">◆</span>Provenance everywhere</h3>
-            <p>Every fact carries a source: declared, discovered, or inferred. Nothing is asserted without provenance, so authority and suggestion are never confused.</p>
+            <h3><span class="mark">◆</span>No guessing games</h3>
+            <p>Every fact is tagged: written by a human, observed in the code, or guessed by a tool. No more confusing opinions with evidence.</p>
           </div>
           <div class="cap">
-            <h3><span class="mark">◆</span>Offline &amp; safe</h3>
-            <p>No telemetry, no uploads, no executed scripts. Safe to run on untrusted repositories; the repository is the sole source of truth.</p>
+            <h3><span class="mark">◆</span>Private by default</h3>
+            <p>No telemetry, no uploads, no scripts run. Safe on repositories you don't fully trust — offline, and quietly so.</p>
           </div>
         </div>
       </div>
@@ -141,31 +147,31 @@ onMounted(() => {
         <div class="section-head">
           <div class="label">one way to interact</div>
           <h2>The CLI is a tool, not the product.</h2>
-          <p>The <code>acc</code> CLI accelerates the framework: deterministic context, validation, and graph derivation. But the framework doesn't depend on it — an agent can understand an ACC repo by reading files alone. The CLI is for when you want speed and guarantees.</p>
+          <p>The CLI makes things fast and deterministic — context, checks, the graph — but nothing depends on it. An agent can understand an ACC repo by reading files alone. The CLI is the shortcut, not the requirement.</p>
         </div>
 
         <div class="cli-bento">
           <article class="cell span3">
             <div class="name">acc context <span class="bracket">&lt;path&gt;</span></div>
-            <p class="blurb">Assembles focused, progressive context for a path — the hierarchy, contracts, dependencies, and constraints an agent needs before touching code. Every line carries provenance; <code>--depth</code> controls how far it reaches.</p>
-            <div class="term"><span class="p">$</span> acc context src/audio <span class="f">--depth</span> 1
+            <p class="blurb">Everything an agent needs before touching code — the hierarchy, the contracts, the dependencies — in one focused read. <code>--depth</code> decides how deep it goes.</p>
+            <div class="term"><span class="p">$</span> acc context src/payments <span class="f">--depth</span> 1
 <span class="s">## Hierarchy</span>
   project root        <span class="s">Source: AGENTS.md</span>
-  └─ src/audio/       <span class="s">Source: src/audio/AGENTS.md</span>
+  └─ src/payments/    <span class="s">Source: src/payments/AGENTS.md</span>
 
 <span class="s">## Dependencies (depth=1)</span>
 Declared:
-  → src/database/   <span class="s">Source: src/audio/AGENTS.md</span>
+  → src/database/   <span class="s">Source: src/payments/AGENTS.md</span>
 Discovered:
   ⚠ src/ui/        <span class="s">Discovered from imports — undeclared</span></div>
           </article>
 
           <article class="cell span3">
             <div class="name">acc check</div>
-            <p class="blurb">Validate broken references, missing contracts, forbidden dependencies, duplicate ownership, stale docs. Returns stable <code>ACC0xx</code> codes with severity and path.</p>
+            <p class="blurb">Catches broken references, missing contracts, and forbidden dependencies before they bite. Stable codes, so you always know what you're looking at.</p>
             <div class="term"><span class="p">$</span> acc check
-<span class="warn">ACC022</span>  warn    src/audio/mod.rs
-  discovered dep 'audio → ui' not declared
+<span class="warn">ACC022</span>  warn    src/payments/mod.rs
+  discovered dep 'payments → ui' not declared
 <span class="ok">ACC040</span>  info    .lock
   no analyzer for extension
 <span class="k">→ 1 warning, 0 errors</span></div>
@@ -173,13 +179,13 @@ Discovered:
 
           <article class="cell span2">
             <div class="name">acc inspect <span class="bracket">&lt;path&gt;</span></div>
-            <p class="blurb">Roles, owners, dependencies, and constraints for a single path.</p>
-            <div class="mini-out"><span class="tag">owner</span> audio-team</div>
+            <p class="blurb">Who owns a path, what it depends on, and what it's allowed to do — in one glance.</p>
+            <div class="mini-out"><span class="tag">owner</span> payments-team</div>
           </article>
 
           <article class="cell span2">
             <div class="name">acc graph <span class="bracket">[path]</span></div>
-            <p class="blurb">The derived graph in <code>text</code>, <code>mermaid</code>, <code>dot</code>, or <code>json</code>.</p>
+            <p class="blurb">See the architecture as <code>text</code>, <code>mermaid</code>, <code>dot</code>, or <code>json</code> — derived, not hand-drawn.</p>
             <div class="mini-out"><span class="tag">format</span> --format mermaid</div>
           </article>
 
@@ -191,14 +197,14 @@ Discovered:
 
           <article class="cell span3">
             <div class="name">acc discover</div>
-            <p class="blurb">Architectural suggestions from the declared/discovered diff. <strong>Never silently rewrites the repo</strong> — dry-run by default, <code>--apply</code> prompts per change.</p>
-            <div class="mini-out"><span class="tag">suggest</span> declare audio → ui</div>
+            <p class="blurb">Finds the gap between what's declared and what the code shows — and always asks first. It never rewrites your repo silently.</p>
+            <div class="mini-out"><span class="tag">suggest</span> declare payments → ui</div>
           </article>
 
           <article class="cell span3">
             <div class="name">acc document <span class="bracket">&lt;path&gt;</span></div>
-            <p class="blurb">Conservative <code>AGENTS.md</code> templates for undocumented features. With <code>--from-discovery</code>, inferred fields are marked <code>&lt;!-- inferred --&gt;</code> for human review.</p>
-            <div class="mini-out"><span class="tag">write</span> src/audio/AGENTS.md</div>
+            <p class="blurb">A starting <code>AGENTS.md</code> for features that don't have one yet. Anything guessed is clearly marked for you to review.</p>
+            <div class="mini-out"><span class="tag">write</span> src/payments/AGENTS.md</div>
           </article>
         </div>
       </div>
@@ -211,7 +217,7 @@ Discovered:
           <div class="section-head" style="margin-bottom:32px">
             <div class="label">how agents navigate</div>
             <h2>Read the contract, then the code.</h2>
-            <p>Every ACC repo tells the same story top to bottom. An agent starts at the root <code>AGENTS.md</code>, walks down into the functionality it needs, reads that boundary's contract and memory, and only then touches source. No special client, no protocol — just files in an order that makes sense.</p>
+            <p>Every ACC repo tells the same story, top to bottom: start at the root <code>AGENTS.md</code>, walk into the functionality you need, read its contract and memory — then touch code. No special client, no protocol. Just files in an order that makes sense.</p>
           </div>
           <ol style="font-family:var(--mono);font-size:13px;color:var(--ink);line-height:1.7;padding-left:20px;max-width:42ch">
             <li><strong>Read</strong> the root <code>AGENTS.md</code> for project-wide context.</li>
@@ -267,7 +273,7 @@ Discovered:
         <div class="section-head">
           <div class="label">why provenance matters</div>
           <h2>Know where every fact came from.</h2>
-          <p>ACC never confuses what an architect <em>wrote</em> with what the code <em>does</em> with what the tool <em>guessed</em>. Every piece of output is tagged declared, discovered, or inferred — so an agent trusts the right source and a human reviews the rest.</p>
+          <p>ACC is careful about where facts come from — written by a human, observed in the code, or guessed by a tool. Each one is tagged, so agents trust the right source and you can review the rest.</p>
         </div>
         <div class="prov-pair">
           <div class="prov-legend">
@@ -275,21 +281,21 @@ Discovered:
               <span class="swatch" aria-hidden="true"></span>
               <div>
                 <h4>Declared</h4>
-                <p>Authoritative. Written in <code>AGENTS.md</code> — Dependencies, Ownership, Constraints. Wins over discovered when they disagree.</p>
+                <p>A human wrote it — in <code>AGENTS.md</code>. Dependencies, ownership, constraints. When facts disagree, this one wins.</p>
               </div>
             </div>
             <div class="prov-item discovered">
               <span class="swatch" aria-hidden="true"></span>
               <div>
                 <h4>Discovered</h4>
-                <p>Observational. From language analyzers and the filesystem. The ground truth of what the code does — second-class to declared intent for architecture.</p>
+                <p>Observed in the code — imports, structure, what's actually there. Even if nobody wrote it down.</p>
               </div>
             </div>
             <div class="prov-item inferred">
               <span class="swatch" aria-hidden="true"></span>
               <div>
                 <h4>Inferred</h4>
-                <p>None. Suggestions from <code>acc discover</code>. <strong>Never asserted as authoritative</strong> — always labelled, always awaiting human promotion.</p>
+                <p>A guess, from <code>acc discover</code> or an agent. Never treated as fact until a human says so.</p>
               </div>
             </div>
           </div>
@@ -300,7 +306,7 @@ Discovered:
     {
       <span class="s">"code"</span>: <span class="f">"ACC022"</span>,
       <span class="s">"severity"</span>: <span class="f">"warn"</span>,
-      <span class="s">"path"</span>: <span class="f">"src/audio/mod.rs"</span>,
+      <span class="s">"path"</span>: <span class="f">"src/payments/mod.rs"</span>,
       <span class="s">"provenance"</span>: {
         <span class="s">"kind"</span>: <span class="f">"discovered"</span>,
         <span class="s">"source"</span>: <span class="f">"Rust imports"</span>
@@ -318,13 +324,13 @@ Discovered:
         <div class="section-head">
           <div class="label">three layers</div>
           <h2>Convention, memory, and tooling.</h2>
-          <p>ACC follows the established <code>AGENTS.md</code> convention rather than competing with it. New ACC-specific metadata augments standards — it never replaces them.</p>
+          <p>ACC follows the <code>AGENTS.md</code> convention everyone already uses — it doesn't compete with it. Anything ACC adds is extra context, never a replacement.</p>
         </div>
         <div class="layers">
           <article class="layer">
             <div class="tag"><span class="pri">●</span> standard · committed</div>
             <h3>AGENTS.md</h3>
-            <p class="desc">The primary agent interface. Plain Markdown with conventional sections — Purpose, Responsibilities, Ownership, Dependencies, Constraints. No frontmatter, no schema, no decorators.</p>
+            <p class="desc">The main interface for agents — plain Markdown with familiar sections: Purpose, Responsibilities, Ownership, Dependencies, Constraints. No schema, no frontmatter.</p>
             <pre class="visual"><span class="c">## Dependencies</span>
 - src/database
 - src/logging
@@ -339,7 +345,7 @@ Discovered:
           <article class="layer">
             <div class="tag"><span class="pri">●</span> control plane · committed</div>
             <h3>.acc/config/</h3>
-            <p class="desc">Project-level configuration, agent profiles, reusable workflows, and standards. All Markdown, all committed, all readable by any agent that walks a directory.</p>
+            <p class="desc">Project settings, agent profiles, workflows, and standards. All Markdown, all committed, all readable by anyone or anything browsing the repo.</p>
             <pre class="visual"><span class="m">.acc/config/</span>
 ├─ config.yaml
 ├─ agents/architect.md
@@ -353,7 +359,7 @@ Discovered:
           <article class="layer">
             <div class="tag"><span class="pri">●</span> durable memory · local</div>
             <h3>.acc-memory.md</h3>
-            <p class="desc">Functionality-local, agent-written, gitignored. Gotchas, invariants, tried-and-rejected — knowledge the next agent shouldn't have to rediscover. Plain Markdown; <code>cat</code> is the fallback.</p>
+            <p class="desc">The repo's memory. Gotchas, invariants, things tried and rejected — written down so the next agent doesn't have to rediscover them.</p>
             <pre class="visual"><span class="c">## Gotchas</span>
 - decode() is non-reentrant.
 
@@ -372,8 +378,8 @@ Discovered:
       <div class="wrap">
         <div class="section-head">
           <div class="label">stable contract</div>
-          <h2>Diagnostics you can build CI on.</h2>
-          <p><code>ACC0xx</code> codes are stable forever — renumbering is forbidden. Severities are fixed at minting. Agents and build gates consume <code>acc check --json</code>, not terminal prose.</p>
+          <h2>Diagnostics agents can understand.</h2>
+          <p>Every problem gets a stable code: <code>ACC022</code> means the same thing this year as it will next. So when an agent reads the feedback, it knows exactly what's wrong — and what to do about it.</p>
         </div>
         <div class="diag-table">
           <div class="diag-row head"><span>Code</span><span>Severity</span><span>Trigger</span><span>Message</span></div>
@@ -391,7 +397,7 @@ Discovered:
       <div class="wrap">
         <div class="section-head">
           <div class="label">open source</div>
-          <h2>About, releases, and packages.</h2>
+          <h2>Open source, from day one.</h2>
           <p>Everything lives on GitHub and npm — MIT licensed, no telemetry, no lock-in.</p>
         </div>
         <div class="github-grid">
@@ -429,7 +435,16 @@ Discovered:
       <div class="wrap">
         <div class="foot-grid">
           <div class="foot-brand">
-            <a :href="withBase('/')" class="brand"><span class="glyph">acc</span>Agent&nbsp;Code&nbsp;Context</a>
+            <a :href="withBase('/')" class="brand">
+              <svg class="foot-logo" viewBox="0 0 32 32" aria-hidden="true">
+                <rect width="32" height="32" rx="7" fill="var(--bg)" stroke="var(--hair-strong)" />
+                <path class="fl-doc" d="M8.32,4.48 h10.24 l5.12,5.12 v16.64 a1.28,1.28 0 0 1 -1.28,1.28 H8.32 a1.28,1.28 0 0 1 -1.28,-1.28 V5.76 a1.28,1.28 0 0 1 1.28,-1.28 z" fill="var(--bg)" stroke="var(--ink)" stroke-width="1.6" stroke-linejoin="round" />
+                <path class="fl-fold" d="M18.56,4.48 v5.12 h5.12" fill="none" stroke="var(--muted)" stroke-width="1.1" stroke-linecap="round" />
+                <path class="fl-head" d="M10.88,12.16 h8.32" fill="none" stroke="var(--primary)" stroke-width="1.5" stroke-linecap="round" />
+                <path class="fl-line" d="M13.76,17.28 h7.68" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" opacity="0.75" />
+              </svg>
+              Agent&nbsp;Code&nbsp;Context
+            </a>
             <p>A convention and tooling layer for agent-native repositories. MIT licensed, offline-first, safe on untrusted repos.</p>
           </div>
           <div class="foot-col">
@@ -455,6 +470,9 @@ Discovered:
             <a :href="withBase('/authoring-guide')">Authoring guide</a>
             <a href="https://github.com/EnzoVezzaro/agents-code-context/blob/main/AGENTS.md" target="_blank" rel="noopener">AGENTS.md</a>
           </div>
+        </div>
+        <div class="foot-support">
+          <iframe src="https://github.com/sponsors/EnzoVezzaro/card" title="Sponsor EnzoVezzaro" height="225" width="600" style="border: 0; border-radius: 8px;"></iframe>
         </div>
         <div class="foot-bottom">
           <span>© 2026 agents-code-context</span>
@@ -506,18 +524,26 @@ Discovered:
   -webkit-backdrop-filter: blur(10px) saturate(120%);
   border-bottom: 1px solid var(--hair);
 }
-.topbar .wrap { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding-top: 18px; padding-bottom: 18px; }
-.brand { display: inline-flex; align-items: baseline; gap: 10px; font-weight: 700; letter-spacing: -0.03em; font-size: 20px; }
+.topbar .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
+.brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -0.03em; font-size: 20px; }
+.foot-logo { width: 26px; height: 26px; display: block; flex-shrink: 0; }
 .brand .glyph {
   font-family: var(--mono); font-weight: 600; font-size: 15px;
   color: var(--primary); letter-spacing: 0;
 }
-.nav-links { display: flex; gap: 1.75rem; }
+.nav-links { display: flex; justify-content: flex-start; gap: 1.75rem; }
 .nav-links a { font-size: 15px; color: var(--muted); position: relative; padding: 2px 0; transition: color 0.18s ease; }
 .nav-links a:hover { color: var(--ink); }
 .nav-links a::after { content: ''; position: absolute; left: 0; right: 0; bottom: -3px; height: 1px; background: var(--primary); transform: scaleX(0); transform-origin: left; transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1); }
 .nav-links a:hover::after { transform: scaleX(1); }
-.nav-actions { display: flex; align-items: center; gap: 10px; }
+.nav-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
 
 .btn {
   display: inline-flex; align-items: center; gap: 7px;
@@ -542,7 +568,7 @@ Discovered:
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
   gap: clamp(32px, 5vw, 72px);
-  align-items: start;
+  align-items: center;
 }
 .hero-eyebrow {
   font-family: var(--mono); font-size: 12px; color: var(--primary);
@@ -604,14 +630,19 @@ Discovered:
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 0;
 }
-.cap { padding: 4px 28px 4px 0; border-right: 1px solid var(--hair); }
-.cap:last-child { border-right: none; }
+.cap { padding: 4px 24px; border-right: 1px solid var(--hair); }
+/* Small breathing room only where a hairline borders the card:
+   first card — line on its right, so right padding only;
+   middle cards — a line on both sides, both paddings;
+   last card — no border on its right, so left padding only. */
+.cap:first-child { padding-left: 0; }
+.cap:last-child { border-right: none; padding-right: 0; }
 .cap h3 {
   font-size: 1.05rem; font-weight: 600; margin-bottom: 10px; letter-spacing: -0.01em;
   display: flex; align-items: baseline; gap: 8px;
 }
 .cap h3 .mark { color: var(--primary); font-family: var(--mono); font-size: 0.8em; font-weight: 500; }
-.cap p { font-size: 14px; color: var(--muted); line-height: 1.5; max-width: 26ch; }
+.cap p { font-size: 14px; color: var(--muted); line-height: 1.5; max-width: 23ch; }
 .cap p strong { color: var(--ink); font-weight: 500; }
 
 /* ---- Section heads ---- */
@@ -787,6 +818,14 @@ Discovered:
 .foot-col h4 { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 14px; font-weight: 600; }
 .foot-col a { display: block; font-size: 14px; padding: 4px 0; color: var(--ink); transition: color 0.18s; }
 .foot-col a:hover { color: var(--primary); }
+.foot-support {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0 8px;
+}
+.foot-support iframe {
+  max-width: 100%;
+}
 .foot-bottom {
   margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--hair);
   display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
@@ -849,7 +888,8 @@ Discovered:
   .foot-grid { grid-template-columns: 1fr; }
   .diag-row { grid-template-columns: 78px 64px 1fr; }
   .diag-row .msg { display: none; }
-  .topbar .wrap { flex-wrap: wrap; }
+  .nav-actions { gap: 6px; }
+  .btn { padding: 8px 13px; font-size: 13px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .site *, .site *::before, .site *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }

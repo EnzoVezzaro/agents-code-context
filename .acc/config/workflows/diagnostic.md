@@ -2,12 +2,12 @@
 
 A reproducible procedure for minting a new `ACC0xx` diagnostic code.
 Stability of codes is a load-bearing contract (see
-docs/06-diagnostic-codes.md); this procedure enforces it.
+docs/07-diagnostic-codes.md); this procedure enforces it.
 
 ## Steps
 
 1. **Pick a code number.** Use the next available number in the correct
-   category range (see docs/06-diagnostic-codes.md §2). Never reuse a
+   category range (see docs/07-diagnostic-codes.md §2). Never reuse a
    retired number; never renumber.
 2. **Fix the severity.** Decide `error` / `warn` / `info`. The severity
    is permanent — changing it later requires minting a new code.
@@ -17,7 +17,7 @@ docs/06-diagnostic-codes.md); this procedure enforces it.
 4. **Define the `detail` payload.** If the code's JSON `detail` field is
    non-empty, define its shape here. `detail` shape changes are minor
    bumps; field removal is a major bump.
-5. **Add to docs/06-diagnostic-codes.md** in the correct category
+5. **Add to docs/07-diagnostic-codes.md** in the correct category
    table. Include code, severity, message pattern, trigger.
 6. **Wire the code.** Add the emission site in the derivation / check
    pipeline. Unit test the trigger predicate.

@@ -1,16 +1,16 @@
-# 06 — Diagnostic Codes
+# 07 — Diagnostic Codes
 
 > **What this page is about:** every ACC diagnosis has a stable code
-> (`ACC001`, `ACC022`, …), a severity, and a trigger. Agents and CI
-> consume `(code, severity, path)` tuples — never prose. This registry
-> is the contract those tuples obey.
+> (`ACC001`, `ACC022`, …), a severity, and a trigger. Agents consume
+> `(code, severity, path)` tuples — never prose. This registry is the
+> contract those tuples obey.
 
 ## 1. Stability Contract
 
-Diagnostic codes are the load-bearing contract for `acc check`,
-`acc discover`, and CI integration. They MUST be stable. When ACC tells
-you something, you (or your CI, or your agent) must be able to rely on
-what that something means — now and in a year.
+Diagnostic codes are the load-bearing contract for `acc check` and
+`acc discover`. They MUST be stable. When ACC tells you something, you
+(or your agent) must be able to rely on what that something means — now
+and in a year.
 
 - Codes are strings of the form `ACCddd` where `ddd` is a zero-padded three-digit integer (`ACC001` … `ACC999`).
 - Codes are partitioned by category (see §2). Adding a new code to a category is a **minor** version bump.
@@ -44,7 +44,7 @@ what that something means — now and in a year.
 | Severity | Meaning | `acc check` exit contribution |
 |----------|---------|------------------------------|
 | `error` | Violation of a hard ACC rule; the repository is malformed or contract is broken. | Exit `1`. |
-| `warn` | Likely problem; should be reviewed but not fatal. | Exit `0` unless `--severity error` filters it out — still reported. |
+| `warn` | Likely problem; should be reviewed but not fatal. | Exit `0` — warnings never fail the run; only `error` does. |
 | `info` | Informational observation (e.g., no analyzer for a file type). | Exit `0`. |
 
 Think of it as: `error` = stop, `warn` = look, `info` = heads up.
@@ -62,7 +62,7 @@ emits `warn` and `error` but not `info`.
 | `ACC002` | warn | `AGENTS.md at <path> has no recognizable sections` | File exists and is valid Markdown but ACC's heuristic parse finds no conventional section headings. Informational — the file is still a valid contract to agents. |
 | `ACC003` | error | `duplicate AGENTS.md at <path> (case-insensitive collision with <other>)` | On case-insensitive filesystems, two files differing only in case (e.g., `Agents.md` and `AGENTS.md`). |
 | `ACC004` | warn | `reference '<anchor>' in <AGENTS.md> points to unknown section` | A Markdown link inside an `AGENTS.md` points to a heading that does not exist in the same file. |
-| `ACC005` | info | `AGENTS.md at <path> has no <section> section` | One of the conventional sections (`Purpose`, `Responsibilities`, etc.) is absent. Not an error; only emitted when `acc check --verbose` or `acc document --from-discovery` is run. |
+| `ACC005` | info | `AGENTS.md at <path> has no <section> section` | One of the conventional sections (`Purpose`, `Responsibilities`, etc.) is absent. Not an error. Not emitted in V1 — it requires a `--verbose` mode `acc check` does not implement yet (future). |
 | `ACC006` | error | `nested functionality boundary without parent AGENTS.md` | A subdirectory `dir/AGENTS.md` exists but no ancestor `AGENTS.md` is present up to the root. The root `AGENTS.md` may itself be absent — in that case, the nearest boundary is the root node and this code is downgraded to `info`. |
 
 ---
@@ -73,7 +73,7 @@ emits `warn` and `error` but not `info`.
 |------|----------|-----------------|---------|
 | `ACC010` | error | `broken reference: <path> in <AGENTS.md> does not exist` | An `AGENTS.md` references a path (in `Dependencies`, `Ownership`, `Inputs`, `Outputs`, or prose) that does not exist on disk. |
 | `ACC011` | warn | `reference '<path>' in <AGENTS.md> points outside the project root` | A reference escapes the project root (e.g., `../sibling`). |
-| `ACC012` | error | `reference '<path>' in <AGENTS.md> is not a functionality boundary` | A `Dependencies` entry points to a path that has no `AGENTS.md` and is not under one. Per [03](./03-epistemology.md), every dependency edge is between two functionality boundaries. |
+| `ACC012` | error | `reference '<path>' in <AGENTS.md> is not a functionality boundary` | A `Dependencies` entry points to a path that has no `AGENTS.md` and is not under one. Per [03](./04-epistemology.md), every dependency edge is between two functionality boundaries. |
 | `ACC013` | warn | `reference '<path>' in <AGENTS.md> is not resolved by any language analyzer` | A declared dependency cannot be confirmed or denied by discovery because no analyzer covers the referenced code's language. |
 | `ACC014` | warn | `circular reference: <a> → <b> → … → <a>` | A cycle exists in declared dependencies. Not forbidden by ACC (some architectures are cyclic), but surfaced for review. |
 
@@ -81,16 +81,16 @@ emits `warn` and `error` but not `info`.
 
 ## 6. Declared-vs-Discovered Mismatches (`ACC020`–`ACC029`)
 
-Truth resolution per [03 §5](./03-epistemology.md#5-truth-resolution). This
+Truth resolution per [03 §5](./04-epistemology.md#5-truth-resolution). This
 is where "what you wrote" and "what the code does" meet — and the gap
 gets a code.
 
 | Code | Severity | Message pattern | Trigger |
 |------|----------|-----------------|---------|
-| `ACC020` | warn | `declared dependency '<a> → <b>' not discovered in code` | Declared edge has no corresponding discovered import. Possible stale declared dependency, or the dependency is dynamic/runtime-only and not statically discoverable. |
+| `ACC020` | warn | `declared dependency '<a> → <b>' not discovered in code` | Declared edge has no corresponding discovered import. Possible stale declared dependency, or the dependency is dynamic/runtime-only and not statically discoverable. V1: emitted by `acc discover` as a `stale-dependency` suggestion, not by `acc check`. |
 | `ACC021` | error | `declared/discovered direction mismatch: declared '<a> → <b>', discovered '<b> → <a>'` | Declared and discovered edges go in opposite directions. |
 | `ACC022` | warn | `discovered dependency '<a> → <b>' not declared in any AGENTS.md` | Discovered edge with no declared counterpart. Surfaces as a `missing-dependency` suggestion in `acc discover`. |
-| `ACC023` | info | `declared and discovered dependency '<a> → <b>' agree` | Aligned edge. Emitted only in `acc check --verbose` or JSON `include_aligned: true` mode — by default aligned edges are silent. |
+| `ACC023` | info | `declared and discovered dependency '<a> → <b>' agree` | Aligned edge. Not emitted in V1 (future; requires an `include_aligned`/`--verbose` mode). By default aligned edges are silent. |
 | `ACC024` | error | `forbidden dependency detected: '<a> → <b>'` | A discovered or declared edge matches a `forbidden_deps` rule in `.acc/config/config.yaml`. |
 | `ACC025` | warn | `forbidden dependency declared but unenforced: '<a> → <b>'` | A `forbidden_deps` rule references a path pair that never actually appears in declared or discovered edges; the rule is inert. |
 
@@ -123,7 +123,7 @@ gets a code.
 | Code | Severity | Message pattern | Trigger |
 |------|----------|-----------------|---------|
 | `ACC050` | warn | `orphan .acc-memory.md at <path>: no AGENTS.md in this directory or any ancestor` | A `.acc-memory.md` exists in a directory with no functionality boundary. Memory is meant to be functionality-local. |
-| `ACC051` | info | `empty .acc-memory.md at <path>` | The file exists but is empty. Harmless; emitted only in `acc check --verbose`. |
+| `ACC051` | info | `empty .acc-memory.md at <path>` | The file exists but is empty. Harmless; emitted whenever `acc check` finds one. |
 | `ACC052` | warn | `.acc-memory.md at <path> is not valid UTF-8` | Memory must be Markdown (UTF-8). Recoverable by rewriting. |
 | `ACC053` | warn | `.acc-memory.md at <path> appears committed (not gitignored)` | A `.acc-memory.md` is tracked by git. Suggests adding it to `.gitignore`. Does not modify the repo. |
 | `ACC054` | info | `.acc-memory.md at <path> exceeds <N> bytes` | Large memory file. Informational; large memories may bloat `acc context --include memory`. |
@@ -203,7 +203,7 @@ Reserved for future categories. MUST NOT be assigned in V1.
 
 ## 16. JSON Shape
 
-See [07 — JSON Output Schema](./07-json-schema.md). Each diagnostic in JSON output:
+See [08 — JSON Output Schema](./08-json-schema.md). Each diagnostic in JSON output:
 
 ```json
 {
@@ -253,3 +253,37 @@ See `.acc/config/workflows/diagnostic.md` for the mandatory procedure. Summary:
 
 The step that matters most: **fix the severity permanently.** A code is
 a promise. Choose the severity knowing you can never change it.
+
+---
+
+## 19. V1 Implementation Status
+
+The reference implementation (`bin/acc.js`) emits a stable subset of this
+registry. Codes not listed below are specified for future versions and
+are never emitted by V1.
+
+| Code | Severity | Emitted by |
+|------|----------|-----------|
+| `ACC001` | error | `acc check` — malformed `AGENTS.md` (not valid UTF-8) |
+| `ACC010` | error | `acc check` — broken reference |
+| `ACC012` | error | `acc check` — reference is not a functionality boundary |
+| `ACC014` | warn | `acc check` — circular declared dependency |
+| `ACC022` | warn | `acc check` — discovered dependency not declared |
+| `ACC030` | error | `acc check` — duplicate ownership |
+| `ACC031` | warn | `acc check` — unowned dependency target |
+| `ACC040` | info | `acc check` — no language analyzer for an extension |
+| `ACC050` | warn | `acc check` — orphan `.acc-memory.md` |
+| `ACC051` | info | `acc check` — empty `.acc-memory.md` |
+| `ACC053` | warn | `acc check` — committed `.acc-memory.md` |
+| `ACC060` | error | `acc check` — malformed `.acc/config/config.yaml` |
+| `ACC062` | info | `acc check` — config absent; using defaults |
+| `ACC072` | info | `acc check` + `acc discover` — orphaned code |
+
+`ACC020` is emitted by `acc discover` (as `stale-dependency`
+suggestions), not by `acc check`, in V1. `ACC012` is registered and its
+emission site exists, but it cannot currently fire: the root node always
+resolves, so every declared dependency finds a boundary. All other codes
+in this registry — `ACC002`–`ACC006`, `ACC011`, `ACC013`, `ACC021`,
+`ACC023`–`ACC025`, `ACC032`–`ACC034`, `ACC041`/`ACC042`, `ACC052`/`ACC054`,
+`ACC061`, `ACC063`–`ACC065`, `ACC070`/`ACC071`, `ACC073`, `ACC080`–`ACC083`,
+and the `ACC100`+ ranges — are future work.

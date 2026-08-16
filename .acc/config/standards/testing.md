@@ -28,7 +28,7 @@ This standard defines testing conventions for the ACC project.
 ### CLI Commands
 
 - Test every flag combination documented in specs.
-- Test `--json` output matches schema (docs/07-json-schema.md).
+- Test `--json` output matches schema (docs/08-json-schema.md).
 - Test exit codes: 0 (success), 1 (diagnostics), 2 (usage), 3 (panic).
 - Test determinism: same input → byte-identical output.
 

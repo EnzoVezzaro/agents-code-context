@@ -120,7 +120,7 @@ intellisense out of the box.
 ### ✨ New Features
 
 1. Open an issue to discuss the feature first.
-2. For CLI commands: update `docs/04-cli-commands.md` and `docs/07-json-schema.md`.
+2. For CLI commands: update `docs/05-cli-commands.md` and `docs/08-json-schema.md`.
 3. For diagnostic codes: follow [Adding Diagnostic Codes](#adding-diagnostic-codes).
 4. Add tests and documentation in the same PR.
 
@@ -224,13 +224,13 @@ See [.acc/config/standards/testing.md](./.acc/config/standards/testing.md).
 
 ## Documentation
 
-See [docs/09-authoring-guide.md](./docs/09-authoring-guide.md) for `AGENTS.md`
+See [docs/10-authoring-guide.md](./docs/10-authoring-guide.md) for `AGENTS.md`
 authoring conventions.
 
 **Specification updates:**
-- CLI changes → `docs/04-cli-commands.md` + `docs/07-json-schema.md`
-- Diagnostic codes → `docs/06-diagnostic-codes.md`
-- Architecture → `docs/03-epistemology.md` + `.acc/config/standards/architecture.md`
+- CLI changes → `docs/05-cli-commands.md` + `docs/08-json-schema.md`
+- Diagnostic codes → `docs/07-diagnostic-codes.md`
+- Architecture → `docs/04-epistemology.md` + `.acc/config/standards/architecture.md`
 - All docs use the numbered `NN-name.md` format; keep the index in `docs/README.md` current
 
 ---
@@ -241,11 +241,11 @@ authoring conventions.
 `.acc/config/workflows/diagnostic.md` exactly:
 
 1. Pick the next available code in the correct category range (see
-   `docs/06-diagnostic-codes.md` §2).
+   `docs/07-diagnostic-codes.md` §2).
 2. Fix severity permanently (`error`/`warn`/`info`).
 3. Define the exact trigger predicate (repository state only, not agent behavior).
 4. Define the JSON `detail` payload shape.
-5. Add to the category table in `docs/06-diagnostic-codes.md`.
+5. Add to the category table in `docs/07-diagnostic-codes.md`.
 6. Wire the emission site in the derivation/check pipeline (`lib/diagnostics.js`).
 7. Unit test the trigger predicate.
 8. Dogfood: `acc check` on the ACC repo — the new code must NOT fire spuriously.

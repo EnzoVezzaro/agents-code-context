@@ -8,7 +8,8 @@
  * any tool. The CLI exists to make context generation, validation, and
  * graph derivation faster and more reliable.
  *
- * Exit codes (docs/04): 0 success · 1 ACC error · 2 usage error · 3 panic.
+ * Exit codes (see the CLI command spec): 0 success · 1 ACC error ·
+ * 2 usage error · 3 panic.
  */
 'use strict';
 
@@ -38,11 +39,11 @@ const commandModules = {
   battle: require('../lib/commands/battle'),
 };
 
-// Documented in docs/04 as future work — not part of the V1 surface.
+// Documented as future work in the CLI command spec — not part of V1.
 const RESERVED = {
-  tool: 'Execute a specific tool capability (docs/11-tooling.md) — reserved, not implemented in V1',
-  shell: 'Execute a shell command in a project sandbox (docs/11-tooling.md) — reserved, not implemented in V1',
-  agents: 'Multi-agent orchestration commands (docs/10) — reserved, not implemented in V1',
+  tool: 'Execute a specific tool capability (see the tooling spec) — reserved, not implemented in V1',
+  shell: 'Execute a shell command in a project sandbox (see the tooling spec) — reserved, not implemented in V1',
+  agents: 'Multi-agent orchestration commands (see the multi-agent spec) — reserved, not implemented in V1',
 };
 
 function printTopHelp() {
@@ -80,11 +81,11 @@ function printTopHelp() {
 function main() {
   const argv = process.argv.slice(2);
 
-  if (argv.length === 0 || argv.includes('--help') || argv.includes('-h')) {
+  if (argv.length === 0 || (argv.length === 1 && (argv[0] === '--help' || argv[0] === '-h'))) {
     printTopHelp();
     return;
   }
-  if (argv.includes('--version') || argv.includes('-V')) {
+  if (argv.length === 1 && (argv[0] === '--version' || argv[0] === '-V')) {
     process.stdout.write(`acc ${VERSION}\n`);
     process.exit(0);
   }
