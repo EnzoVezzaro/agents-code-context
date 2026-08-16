@@ -32,6 +32,7 @@ const commandModules = {
   discover: require('../lib/commands/discover'),
   document: require('../lib/commands/document'),
   build: require('../lib/commands/build'),
+  fill: require('../lib/commands/fill'),
   memory: require('../lib/commands/memory'),
   tools: require('../lib/commands/tools'),
   battle: require('../lib/commands/battle'),

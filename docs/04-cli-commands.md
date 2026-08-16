@@ -535,6 +535,58 @@ Nothing to build — every code directory already has an AGENTS.md contract.
 
 ---
 
+## `acc fill [path]`
+
+**Purpose:** Produce a generic, agent-ready fill directive for completing
+the `AGENTS.md` files that `acc build` generated (or any `AGENTS.md` in
+the project). Read-only: it analyzes which sections are **missing**,
+**empty**, or still holding **template placeholders** and lists them per
+file, so a coding agent can work through the list and replace the
+placeholders with accurate content. It never writes to the repository —
+the agent (LLM) does that by following the directive.
+
+**Flags:** `--json`, `--root <path>`; an optional `path` positional scopes
+the scan to a subtree.
+
+**Behavior:**
+1. Walk the project root for `AGENTS.md` files (skipping `.acc/`).
+2. For each, compare the section headings against the standard set
+   (`Purpose`, `Responsibilities`, `Ownership`, `Inputs`, `Outputs`,
+   `Dependencies`, `Constraints`, `Architecture`).
+3. Classify each section: **missing** (no heading), **empty** (heading
+   with no content), or **placeholder** (content that still matches the
+   `acc build`/`acc document` template — `<...>` items, the "Describe what
+   ... does in one sentence." purpose line, "Owner: <...>", or the
+   `<Prose describing ...>` architecture line).
+4. Emit the fill directive plus the per-file checklist. JSON output uses
+   the stable envelope with `result.files[].{file,status,missing,empty,placeholders}`.
+
+**Terminal output:**
+```text
+$ acc fill
+acc fill — instructions for completing AGENTS.md files
+
+Fill directive: Read each AGENTS.md file below and the source code it
+documents, then replace every placeholder with accurate, concise content.
+Keep the Markdown structure and the section headings exactly as they are.
+Base the content on the actual source; do not invent facts. If a section
+has nothing to add, write "None." instead of guessing. Work through the
+list top to bottom.
+
+Files to fill:
+  1. src/auth/AGENTS.md
+     - Purpose: 1 placeholder item
+     - Ownership: 1 placeholder item
+     - Dependencies: 1 placeholder item
+     ...
+
+Summary: 2 of 3 AGENTS.md files need filling · 1 complete · 12 placeholder items
+```
+
+**Exit:** `0` on success, `2` on usage error.
+
+---
+
 ## `acc memory`
 
 **Purpose:** Read and update functionality-local `.acc-memory.md` files.
@@ -708,6 +760,7 @@ auth :: tests::test_refresh_flow ... ok
 | `acc discover` | Suggest architectural fixes (dry-run by default). | Only with `--apply`. |
 | `acc document <path>` | Generate `AGENTS.md` template. | Only with `--apply`. |
 | `acc build [path]` | Create missing `AGENTS.md` contract files. | Only with `--yes`. |
+| `acc fill [path]` | Fill directive for completing placeholder `AGENTS.md` files. | No. |
 | `acc memory show/add/clear <path>` | `.acc-memory.md` read/write. | Yes — `add`/`clear` only. |
 | `acc tools` | List capabilities. | No. |
 | `acc tool <name>` | Execute tool (test, lint, typecheck, build, format, audit). | Depends on tool. |
@@ -748,8 +801,8 @@ contract; everything pretty is allowed to evolve.
 The reference implementation (`bin/acc.js`, zero runtime dependencies)
 implements the core commands in this document: `init`, `check`, `inspect`,
 `context`, `graph`, `dependencies`, `dependents`, `impact`, `search`,
-`discover`, `document`, `build`, `memory`, and `tools`. Language analyzers
-fall back on filesystem structure per [03 §7](./03-epistemology.md#7-language-analyzers--optional-accuracy).
+`discover`, `document`, `build`, `fill`, `memory`, and `tools`. Language
+analyzers fall back on filesystem structure per [03 §7](./03-epistemology.md#7-language-analyzers--optional-accuracy).
 
 `acc tool`, `acc shell`, and `acc agents` are reserved and documented for
 future versions (see [11 — Tooling Subsystem](./11-tooling.md) and

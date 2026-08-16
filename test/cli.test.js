@@ -13,6 +13,14 @@ function run(args, cwd) {
   return execFileSync(process.execPath, [ACC, ...args], { cwd, encoding: 'utf8' });
 }
 
+function runEnv(args, cwd, env) {
+  return execFileSync(process.execPath, [ACC, ...args], {
+    cwd,
+    encoding: 'utf8',
+    env: { ...process.env, ...env },
+  });
+}
+
 function makeRepo() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'acc-e2e-'));
   fs.writeFileSync(path.join(root, 'AGENTS.md'), '# app\n\n## Purpose\n\nDemo app.\n');
@@ -266,4 +274,79 @@ test('acc build --yes creates .acc-memory.md alongside created contracts', () =>
 
   const again = run(['build', '--yes'], root);
   assert.ok(again.includes('Nothing to build'));
+});
+
+test('acc fill reports placeholder sections in generated templates', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'acc-fill-'));
+  fs.writeFileSync(path.join(root, 'AGENTS.md'), '# app\n');
+  fs.mkdirSync(path.join(root, 'lib'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'lib', 'index.js'), 'export const x = 1;\n');
+  run(['build', '--yes'], root);
+
+  const out = run(['fill'], root);
+  assert.ok(out.includes('Fill directive:'));
+  assert.ok(out.includes('lib/AGENTS.md'));
+  assert.ok(out.includes('Purpose: 1 placeholder item'));
+  assert.ok(out.includes('Ownership: 1 placeholder item'));
+
+  const parsed = JSON.parse(run(['fill', '--json'], root));
+  const lib = parsed.result.files.find((f) => f.file === 'lib/AGENTS.md');
+  assert.equal(lib.status, 'draft');
+  assert.deepEqual(lib.missing, []);
+  assert.ok(lib.placeholders.some((p) => p.section === 'Responsibilities' && p.count === 2));
+  assert.equal(parsed.result.summary.total, 2);
+});
+
+test('acc fill classifies missing and empty sections and reports complete files', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'acc-fill2-'));
+  fs.writeFileSync(
+    path.join(root, 'AGENTS.md'),
+    [
+      '# app',
+      '## Purpose',
+      'Demo.',
+      '## Responsibilities',
+      '- builds things',
+      '## Ownership',
+      'Owner: team',
+      '## Inputs',
+      '- code',
+      '## Outputs',
+      '- docs',
+      '## Dependencies',
+      '- src/x',
+      '## Constraints',
+      '- invariant',
+      '## Architecture',
+      'Prose.',
+    ].join('\n'),
+  );
+  fs.mkdirSync(path.join(root, 'src', 'auth'), { recursive: true });
+  fs.writeFileSync(
+    path.join(root, 'src', 'auth', 'AGENTS.md'),
+    '# auth\n\n## Purpose\n\nAuth.\n\n## Ownership\n\nOwner: t\n\n## Dependencies\n\n',
+  );
+
+  const parsed = JSON.parse(run(['fill', '--json'], root));
+  const rootFile = parsed.result.files.find((f) => f.file === 'AGENTS.md');
+  assert.equal(rootFile.status, 'complete');
+  assert.deepEqual(rootFile.missing, []);
+  assert.deepEqual(rootFile.empty, []);
+  const auth = parsed.result.files.find((f) => f.file === 'src/auth/AGENTS.md');
+  assert.equal(auth.status, 'draft');
+  assert.ok(auth.missing.includes('Architecture'));
+  assert.ok(auth.empty.includes('Dependencies'));
+  assert.equal(parsed.result.summary.complete, 1);
+  assert.equal(parsed.result.summary.total, 2);
+});
+
+test('project root never resolves to the home directory', () => {
+  const home = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'acc-home-')));
+  fs.writeFileSync(path.join(home, 'package.json'), '{}\n');
+  const nested = path.join(home, 'work', 'sandbox');
+  fs.mkdirSync(nested, { recursive: true });
+  fs.writeFileSync(path.join(nested, 'code.js'), 'export const x = 1;\n');
+
+  const out = JSON.parse(runEnv(['graph', '--json'], nested, { HOME: home }));
+  assert.equal(out.root, nested);
 });

@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`acc fill [path]`** — a generic, read-only fill directive for
+  completing `AGENTS.md` files. It walks the project, classifies every
+  section of every `AGENTS.md` as **missing**, **empty**, or holding
+  **template placeholders** (the `<...>` items, "Describe what ... does in
+  one sentence.", "Owner: <...>", "<Prose ...>"), and emits a per-file
+  checklist plus a directive a coding agent follows to replace the
+  placeholders with accurate content. Companion to `acc build`.
 - **`acc init` root memory record** — init now creates the root
   `.acc-memory.md` initial record (when missing) and seeds it with the
   project's provenance: the **clone date** (from `.git`, reflog first
@@ -58,6 +65,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Empty placeholder directories under `aba/`
 
 ### Fixed
+- **Project-root detection escape** — `detectProjectRoot` no longer
+  resolves to (or above) the user's home directory. A stray marker in the
+  home dir (e.g. `~/package.json`) previously made the **entire home tree**
+  the project root for any repository run in a nested sandbox, causing
+  `acc build`/`acc graph` to walk caches, `node_modules`, and browser
+  profiles for minutes (effectively hanging). Root detection now stops at
+  the home boundary and falls back to the current directory.
 - N/A (initial release)
 
 ### Security
