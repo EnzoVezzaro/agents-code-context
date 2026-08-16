@@ -18,7 +18,7 @@ En estos últimos dos años he podido ver y sufrir directamente el costo de la I
 
 Quisiera mandar saludos especiales y agradecimiento desde el corazón al equipo de freebuff, a midu, a y a todo el ecosistema open source, que sigamos creando, que sigamos construyendo, y que sigamos impulsando la industria hacia el futuro.
 
-¿Y si se preguntan por qué escribo esto en español, sabiendo inglés (y italiano 🇮🇹🍝)? Porque también el lenguaje se volvió una abstracción y prefiero comunicar con el mensaje más íntimo para mí. De desarrollar a desarrollar. 🇩🇴
+¿Y si se preguntan por qué escribo esto en español, sabiendo inglés (y italiano 🇮🇹🍝)? Porque también el lenguaje se volvió una abstracción y prefiero comunicar con el lenguaje más íntimo para mí. De desarrollar a desarrollar. 🇩🇴
 
 ---
 
