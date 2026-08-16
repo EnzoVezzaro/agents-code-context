@@ -39,6 +39,8 @@ prerequisite for understanding a project.
 
 ## What ACC is
 
+Think of it as four layers working together:
+
 - A **convention** layered on the existing `AGENTS.md` ecosystem.
 - A **control plane** (`.acc/config/`) for project-specific agents,
   workflows, and standards.
@@ -48,6 +50,8 @@ prerequisite for understanding a project.
   graph derivation, validation, and search.
 
 ## What ACC is not
+
+A few things it intentionally avoids:
 
 - **Not** a competing instruction-file standard. `AGENTS.md` stays
   Markdown.
@@ -88,12 +92,14 @@ furniture out and the house is still exactly the same house.
 | [13 — Security Model](./13-security.md) | What ACC guarantees (offline, no code execution, path boundary), what it reads/writes, untrusted input. |
 
 **Where to start:** if you only read one thing, make it
-[01 — Philosophy](./01-philosophy.md). It's the *why*; the rest of the
+[01 — Philosophy](./01-philosophy.md). It’s the *why*; the rest of the
 docs are the *how*.
 
 ---
 
 ## How an agent enters an ACC project
+
+It’s a simple walk — the same walk any agent already does with `AGENTS.md`:
 
 ```text
 AGENTS.md
@@ -113,5 +119,13 @@ graph (acc graph)
 
 This navigation model works with **any** capable coding agent, with or
 without the `acc` CLI installed. It's just files and Markdown — the same
-stuff agents already read. ACC simply makes the walk from *"I need to
-change something"* to *"I understand what I'm changing"* a lot shorter.
+stuff agents already read. ACC makes that walk from *"I need to change
+something"* to *"I understand what I'm changing"* a lot shorter.
+
+---
+
+<div align="center">
+
+*made with ❤️ from 🇩🇴*
+
+</div>

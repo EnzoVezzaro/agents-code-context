@@ -1,9 +1,13 @@
 # 08 — JSON Output Schema
 
-> **What this page is about:** the machine contract. If you're wiring
+> **TLDR:** the machine contract. If you're wiring
 > `acc` into an agent, a script, or CI, this is the page that tells you
 > exactly what JSON you'll get back. It's stable, versioned, and
 > deterministic — you can build against it without fear.
+
+Determinism is the whole point: the same repository and the same flags
+must always produce the same JSON, so a machine can build on it without
+surprises. This page defines the envelope and every payload.
 
 ## 1. Design Principles
 

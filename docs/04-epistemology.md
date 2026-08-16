@@ -1,11 +1,15 @@
 # 04 — Epistemology & Architecture Graph
 
-> **What this page is about:** every fact ACC shows you has a *source*
+> **TLDR:** every fact ACC shows you has a *source*
 > and an *authority level*. When ACC says "this module depends on that
 > module," you (or your agent) deserve to know *how ACC knows* — and
 > whether it's a fact worth trusting, an observation, or just a guess.
 
----
+Every edge, node, and label in the derived graph carries one of three
+labels — declared, discovered, or inferred — and ACC is careful about
+which is which. This page defines those three kinds of truth, how they
+are resolved when they disagree, and why the distinction is what makes
+the graph worth trusting.
 
 ## 1. The Graph Is Derived, Not Maintained
 

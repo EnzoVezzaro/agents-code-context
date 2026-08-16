@@ -86,6 +86,20 @@ a {
   font-weight: 700;
 }
 
+/* The docs already separate sections with `---` rules, so the default
+   theme's h2 top treatment (48px margin + hairline + 24px padding) is
+   redundant — it reads as empty space below each section and a big gap
+   right after the introduction. Drop the border/padding and tighten the
+   top margin; the first section sits close under the intro paragraph. */
+.vp-doc h2 {
+  margin-top: 32px;
+  border-top: none;
+  padding-top: 0;
+}
+.vp-doc h2:first-of-type {
+  margin-top: 24px;
+}
+
 /* Keep the code look consistent with the landing page */
 .vp-doc code {
   font-family: var(--mono);

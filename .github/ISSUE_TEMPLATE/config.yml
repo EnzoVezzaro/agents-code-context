@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & ideas
+    url: https://github.com/EnzoVezzaro/agents-code-context/discussions
+    about: Ask questions, share ideas, and show what you built with ACC.
+  - name: Security vulnerabilities
+    url: https://github.com/EnzoVezzaro/agents-code-context/security/advisories/new
+    about: Please report security issues privately via a GitHub Security Advisory — never in a public issue.

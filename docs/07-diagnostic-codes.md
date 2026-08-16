@@ -1,9 +1,14 @@
 # 07 — Diagnostic Codes
 
-> **What this page is about:** every ACC diagnosis has a stable code
+> **TLDR:** every ACC diagnosis has a stable code
 > (`ACC001`, `ACC022`, …), a severity, and a trigger. Agents consume
 > `(code, severity, path)` tuples — never prose. This registry is the
 > contract those tuples obey.
+
+The registry below is the shared vocabulary between ACC and whoever
+reads its output — a human or an agent. Stable codes mean a diagnostic
+means the same thing this year as it will next, so feedback can be acted
+on instead of re-interpreted.
 
 ## 1. Stability Contract
 

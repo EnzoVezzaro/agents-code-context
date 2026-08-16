@@ -94,7 +94,7 @@ export default defineConfig({
     ],
 
     footer: {
-      message: 'MIT Licensed · Open source · Agent-agnostic'
+      message: 'MIT Licensed · Open source · Agent-agnostic · made with ❤️ from 🇩🇴'
     }
   }
 })

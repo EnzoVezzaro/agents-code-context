@@ -1,6 +1,6 @@
 # 13 — Security Model
 
-> **What this page is about:** what ACC guarantees, what it does not, and
+> **TLDR:** what ACC guarantees, what it does not, and
 > the file surface it touches. The reporting process lives in the
 > repository's [SECURITY.md](https://github.com/EnzoVezzaro/agents-code-context/blob/main/SECURITY.md)
 > — this page is the model itself.

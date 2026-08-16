@@ -1,15 +1,18 @@
 # 09 — Memory Semantics
 
-> `.acc-memory.md` is the **durable, functionality-local, agent-written,
-> gitignored Markdown** memory layer. It is the scratchpad for durable
-> knowledge that an agent learns about a functionality but that is not
-> yet (or should not be) part of the committed `AGENTS.md` contract.
+> **TLDR:** `.acc-memory.md` is the **durable, functionality-local,
+> agent-written, gitignored Markdown** memory layer — the scratchpad
+> for durable knowledge an agent learns about a functionality but that
+> is not yet (or should not be) part of the committed `AGENTS.md`
+> contract.
 >
 > In plain terms: it's the "things I wish I'd known before I started"
 > file — the place an agent writes down what it learned so the *next*
 > agent doesn't have to rediscover it the hard way.
 
----
+Memory is where a repository stops being just a snapshot of code and
+starts carrying what the people who worked on it actually learned. This
+page covers how that memory is written, read, and kept honest.
 
 ## 1. Role in the Framework
 

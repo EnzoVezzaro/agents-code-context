@@ -1,9 +1,13 @@
 # 06 — Context Engine
 
-> **What this page is about:** `acc context` is the command you'll reach
+> **TLDR:** `acc context` is the command you'll reach
 > for most. It's the answer to the question "what does the agent actually
 > need to know to touch this code?" — without dumping the whole repo on
 > it.
+
+The whole command exists for one reason: an agent with too much context
+and an agent with too little context are equally lost. This page is the
+contract for how `acc context` walks that line.
 
 ## 1. Goal
 

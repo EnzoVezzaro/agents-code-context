@@ -1,15 +1,13 @@
 # 10 — AGENTS.md Authoring Guide
 
-> `AGENTS.md` is plain Markdown. ACC imposes **no schema** and **no
-> mandatory sections**. This guide describes conventions that maximize
-> the value of the ACC tooling layer while keeping the file readable by
-> any coding agent that has never heard of ACC.
->
-> If you write nothing else into your repository, write this. It's the
-> lowest-effort, highest-leverage thing you can do for your future self
-> and your agents.
+> **TLDR:** `AGENTS.md` stays plain Markdown — ACC adds no schema and no
+> mandatory sections. Put one local `AGENTS.md` in each functionality
+> directory and follow the conventional sections to get the most from
+> the tooling layer.
 
----
+The guide below is convention, not law — but the conventions exist
+because they work. If you write only one thing into your repository,
+write the Purpose section; everything else compounds from there.
 
 ## 1. The One Rule
 

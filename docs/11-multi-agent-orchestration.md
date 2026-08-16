@@ -1,9 +1,13 @@
 # 11 — Multi-Agent Orchestration
 
-> **What this page is about:** the day your task is too big for one
+> **TLDR:** the day your task is too big for one
 > agent, and you want a few of them working in parallel without stepping
 > on each other. ACC doesn't force this — it just makes it safe when it
 > happens.
+
+ACC is single-agent by default, on purpose — one agent, one repository,
+one clear job. This page is about what changes when that's not enough
+anymore.
 
 ## Overview
 

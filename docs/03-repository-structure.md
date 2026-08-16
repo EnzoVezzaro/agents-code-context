@@ -1,9 +1,15 @@
 # 03 — Repository Structure
 
-## Overview
+> **TLDR:** an ACC-enabled project is three layers stacked on top of
+> each other — the standard `AGENTS.md` surface, the `.acc/` control
+> plane, and the gitignored memory layer. Any agent can navigate all of
+> it with plain files; the CLI is an optional accelerator.
 
-Think of an ACC-enabled project as three layers stacked on top of each
-other, each with a distinct job:
+Here's the layout this repository follows — and the one ACC recommends
+for any repo that wants to be agent-native. Nothing is sacred; the
+structure exists to communicate.
+
+## Overview
 
 ```text
 my-project/

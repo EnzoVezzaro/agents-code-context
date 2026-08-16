@@ -1,9 +1,13 @@
 # 12 — Tooling Subsystem
 
-> **What this page is about:** how ACC gives agents the right tools
+> **TLDR:** how ACC gives agents the right tools
 > without the agent having to ask "which tool do I need?" ACC looks at
 > your project, figures out what's available, and exposes it — with a
 > permission model so nothing dangerous happens by default.
+
+Tooling is where ACC stops being a read-only map and starts offering the
+agent a way to act — safely. This page covers how tools are discovered,
+exposed, and gated.
 
 ## Overview
 

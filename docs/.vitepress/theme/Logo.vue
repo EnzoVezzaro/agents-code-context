@@ -820,8 +820,15 @@ async function enter() {
     ),
     animate(
       morph,
-      { transform: ['scale(1)', 'scale(1.25)'] },
-      { duration: 0.35, ease: 'easeInOut' }
+      {
+        transform: ['scale(1)', 'scale(1.25)'],
+        // The icon starts fading a little before the morph completes —
+        // it dissolves into the card rather than snapping away once the
+        // outline has finished unfolding. Fully gone at ~85% of the
+        // morph, so the card content materializes alone at the tail.
+        opacity: [1, 1, 0]
+      },
+      { duration: 0.35, ease: 'easeInOut', times: [0, 0.55, 0.85] }
     ),
     animate(
       marks,

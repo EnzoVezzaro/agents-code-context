@@ -1,10 +1,14 @@
 # 05 — CLI Command Specification
 
-> **What this page is about:** the `acc` CLI, command by command. If you
+> **TLDR:** the `acc` CLI, command by command. If you
 > want the *experience* rather than the spec, the fastest path is:
 > `acc init` on a repo, then `acc graph`, `acc check`, and
 > `acc context <path>`. Everything below is the precise contract those
 > commands obey.
+
+Every command below is a promise — deterministic output, stable codes,
+documented behavior — because agents build on top of this. Read it once
+to know what's here; the examples are the fastest way to remember it.
 
 ## Conventions
 

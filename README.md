@@ -11,6 +11,8 @@
 
 **A convention-first framework that makes any software repository agent-native, navigable, and self-describing—without proprietary runtimes.**
 
+> I spent a year building side-by-side with AI agents. They’re fast, they’re smart — but every new session started with the same explanations. Where things live. Why that weird code exists. What not to touch. ACC is what happened when I got tired of explaining. The knowledge belongs to the project, so let it live with the project.
+
 [Quickstart](#-quickstart) • [Documentation](./docs/README.md) • [Architecture](#-architecture) • [Contributing](./CONTRIBUTING.md) • [Community](#-community)
 
 </div>
@@ -19,9 +21,9 @@
 
 ## Why ACC?
 
-Modern AI coding agents (Claude Code, Cursor, Codex, OpenCode, Gemini, etc.) are powerful but lack persistent, structured project context. They re-read files on every session, miss architectural intent, and can't share knowledge across agents or sessions.
+Modern AI coding agents are powerful. Claude Code, Cursor, Codex, OpenCode, Gemini… they can write a lot of code. The problem was never that they weren’t smart — it was that they didn’t know *my* project. Every session felt like onboarding from scratch.
 
-**ACC solves this by making the repository itself the source of truth.**
+ACC changes that by making the repository itself the source of truth.
 
 | Without ACC | With ACC |
 |-------------|----------|
@@ -35,6 +37,8 @@ Modern AI coding agents (Claude Code, Cursor, Codex, OpenCode, Gemini, etc.) are
 
 ## Core Principles
 
+These are the non-negotiables that shaped ACC. They’re not features — they’re how I wanted to work.
+
 - **🏗️ Convention over Configuration** — Built on the open [agents.md](https://agents.md/) standard: plain `AGENTS.md`, no schema
 - **🔄 Agent-Agnostic** — Works with *any* coding agent; no wrapper, runtime, or API required
 - **📁 Filesystem-First** — Repository is the sole source of truth; no database, no network calls
@@ -46,14 +50,13 @@ Modern AI coding agents (Claude Code, Cursor, Codex, OpenCode, Gemini, etc.) are
 
 ## Quickstart
 
+Getting started is intentionally simple. ACC works without the CLI — the CLI just makes it faster and verifiable.
+
 ### Prerequisites
 - Node.js 18+ and a git repository with source code
 - Any coding agent (Cursor, Claude Code, Codex, OpenCode, etc.)
 
-> **The CLI is optional.** ACC is a convention — any coding agent reads the
-> repository directly from `AGENTS.md` files. The `acc` CLI is a
-> deterministic accelerator for humans and agents: install it when you want
-> speed and machine-checkable guarantees.
+> **The CLI is optional.** ACC is a convention first. Any coding agent reads the repository directly from `AGENTS.md` files. The `acc` CLI is a deterministic accelerator for humans and agents: install it when you want speed and machine-checkable guarantees.
 
 ### 1. Install the CLI (optional)
 
@@ -120,6 +123,8 @@ acc memory add src/auth "OAuth token refresh requires clock skew tolerance of 30
 
 ## Key Features
 
+Here’s what that looks like in practice:
+
 ### 🎯 Architecture Graph Derivation
 Derive a live architecture graph from `AGENTS.md` declarations + source imports + filesystem structure—in memory, at query time.
 
@@ -174,8 +179,8 @@ acc search "database" --kind edges
 ## The CLI (Optional Accelerator)
 
 The `acc` CLI is **not required** — the framework is plain files and works
-without any tool. When present, it gives you and your agents deterministic,
-offline, provenance-tagged answers about the repository.
+without any tool. Think of the CLI as a power tool: it’s the same framework,
+just faster, deterministic, and machine-checkable for both humans and agents.
 
 ```bash
 acc init                # Scaffold .acc/config/ + .gitignore entry
@@ -377,6 +382,6 @@ MIT License — see [LICENSE](./LICENSE) for details.
 **Built for an AI-native development future.**  
 Filesystem-first • Offline • Agent-agnostic • Deterministic
 
-[⭐ Star this repo](https://github.com/EnzoVezzaro/agents-code-context) if you find ACC useful!
+If you try ACC on your project, I’d love to hear how it goes — [⭐ Star this repo](https://github.com/EnzoVezzaro/agents-code-context) if you find it useful!
 
 </div>

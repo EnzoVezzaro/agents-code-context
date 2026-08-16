@@ -446,6 +446,14 @@ Discovered:
               Agent&nbsp;Code&nbsp;Context
             </a>
             <p>A convention and tooling layer for agent-native repositories. MIT licensed, offline-first, safe on untrusted repos.</p>
+            <div class="foot-sponsor">
+              <a class="foot-gh-link" href="https://github.com/EnzoVezzaro/agents-code-context" target="_blank" rel="noopener" aria-label="agents-code-context on GitHub">
+                <svg class="foot-gh" viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+              </a>
+              <iframe src="https://github.com/sponsors/EnzoVezzaro/button" title="Sponsor EnzoVezzaro" height="32" width="114" style="border: 0;"></iframe>
+            </div>
           </div>
           <div class="foot-col">
             <h4>Spec</h4>
@@ -471,11 +479,8 @@ Discovered:
             <a href="https://github.com/EnzoVezzaro/agents-code-context/blob/main/AGENTS.md" target="_blank" rel="noopener">AGENTS.md</a>
           </div>
         </div>
-        <div class="foot-support">
-          <iframe src="https://github.com/sponsors/EnzoVezzaro/card" title="Sponsor EnzoVezzaro" height="225" width="600" style="border: 0; border-radius: 8px;"></iframe>
-        </div>
         <div class="foot-bottom">
-          <span>© 2026 agents-code-context</span>
+          <span>© 2026 agents-code-context · made with <span class="foot-love">❤️</span> from 🇩🇴</span>
           <span class="eq">ACC-enhanced = Repository + <span class="pri">AGENTS.md</span> + .acc/</span>
         </div>
       </div>
@@ -818,13 +823,26 @@ Discovered:
 .foot-col h4 { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 14px; font-weight: 600; }
 .foot-col a { display: block; font-size: 14px; padding: 4px 0; color: var(--ink); transition: color 0.18s; }
 .foot-col a:hover { color: var(--primary); }
-.foot-support {
+.foot-brand .foot-sponsor {
   display: flex;
-  justify-content: center;
-  padding: 40px 0 8px;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
 }
-.foot-support iframe {
-  max-width: 100%;
+.foot-brand .foot-gh-link {
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+  transition: opacity .18s ease;
+}
+.foot-brand .foot-gh-link:hover {
+  opacity: .7;
+}
+.foot-brand .foot-gh {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  fill: var(--muted);
 }
 .foot-bottom {
   margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--hair);
