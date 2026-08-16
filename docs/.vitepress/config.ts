@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import pkg from '../../package.json'
 
 /*
  * ACC documentation site.
@@ -8,6 +9,10 @@ import { defineConfig } from 'vitepress'
  * prefix for clean URLs, and `srcExclude` keeps README.md and AGENTS.md out
  * of the built site. There is no separate content copy and no sync step.
  */
+
+// The framework version shown on the landing page and in the docs footer.
+// Single source of truth: package.json — bump it with `npm run bump`.
+const version = pkg.version
 
 // Deployed to GitHub Pages at /agents-code-context/ (see .github/workflows/pages.yml).
 const base = '/agents-code-context/'
@@ -20,6 +25,14 @@ export default defineConfig({
   cleanUrls: true,
 
   base,
+
+  // Expose the package.json version to theme components (landing hero,
+  // footer) so it can never drift from the released version.
+  vite: {
+    define: {
+      __ACC_VERSION__: JSON.stringify(version)
+    }
+  },
 
   // Terminal examples in the landing templates rely on literal newlines
   // inside .term / .term-block — Vue's default whitespace condensation
@@ -94,7 +107,7 @@ export default defineConfig({
     ],
 
     footer: {
-      message: 'MIT Licensed · Open source · Agent-agnostic · made with ❤️ from 🇩🇴'
+      message: `ACC v${version} · MIT Licensed · Open source · Agent-agnostic · made with ❤️ from 🇩🇴`
     }
   }
 })

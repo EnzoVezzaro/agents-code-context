@@ -370,10 +370,18 @@ MIT License — see [LICENSE](./LICENSE) for details.
 - **[llms.txt](https://llmstxt.org/)** — the open convention for machine-readable project information.
 - **[isbetter.ai](https://github.com/midudev/isbetter.ai)** by [midudev](https://github.com/midudev) — the battle arena behind ABA ([`aba/`](./aba/)) is adapted from it (MIT / FSL-1.1-MIT).
 - **[Freebuff2API](https://github.com/Quorinex/Freebuff2API)** (MIT) — the optional local Freebuff proxy vendored into ABA.
-- The coding agents that brought AGENTS.md into the mainstream (OpenAI Codex, Claude Code, Cursor, GitHub Copilot, Google Gemini CLI, and more)
-- Open-source projects demonstrating agent-native patterns
-- Contributors who believe repositories should be self-describing
-- **The open source community** — thank you for the revolutionary contributions that make projects like this possible. Gracias por los aportes. 🙌
+
+<!-- tags: midudev https://github.com/midudev, Quorinex https://github.com/Quorinex/Freebuff2API, CodebuffAI https://github.com/CodebuffAI/freebuff -->
+
+### Special thanks to Freebuff 💜
+
+I built most of ACC with [Freebuff](https://freebuff.com/?ref=ref-0f42f217-e7d8-472f-b137-ca83dacb992b) ([GitHub](https://github.com/CodebuffAI/freebuff)). It’s free, no API keys, no subscription — just models you can actually use. For a solo developer in the Dominican Republic, that made a real difference. The research, the drafts, even parts of this README were written with Freebuff running locally.
+
+> A note to the Freebuff team: thank you for making this possible. From the Dominican Republic: we need more models. Keep them coming. 🌎💜
+
+<!-- tags: Freebuff https://github.com/CodebuffAI/freebuff -->
+
+To **the open source community** — thank you for the revolutionary contributions that make projects like this possible. Gracias por los aportes. 🙌
 
 ---
 

@@ -21,6 +21,9 @@ package-lock.json
 yarn.lock
 Cargo.lock
 go.sum
+# The docs site lockfile IS committed — the Pages deploy uses `npm ci`
+# (.github/workflows/pages.yml) and needs a lockfile to install from.
+!docs/package-lock.json
 
 # ACC durable memory — local, agent-written, never committed.
 # See docs/08-memory-semantics.md.

@@ -1,0 +1,34 @@
+Por donde empezar, no quiero repetir lo mencionado en el post, ni explicar codigo, aqui quisiera expresar algo de desarrollador a desarrollador. 
+
+Quisiera contarles a todos un poco de mí, un poco del por qué empecé a hacerles las tareas a mi esposa sin saber que esa se convertiría en mi profesión un día. El por qué yo empecé a programar hace 12 años es la misma razón por la que creo que vale la pena contar esta historia.
+
+Para mí la computación siempre fue magia, no mágica, pero sí magia. Transformar 0 y 1 en algo que se puede ver, y luego con él se puede interactuar. Para mí eso sigue siendo magia. Pero repito, no mágica, sino millones y millones de 0 y 1 que alguien puso en un programa. Más que una acción mágica, es una acción heroica.
+
+Inicialmente no sabía qué significaba eso, no tenía la experiencia. Desde fuera el código siempre se ve fácil. Y con el tiempo entendí que es exactamente ese nuestro trabajo. De alguna forma nosotros somos quienes creamos las abstracciones que la sociedad necesita para funcionar. Abstracción, otra cosa que aprendí en mis 12 años de carrera es que todo lo que hacemos es como ese fin, buscar siempre un mayor nivel de abstracción para poder llegar siempre más altos. Es exactamente lo que hace grande a la comunidad open source.
+
+Eso sí, no siempre es color de rosas, al contrario. El proceso del desarrollador siempre ha sido buscarle solución a muchos problemas para llegar a la abstracción que necesita el usuario, y en ese camino hay muchooooooos problemas. El ejemplo más elocuente para mí fue la evolución de npm. No sé cuántos de ustedes estuvieron en los primeros años de npm, pero era horrible 😅: o no funcionaba algo, o había un bug en una versión pero no en la otra, o había que hacer downgrade para retro-compatability, o había que contactar al desarrollador para que hiciera las modificaciones que se necesitaban para avanzar, o sea, era un total caos. Pero ahora, ¿pues nadie casi ni piensa en npm ya? Es el default básicamente de los proyectos web. Pero al final, ¿qué es npm? Otro nivel de abstracción.
+
+Hoy en día escucho hablar mucho de cómo la IA va a automatizar todo y a todos. He visto tristemente cómo la industria, que alguna vez producía los mejores y mejores trabajos del mundo, decide renunciar a su bien más preciado, su talento humano. He visto con suma decepción cómo industrias innovativas y llenas de futuro terminan tirando todo a la borda por perseguir el capitalismo corporativo que usa a las personas, usa sus tecnologías, usa sus datos, y hasta usa sus intelectos. Lamentablemente el capitalismo nos come desde adentro, pero qué podemos hacer, aquí opera la sociedad moderna. Por eso se hace más urgente que nunca poner a disposición del mundo nuestras herramientas, para que el mundo pueda prepararse a la nueva ola de innovación tecnológica que se acerca.
+
+Nuestros pueblos son vulnerables a lo que se acerca, yo soy italo-dominicano, no me preocupa tanto mi herencia italiana, pero la dominicana va a necesitar ayuda. Vamos a necesitar que las mejores tecnologías estén disponibles para que cualquiera, sin importar su budget, pueda tener en sus manos estas potentísimas innovaciones, y puedan hacer la transición que se acerca con optimismo.
+
+En estos últimos dos años he podido ver y sufrir directamente el costo de la IA, pero también he podido ver y percibir su verdadero potencial. Me imagino un futuro donde ya el código no es exclusivo, está a la mano de todos. Donde crear no tiene un costo, más allá de tu imaginación. Donde los dispositivos electrónicos serán tan fáciles de hacer como el software que los hace funcionar. Me imagino un futuro lleno de posibilidades para nuestra profesión y el mundo. No es una herramienta que viene a sustituir desarrolladores, como las grandes corporaciones te quieren hacer pensar, es una herramienta que viene a revolucionar las vidas de los desarrolladores. Que tú seas hard-core vieja escuela, o que seas de la nueva generación de desarrolladores que tienen herramientas que yo hubiera soñado en mis días, todos verán las ventajas de tener gran parte del código como una abstracción del mismo. Para muchos se volverá una abstracción. Para otros será el microscopio para poder mejorar sus softwares, para otros será simplemente un landing page builder. El uso lo dará cada quien, lo importante es que todos puedan usarlo.
+
+Quisiera mandar saludos especiales y agradecimiento desde el corazón al equipo de freebuff, a midu, a ... y a todo el ecosistema open source, que sigamos creando, que sigamos construyendo, y que sigamos impulsando la industria hacia el futuro.
+
+¿Y si se preguntan por qué escribo esto en español, sabiendo inglés (y italiano 🇮🇹🍝)? Porque también el lenguaje se volvió una abstracción y prefiero comunicar con el mensaje más íntimo para mí. De desarrollar a desarrollar. 🇩🇴
+
+---
+
+## Agradecimientos
+
+Este proyecto se construye sobre el trabajo abierto y de gente que cree en la teconologia como bien común:
+
+* **Equipo de Freebuff** — [freebuff.com](https://freebuff.com) / [GitHub CodebuffAI/freebuff](https://github.com/CodebuffAI/freebuff) — por poner modelos potentes a $0 y permitir construir desde la República Dominicana.
+* **midu / @midudev** — [GitHub midudev](https://github.com/midudev) — `isbetter.ai`, inspiración directa del arena de ABA.
+* **Michael Movsesov** — [mini-coding-agent](https://github.com/michaelmov/mini-coding-agent) — el bucle agéntico read → think → act → verify que modela el harness de ABA.
+* **Quorinex** — [Freebuff2API](https://github.com/Quorinex/Freebuff2API) — proxy local de Freebuff para clientes OpenAI-compatibles. It's a hack, CodebuffAI implement this please, or even better hire Quorinex 👨🏽‍💻
+* **Estándares abiertos**: agents.md, Agent Skills, MCP, llms.txt. Y todos los participantes en el ecosistema.
+* **Comunidad open source** en general — quienes mantienen codigo abierto, herramientas para el mundo y prácticas que hacen posible un futuro donde el código este al servicio de todos.
+
+Gracias por los aportes. 🙌

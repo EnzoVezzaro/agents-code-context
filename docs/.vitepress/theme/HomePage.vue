@@ -4,6 +4,9 @@ import { onMounted } from 'vue'
 import { withBase } from 'vitepress'
 import Logo from './Logo.vue'
 
+// Injected at build time by docs/.vitepress/config.ts from package.json.
+const version = __ACC_VERSION__
+
 onMounted(() => {
   if (typeof window === 'undefined') return
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -56,7 +59,7 @@ onMounted(() => {
       <div class="wrap">
         <div class="hero-grid">
           <div>
-            <div class="hero-eyebrow">v0.4.0 · open source</div>
+            <div class="hero-eyebrow">v{{ version }} · open source</div>
             <h1>Give any codebase <em>a map</em> any agent can read.</h1>
             <p class="lede">ACC gives your repository a voice. Boundaries, owners, dependencies, the rules nobody wants to repeat — written in plain Markdown, right next to the code. Any agent can read it. So can you.</p>
             <div class="hero-actions">

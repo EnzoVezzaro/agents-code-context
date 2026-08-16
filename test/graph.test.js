@@ -88,6 +88,24 @@ test('edges are deterministically sorted', () => {
   assert.deepEqual(JSON.stringify(a.edges), JSON.stringify(b.edges));
 });
 
+test('npm-scripts field and object keys are not discovered references', () => {
+  const root = makeFixture();
+  fs.mkdirSync(path.join(root, 'scripts'), { recursive: true });
+  fs.writeFileSync(
+    path.join(root, 'scripts', 'AGENTS.md'),
+    '# scripts\n\n## Purpose\n\nDeveloper tooling.\n',
+  );
+  fs.writeFileSync(
+    path.join(root, 'src', 'auth', 'pkg.cjs'),
+    '// tools from package.json scripts\nconst pkg = JSON.stringify({ scripts: { build: \'npm run build\' } });\n',
+  );
+  const { config } = load(root);
+  const graph = buildGraph(root, config);
+  // Neither the npm `scripts` field nor an object key is a reference to
+  // the scripts/ boundary.
+  assert.ok(!graph.edges.some((e) => e.to === 'scripts' && e.provenance.kind === 'discovered'));
+});
+
 test('detects declared dependency cycles', () => {
   const root = makeFixture();
   fs.writeFileSync(

@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`npm run bump -- <version>`** — single-source version bump: updates
+  `package.json`, cuts the CHANGELOG `[Unreleased]` section, and the docs
+  site follows automatically (the landing hero and docs footer read the
+  version from `package.json` at build time via `__ACC_VERSION__`).
+- **Docs deploy hardening** — the Pages workflow now uses `npm ci` with a
+  committed `docs/package-lock.json`, and triggers on `package.json` /
+  `scripts/**` changes so a version bump redeploys the site.
+- **Discovered-reference matcher refinements** — object keys (`{ scripts: … }`)
+  and the npm `scripts` field (`package.json scripts`, `npm scripts`) no
+  longer count as code references to a `scripts/` boundary.
+- **`scripts/` contract** — `scripts/AGENTS.md` for the developer tooling
+  boundary (bump script + docs wiring).
+
+### Added
 - **Diagnostic engine completeness** — `acc check` now emits diagnostics
   that were previously registered but unreachable:
   - `ACC022` (discovered dependency not declared) — was missing from
