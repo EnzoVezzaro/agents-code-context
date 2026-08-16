@@ -1,8 +1,16 @@
 # 06 — Diagnostic Codes
 
+> **What this page is about:** every ACC diagnosis has a stable code
+> (`ACC001`, `ACC022`, …), a severity, and a trigger. Agents and CI
+> consume `(code, severity, path)` tuples — never prose. This registry
+> is the contract those tuples obey.
+
 ## 1. Stability Contract
 
-Diagnostic codes are the load-bearing contract for `acc check`, `acc discover`, and CI integration. They MUST be stable.
+Diagnostic codes are the load-bearing contract for `acc check`,
+`acc discover`, and CI integration. They MUST be stable. When ACC tells
+you something, you (or your CI, or your agent) must be able to rely on
+what that something means — now and in a year.
 
 - Codes are strings of the form `ACCddd` where `ddd` is a zero-padded three-digit integer (`ACC001` … `ACC999`).
 - Codes are partitioned by category (see §2). Adding a new code to a category is a **minor** version bump.
@@ -39,7 +47,10 @@ Diagnostic codes are the load-bearing contract for `acc check`, `acc discover`, 
 | `warn` | Likely problem; should be reviewed but not fatal. | Exit `0` unless `--severity error` filters it out — still reported. |
 | `info` | Informational observation (e.g., no analyzer for a file type). | Exit `0`. |
 
-CLI `--severity` flag filters to minimum severity: `--severity warn` emits `warn` and `error` but not `info`.
+Think of it as: `error` = stop, `warn` = look, `info` = heads up.
+
+CLI `--severity` flag filters to minimum severity: `--severity warn`
+emits `warn` and `error` but not `info`.
 
 ---
 
@@ -70,7 +81,9 @@ CLI `--severity` flag filters to minimum severity: `--severity warn` emits `warn
 
 ## 6. Declared-vs-Discovered Mismatches (`ACC020`–`ACC029`)
 
-Truth resolution per [03 §5](./03-epistemology.md#5-truth-resolution).
+Truth resolution per [03 §5](./03-epistemology.md#5-truth-resolution). This
+is where "what you wrote" and "what the code does" meet — and the gap
+gets a code.
 
 | Code | Severity | Message pattern | Trigger |
 |------|----------|-----------------|---------|
@@ -210,7 +223,8 @@ See [07 — JSON Output Schema](./07-json-schema.md). Each diagnostic in JSON ou
 }
 ```
 
-`code`, `severity`, `path` are always present. `message` always present. `detail` is optional, command-specific structured context.
+`code`, `severity`, `path` are always present. `message` always present.
+`detail` is optional, command-specific structured context.
 
 ---
 
@@ -236,3 +250,6 @@ See `.acc/config/workflows/diagnostic.md` for the mandatory procedure. Summary:
 7. Unit test the trigger predicate.
 8. Dogfood: run `acc check` on the ACC repo itself; the new code should NOT fire spuriously.
 9. Bump versions: new code = minor `acc_version` bump and minor `schema_version` bump.
+
+The step that matters most: **fix the severity permanently.** A code is
+a promise. Choose the severity knowing you can never change it.

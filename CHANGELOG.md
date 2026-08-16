@@ -8,7 +8,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- **ABA is now its own repository and npm package**: `acc-battle-arena` (MIT + FSL-1.1-MIT for the isbetter.ai-derived UI). The `aba/` directory is a self-contained git repo, never pushed with ACC; `acc-agents` depends on the npm package so `acc battle` works out of the box
+- **`acc init` root memory record** — init now creates the root
+  `.acc-memory.md` initial record (when missing) and seeds it with the
+  project's provenance: the **clone date** (from `.git`, reflog first
+  entry or filesystem birthtime) and, when the origin is GitHub, the
+  owner/repo and default branch (from `.git/config` + `.git/HEAD`).
+  All reads are pure filesystem — no git binary is ever executed.
+- **`acc build` memory records** — alongside every `AGENTS.md` contract
+  it creates, `acc build --yes` now also creates an initial
+  `.acc-memory.md` record for that functionality. Dry-run output,
+  idempotency, and "nothing to build" semantics are unchanged.
+- **`acc build [path]`** — create all missing `AGENTS.md` contract files in a
+  project (dry-run by default; `--yes` writes, `--from-discovery` pre-fills
+  inferred dependencies/owners). A project is "fully documented" when `acc
+  build` has nothing left to create.
+- **`acc init` scan-and-prepare prompt** — in an interactive terminal, init
+  now asks whether to scan the codebase and prepare the project; confirmed
+  answers (or `--scan`) run the diagnostics scan (`acc check`) and create the
+  missing contract files (`acc build --yes --from-discovery`). `--no-scan`
+  and non-interactive runs (CI, piped stdin) never scan, keeping init
+  deterministic and safe on untrusted repositories.
+- ABA is now its own repository and npm package: `acc-battle-arena` (MIT + FSL-1.1-MIT for the isbetter.ai-derived UI). The `aba/` directory is a self-contained git repo, never pushed with ACC; `acc-agents` depends on the npm package so `acc battle` works out of the box
 - ACC licensed under the same MIT license as the [agents.md](https://agents.md) standard
 - Initial ACC framework specification and documentation
 - CLI commands: `init`, `check`, `inspect`, `context`, `graph`, `dependencies`, `dependents`, `impact`, `search`, `discover`, `document`, `memory`

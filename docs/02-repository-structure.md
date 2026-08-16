@@ -2,7 +2,8 @@
 
 ## Overview
 
-A single ACC-enabled project directory has three load-bearing layers:
+Think of an ACC-enabled project as three layers stacked on top of each
+other, each with a distinct job:
 
 ```text
 my-project/
@@ -39,7 +40,7 @@ my-project/
 └── .acc-memory.md                # Root-level durable memory (gitignored)
 ```
 
-The strict boundary:
+The strict boundary — who owns what:
 
 | Layer | Role | Ownership |
 |-------|------|-----------|
@@ -50,13 +51,20 @@ The strict boundary:
 | `.acc/config/` | Project-level ACC control plane. | ACC-specific configuration, profiles, workflows, standards. |
 | `acc` CLI | Deterministic accelerator. | Optional tooling, never required for understanding. |
 
+The whole thing reads like a conversation: the standard says *this is
+how agents find instructions*, `.acc/` says *this is where ACC-specific
+machinery lives*, and code folders say *this is what we know about this
+code*.
+
 ---
 
 ## 1. `AGENTS.md` — Standard Ecosystem
 
 ### Role
 
-`AGENTS.md` follows the hierarchical inheritance convention defined by the open [agents.md](https://agents.md/) standard (agents automatically read the nearest file in the directory tree):
+`AGENTS.md` follows the hierarchical inheritance convention defined by
+the open [agents.md](https://agents.md/) standard. Agents read the
+nearest file in the directory tree:
 
 ```text
 project/AGENTS.md          → project-wide context
@@ -64,7 +72,9 @@ project/AGENTS.md          → project-wide context
         └── src/audio/AGENTS.md  → audio-specific context
 ```
 
-A directory containing an `AGENTS.md` represents a **functionality boundary**. One functionality = one local `AGENTS.md`.
+A directory containing an `AGENTS.md` represents a **functionality
+boundary**. One functionality = one local `AGENTS.md`. That's the single
+most useful mental model in this whole spec.
 
 ### Rules
 
@@ -81,11 +91,14 @@ See [09 — AGENTS.md Authoring Guide](./09-authoring-guide.md).
 
 ## 2. `.agents/` — Standard Surface
 
-`.agents/` follows the ecosystem convention. It is **not** an ACC documentation directory.
+`.agents/` follows the ecosystem convention. It is **not** an ACC
+documentation directory — think of it as the "standard parts" shelf.
 
 ### `.agents/AGENTS.md` (Optional)
 
-Project-wide base rules, inherited by every agent. This matches the "project base" tier used across the agent ecosystem. If present, ACC treats it as project-wide context that applies to the whole repository.
+Project-wide base rules, inherited by every agent. This matches the
+"project base" tier used across the agent ecosystem. If present, ACC
+treats it as project-wide context that applies to the whole repository.
 
 ```text
 .agents/AGENTS.md
@@ -93,7 +106,8 @@ Project-wide base rules, inherited by every agent. This matches the "project bas
 project-wide rules
 ```
 
-A repository without `.agents/AGENTS.md` is fully valid — the root `AGENTS.md` remains the primary interface.
+A repository without `.agents/AGENTS.md` is fully valid — the root
+`AGENTS.md` remains the primary interface.
 
 ### `.agents/skills/` (Optional)
 
@@ -116,7 +130,11 @@ ACC reads standard skill locations as well as its own (see §4, `skills/`).
 
 ### Role
 
-The `.acc/config/` directory is the **project-level control plane** specific to ACC. It is optional, versioned (committed to git), and follows the tool-owned namespace convention used by other agent tooling (`.cursor/`, `.claude/`, `.github/`). Removing it leaves a valid agents.md repository (see [01 — Philosophy §13](./01-philosophy.md#13-the-hard-invariant-technical-restatement)).
+The `.acc/config/` directory is the **project-level control plane**
+specific to ACC. It is optional, versioned (committed to git), and
+follows the tool-owned namespace convention used by other agent tooling
+(`.cursor/`, `.claude/`, `.github/`). Removing it leaves a valid
+agents.md repository (see [01 — Philosophy §13](./01-philosophy.md#13-the-hard-invariant-technical-restatement)).
 
 ### Directory Structure
 
@@ -145,7 +163,8 @@ The `.acc/config/` directory is the **project-level control plane** specific to 
 
 ### `config.yaml`
 
-Project-level ACC configuration. **Optional** — sensible defaults apply when absent. Keys (all optional):
+Project-level ACC configuration. **Optional** — sensible defaults apply
+when absent. Keys (all optional):
 
 ```yaml
 # Minimal valid config (empty file, or file absent)
@@ -220,13 +239,19 @@ tools:
       enabled: false
 ```
 
-`config.yaml` MUST NOT be required for any command to run. Its absence means: "use defaults." This keeps ACC usable on a git clone with zero configuration.
+`config.yaml` MUST NOT be required for any command to run. Its absence
+means: "use defaults." This keeps ACC usable on a git clone with zero
+configuration — no setup ceremony, no config file to generate before you
+can do anything.
 
-When the `multi_agent` section is absent, the defaults shown above apply. The `enabled: false` default ensures backward compatibility — existing projects are unaffected.
+When the `multi_agent` section is absent, the defaults shown above
+apply. The `enabled: false` default ensures backward compatibility —
+existing projects are unaffected.
 
 ### `agents/` — Agent Profiles
 
-`agents/<name>.md` describes a project-specific agent persona. Human-readable Markdown. Example:
+`agents/<name>.md` describes a project-specific agent persona.
+Human-readable Markdown. Example:
 
 ```markdown
 # architect
@@ -244,11 +269,13 @@ Constraints:
 - Flag inferred suggestions as "Inferred", never as authoritative.
 ```
 
-Agent profiles are **convention, not protocol**. An agent reads them as Markdown and follows the instructions. Nothing executes.
+Agent profiles are **convention, not protocol**. An agent reads them as
+Markdown and follows the instructions. Nothing executes.
 
 ### `workflows/` — Reusable Procedures
 
-`workflows/<name>.md` is a reproducible procedure. Human-readable Markdown combining instructions + ACC commands. Example:
+`workflows/<name>.md` is a reproducible procedure. Human-readable
+Markdown combining instructions + ACC commands. Example:
 
 ```markdown
 # feature.md — Add a new functionality
@@ -265,13 +292,19 @@ Agent profiles are **convention, not protocol**. An agent reads them as Markdown
 
 ### `standards/` — Project Standards
 
-`standards/<name>.md` are project standards referenced from `AGENTS.md`. Human-readable Markdown. E.g., `standards/architecture.md` defines the project's architecture expectations, referenced by multiple `AGENTS.md` files via plain prose ("See `.acc/config/standards/architecture.md`").
+`standards/<name>.md` are project standards referenced from
+`AGENTS.md`. Human-readable Markdown. E.g., `standards/architecture.md`
+defines the project's architecture expectations, referenced by multiple
+`AGENTS.md` files via plain prose ("See `.acc/config/standards/architecture.md`").
 
-References in `AGENTS.md` to standards are ordinary Markdown links or prose — ACC does not enforce a special link format.
+References in `AGENTS.md` to standards are ordinary Markdown links or
+prose — ACC does not enforce a special link format.
 
 ### `skills/` — ACC-Managed Skills
 
-`skills/<name>/` holds ACC-managed skills. Skills use the standard [SKILL.md format](https://agentskills.io/) so they remain portable across agents:
+`skills/<name>/` holds ACC-managed skills. Skills use the standard
+[SKILL.md format](https://agentskills.io/) so they remain portable
+across agents:
 
 ```text
 skills/
@@ -280,18 +313,24 @@ skills/
     └── references/
 ```
 
-Skills are **not** central knowledge bases. They are reusable capability definitions that agents can opt in to use. A skill might declare:
+Skills are **not** central knowledge bases. They are reusable capability
+definitions that agents can opt in to use. A skill might declare:
 
 - Required dependencies
 - Standard patterns to follow
 - Common test patterns
 - Related functionalities
 
-The actual knowledge about a specific audio system lives in `src/audio/AGENTS.md` and `src/audio/.acc-memory.md`, not in the skill definition itself.
+The actual knowledge about a specific audio system lives in
+`src/audio/AGENTS.md` and `src/audio/.acc-memory.md`, not in the skill
+definition itself. A skill is "how we do realtime audio in general"; the
+contract is "how *this* audio system works."
 
 ### `mcp/` — MCP Bridge Definitions
 
-`mcp/<name>/` defines ACC bridges to external services. Bridges reference standard MCP server configurations (`.mcp.json`, agent-native configs) rather than redefining them:
+`mcp/<name>/` defines ACC bridges to external services. Bridges
+reference standard MCP server configurations (`.mcp.json`, agent-native
+configs) rather than redefining them:
 
 ```text
 mcp/
@@ -300,7 +339,9 @@ mcp/
     └── index.js
 ```
 
-MCP configurations are **not** central knowledge. They define how the agent communicates with external services (GitHub API, LLM providers, etc.) but the actual repository knowledge remains local.
+MCP configurations are **not** central knowledge. They define how the
+agent communicates with external services (GitHub API, LLM providers,
+etc.) but the actual repository knowledge remains local.
 
 ### `tools/` — Tool Plugins
 
@@ -319,7 +360,11 @@ tools/
 
 ### Role
 
-Each functionality directory **MAY** contain its own `AGENTS.md`. These are local instructions that apply to that functionality only.
+Each functionality directory **MAY** contain its own `AGENTS.md`. These
+are local instructions that apply to that functionality only. This is
+the "knowledge lives next to code" rule from
+[01 — Philosophy §4](./01-philosophy.md#4-knowledge-lives-next-to-code)
+made concrete.
 
 ### Rules
 
@@ -358,7 +403,11 @@ Standards: See .acc/config/standards/realtime-streaming
 
 ### Role
 
-Per-functionality durable memory, agent-written and gitignored.
+Per-functionality durable memory, agent-written and gitignored. This is
+the scratchpad where an agent writes the things it learned that shouldn't
+go in the committed contract — the "I wish I'd known this before I
+started" notes. See [08 — Memory Semantics](./08-memory-semantics.md)
+for the full semantics.
 
 Path: `<functionality-dir>/.acc-memory.md`
 
@@ -371,21 +420,31 @@ Path: `<functionality-dir>/.acc-memory.md`
 
 ### Format
 
-Plain Markdown. Human-readable. No schema. ACC treats unstructured prose as memory; structured memory uses well-known headings as keys (see [08 — Memory Semantics](./08-memory-semantics.md)).
+Plain Markdown. Human-readable. No schema. ACC treats unstructured prose
+as memory; structured memory uses well-known headings as keys (see
+[08 — Memory Semantics](./08-memory-semantics.md)).
 
 ### Git
 
-`*.acc-memory.md` **MUST** be listed in `.gitignore`. Memory is local and agent-specific; committing it would create conflicts across agents and users. The repository's `AGENTS.md` is the durable, committed contract; `.acc-memory.md` is the scratchpad.
+`*.acc-memory.md` **MUST** be listed in `.gitignore`. Memory is local
+and agent-specific; committing it would create conflicts across agents
+and users. The repository's `AGENTS.md` is the durable, committed
+contract; `.acc-memory.md` is the scratchpad.
 
-If a team wants shared durable knowledge, it belongs in `AGENTS.md` (committed), not in `.acc-memory.md`.
+If a team wants shared durable knowledge, it belongs in `AGENTS.md`
+(committed), not in `.acc-memory.md`.
 
 ### Fallback
 
-Any agent can read `.acc-memory.md` as plain Markdown. `acc memory` commands are a convenient accelerator; absence of the CLI does not make the file unreadable.
+Any agent can read `.acc-memory.md` as plain Markdown. `acc memory`
+commands are a convenient accelerator; absence of the CLI does not make
+the file unreadable. The fallback is literally `cat`.
 
 ---
 
 ## 6. Compatibility Matrix
+
+The reassuring table: what happens if you remove pieces of ACC.
 
 | Component removed | Project usability |
 |-------------------|-------------------|
@@ -397,6 +456,9 @@ Any agent can read `.acc-memory.md` as plain Markdown. `acc memory` commands are
 | `acc` CLI | Still valid agents.md repository; agents fall back to reading files. |
 | `*.acc-memory.md` | Lose durable memory, but `AGENTS.md` remains the durable contract. |
 | `AGENTS.md` | Ordinary repository; ACC offers no added value here. |
+
+Every row above is a design requirement, not an accident. ACC is
+furniture, not load-bearing walls.
 
 ---
 

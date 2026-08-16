@@ -1,10 +1,22 @@
 # 11 — Tooling Subsystem
 
+> **What this page is about:** how ACC gives agents the right tools
+> without the agent having to ask "which tool do I need?" ACC looks at
+> your project, figures out what's available, and exposes it — with a
+> permission model so nothing dangerous happens by default.
+
 ## Overview
 
-ACC tooling is a **first-class subsystem** that provides automatic, project-aware capabilities to agents. The agent should not need to ask "which ACC tool do I need?" — ACC determines this from project state and task context.
+ACC tooling is a **first-class subsystem** that provides automatic,
+project-aware capabilities to agents. The agent should not need to ask
+"which ACC tool do I need?" — ACC determines this from project state
+and task context.
 
-> **Core Principle:** ACC tooling MUST be automatic, project-aware, agent-agnostic, and extensible.
+> **Core Principle:** ACC tooling MUST be automatic, project-aware,
+> agent-agnostic, and extensible.
+
+The philosophy, in one sentence: the agent is the brain, ACC is the
+hands — and the hands only do what they're told within bounds.
 
 ---
 
@@ -31,13 +43,16 @@ ACC tooling is a **first-class subsystem** that provides automatic, project-awar
    Shell      Tests   Check   DB     Cloud   ...
 ```
 
-The agent is the intelligence. ACC is the deterministic context, memory, graph, tooling, and coordination substrate.
+The agent is the intelligence. ACC is the deterministic context, memory,
+graph, tooling, and coordination substrate.
 
 ---
 
 ## 2. Core Tools
 
-ACC provides a minimal set of core tools by default. These are **capabilities exposed through one deterministic ACC tool interface**, not nine independent programs.
+ACC provides a minimal set of core tools by default. These are
+**capabilities exposed through one deterministic ACC tool interface**,
+not nine independent programs.
 
 | Tool | Capability | Deterministic |
 |------|------------|---------------|
@@ -64,7 +79,9 @@ Every core tool MUST:
 
 ## 3. Automatic Project Detection
 
-ACC automatically detects project technologies from configuration files:
+ACC automatically detects project technologies from configuration files.
+No configuration, no guesswork — it reads your `package.json` or
+`Cargo.toml` and knows what's available.
 
 | File | Ecosystem | Detected Capabilities |
 |------|-----------|----------------------|
@@ -238,7 +255,8 @@ refresh
 
 ## 6. Deterministic Tooling
 
-ACC tooling operations MUST be deterministic when inputs and project state are identical.
+ACC tooling operations MUST be deterministic when inputs and project
+state are identical.
 
 ### Determinism Requirements
 
@@ -265,7 +283,8 @@ ACC provides **deterministic substrate**; agent decisions may vary.
 
 ## 7. Context-Aware Tool Exposure
 
-ACC exposes tools relevant to the agent's current task scope.
+ACC exposes tools relevant to the agent's current task scope. Same
+codebase, different toolkits depending on where the agent is working.
 
 ### Capability Scoping
 
@@ -316,7 +335,9 @@ Worker 2 (auth/protocol) gets:
 
 ## 8. Permission Model
 
-Because ACC allows agents to execute operations, permissions MUST be explicit and configurable.
+Because ACC allows agents to execute operations, permissions MUST be
+explicit and configurable. The model is deliberately simple: three
+levels, defaults you can trust.
 
 ### Permission Levels
 
@@ -436,7 +457,8 @@ Optional plugins
 }
 ```
 
-**Any agent** can call `acc tools --json` and understand its capabilities.
+**Any agent** can call `acc tools --json` and understand its
+capabilities. No ACC-specific knowledge required.
 
 ---
 
@@ -545,7 +567,8 @@ ACC activates:
   └── docker (from Dockerfile)
 ```
 
-Only tools actually present in the project are enabled.
+Only tools actually present in the project are enabled. Mixed-ecosystem
+projects just work — no profile juggling.
 
 ---
 
@@ -655,6 +678,9 @@ Scoped context, scoped graph, scoped filesystem, scoped shell, relevant detected
 - **No auto-install** — ACC never installs tools without explicit permission
 - **Audit trail** — All tool invocations logged with provenance
 - **Plugin isolation** — Plugins run with declared permissions only
+
+The pattern is consistent: default to safe, opt in to powerful, and
+always leave a trail.
 
 ---
 

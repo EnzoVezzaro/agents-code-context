@@ -31,6 +31,7 @@ const commandModules = {
   search: require('../lib/commands/search'),
   discover: require('../lib/commands/discover'),
   document: require('../lib/commands/document'),
+  build: require('../lib/commands/build'),
   memory: require('../lib/commands/memory'),
   tools: require('../lib/commands/tools'),
   battle: require('../lib/commands/battle'),
@@ -154,7 +155,11 @@ function main() {
     flags: mod.flags || {},
   });
 
-  const outcome = mod.run(parsed, ctx);
+  return runCommand(mod, parsed, ctx, { command, root, jsonFlag, quietFlag });
+}
+
+async function runCommand(mod, parsed, ctx, { command, root, jsonFlag, quietFlag }) {
+  const outcome = await mod.run(parsed, ctx);
 
   // Battle spawns a child process (standalone ABA).
   if (outcome && outcome.spawn) {
@@ -205,7 +210,11 @@ process.on('uncaughtException', (err) => {
 });
 
 if (require.main === module) {
-  main();
+  main().catch((err) => {
+    const e = errorEnvelope('unknown', null, 'panic', err.message, 3);
+    process.stderr.write(json(e));
+    process.exit(3);
+  });
 }
 
-module.exports = { main, VERSION };
+module.exports = { main, runCommand, VERSION };

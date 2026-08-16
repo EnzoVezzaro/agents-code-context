@@ -1,12 +1,21 @@
 # 10 — Multi-Agent Orchestration
 
+> **What this page is about:** the day your task is too big for one
+> agent, and you want a few of them working in parallel without stepping
+> on each other. ACC doesn't force this — it just makes it safe when it
+> happens.
+
 ## Overview
 
-ACC MAY support a multi-agent mode. When enabled, the active coding agent MAY create and coordinate additional agents to complete a task.
+ACC MAY support a multi-agent mode. When enabled, the active coding
+agent MAY create and coordinate additional agents to complete a task.
 
-> **Core Principle:** ACC manages the coordination substrate; the coding agent decides when parallel agents are useful.
+> **Core Principle:** ACC manages the coordination substrate; the coding
+> agent decides when parallel agents are useful.
 
-This keeps it **agent-agnostic**. Cursor, Claude, Codex, OpenCode, or another agent can use the same project structure and ACC primitives.
+This keeps it **agent-agnostic**. Cursor, Claude, Codex, OpenCode, or
+another agent can use the same project structure and ACC primitives.
+The coordination is a property of the project, not of any one agent.
 
 ---
 
@@ -33,6 +42,10 @@ The coordinator is responsible for:
 - **Integrating results** — combining worker outputs into a coherent whole
 - **Final validation** — running tests, rebuilding the graph, verifying architecture
 
+Think of the coordinator as the lead dev and the workers as the people
+who own individual subsystems: the lead keeps the big picture, everyone
+else stays in their lane.
+
 ### Worker Responsibilities
 
 Workers are responsible for their assigned scopes.
@@ -55,7 +68,8 @@ Multi-agent support MUST NOT require a specific coding agent.
 
 ## 3. Activation
 
-Multi-agent functionality MUST be explicitly configurable.
+Multi-agent functionality MUST be explicitly configurable. Nobody gets
+surprised by a swarm of agents — you have to turn it on.
 
 ### Configuration (`.acc/config/config.yaml`)
 
@@ -91,7 +105,8 @@ Sensible defaults MUST be provided for all keys.
 
 ## 4. Dynamic Agent Count
 
-The coordinator SHOULD be able to dynamically determine the required number of workers.
+The coordinator SHOULD be able to dynamically determine the required
+number of workers.
 
 ### Example
 
@@ -108,7 +123,9 @@ Agent 5 → documentation
 
 Or it may determine that a single agent is sufficient.
 
-**ACC MUST NOT force parallelism** when the task is inherently sequential.
+**ACC MUST NOT force parallelism** when the task is inherently
+sequential. A "refactor the networking subsystem" that's really "change
+this one function" should stay one agent.
 
 ---
 
@@ -124,7 +141,8 @@ functionality B → Agent 2
 functionality C → Agent 3
 ```
 
-Rather than arbitrarily splitting files.
+Rather than arbitrarily splitting files. You split *responsibilities*,
+not *files*.
 
 Agents SHOULD receive ownership of **coherent functionality scopes**.
 
@@ -139,7 +157,8 @@ This reduces:
 
 ## 6. Dependency-Aware Scheduling
 
-The coordinator SHOULD use the ACC graph to determine whether tasks can execute concurrently.
+The coordinator SHOULD use the ACC graph to determine whether tasks can
+execute concurrently.
 
 ### Example: Sequential Dependency
 
@@ -147,7 +166,8 @@ The coordinator SHOULD use the ACC graph to determine whether tasks can execute 
 A ──→ B ──→ C
 ```
 
-Tasks affecting A and C may not safely execute simultaneously if C depends on A's result.
+Tasks affecting A and C may not safely execute simultaneously if C
+depends on A's result.
 
 ### Example: Independent Branches
 
@@ -158,7 +178,8 @@ C ──→ D
 
 May be executed concurrently when no relevant dependency exists.
 
-**The graph SHOULD therefore act as a scheduling aid.**
+**The graph SHOULD therefore act as a scheduling aid.** It's the same
+map you'd use by hand — just applied automatically.
 
 ---
 
@@ -173,7 +194,8 @@ auth/transport
     owner = worker-2
 ```
 
-Other agents SHOULD avoid modifying the same functionality unless explicitly coordinated.
+Other agents SHOULD avoid modifying the same functionality unless
+explicitly coordinated.
 - Ownership MUST be visible to the coordinator.
 - Ownership MAY be represented as session state rather than persisted into the repository.
 - Temporary agent state MUST NOT pollute project source files.
@@ -182,7 +204,8 @@ Other agents SHOULD avoid modifying the same functionality unless explicitly coo
 
 ## 8. Shared Context
 
-All agents operate against the same project architecture but MUST receive context appropriate to their task.
+All agents operate against the same project architecture but MUST
+receive context appropriate to their task.
 
 ### Shared Information (MAY include)
 
@@ -194,13 +217,16 @@ All agents operate against the same project architecture but MUST receive contex
 - Relevant constraints
 - Task specification
 
-Agents SHOULD NOT receive the entire context of unrelated agents unless required.
+Agents SHOULD NOT receive the entire context of unrelated agents unless
+required. A worker on `auth/transport` doesn't need to know about the
+recommendation engine.
 
 ---
 
 ## 9. Agent Memory
 
-Workers MAY discover new information. Important discoveries SHOULD be returned to the coordinator.
+Workers MAY discover new information. Important discoveries SHOULD be
+returned to the coordinator.
 
 ### Example
 
@@ -215,7 +241,8 @@ The coordinator may then decide whether this becomes:
 - Project documentation
 - An architectural decision
 
-**Workers MUST NOT silently write conflicting architectural knowledge into shared memory.**
+**Workers MUST NOT silently write conflicting architectural knowledge
+into shared memory.**
 
 ---
 
@@ -240,7 +267,9 @@ risks:
 validation: passed
 ```
 
-The coordinator uses these results to continue the task.
+The coordinator uses these results to continue the task. Structured
+handoff is what lets the coordinator make decisions without re-reading
+every worker's work.
 
 ---
 
@@ -263,7 +292,9 @@ If two agents attempt to modify the same functionality:
 | `discard` | Discard one agent's changes. |
 | `ask_user` | Prompt user for resolution. |
 
-The selected strategy SHOULD depend on project configuration and agent capabilities.
+The selected strategy SHOULD depend on project configuration and agent
+capabilities. Whichever strategy wins, the choice is explicit — never
+silent.
 
 ---
 
@@ -279,7 +310,8 @@ Multi-agent execution SHOULD support isolated working states.
 - Filesystem snapshots
 - Process-level isolation
 
-The implementation MUST NOT assume that all agents can safely modify the same working tree simultaneously.
+The implementation MUST NOT assume that all agents can safely modify the
+same working tree simultaneously.
 
 For high-risk parallel work, **isolated workspaces SHOULD be preferred.**
 
@@ -309,7 +341,9 @@ final result
 
 The coordinator MUST perform final validation.
 
-**A worker passing its individual tests does NOT imply that the overall project is valid.**
+**A worker passing its individual tests does NOT imply that the overall
+project is valid.** This is the whole point of the integration step:
+the whole can break even when every part is fine on its own.
 
 ---
 
@@ -376,13 +410,16 @@ ACC SHOULD support resource limits for multi-agent sessions.
 
 The coordinator MUST respect these limits.
 
-> **"Spawn as many agents as needed" means: as many as are useful within configured resource boundaries — not unlimited uncontrolled process creation.**
+> **"Spawn as many agents as needed" means: as many as are useful within
+> configured resource boundaries — not unlimited uncontrolled process
+> creation.**
 
 ---
 
 ## 17. User Visibility
 
-Multi-agent operation SHOULD remain understandable without overwhelming the user.
+Multi-agent operation SHOULD remain understandable without overwhelming
+the user.
 
 ### High-Level Progress
 
@@ -439,7 +476,8 @@ integrate
 validate
 ```
 
-The user should experience this as **one development task**.
+The user should experience this as **one development task**. The swarm
+is an implementation detail; the request was one sentence.
 
 ---
 
@@ -459,7 +497,8 @@ The following MUST remain deterministic:
 - Context assembly
 - Structured tool output
 
-The choice to spawn agents is an **agent-level decision**.
+The choice to spawn agents is an **agent-level decision**. The
+substrate stays predictable even when the swarm isn't.
 
 ---
 
@@ -561,15 +600,20 @@ When multi-agent is enabled, `acc check` MAY validate:
 
 ### `acc graph`
 
-The graph derivation is unchanged — it remains deterministic and offline. The graph is used by the coordinator for scheduling and partitioning decisions.
+The graph derivation is unchanged — it remains deterministic and
+offline. The graph is used by the coordinator for scheduling and
+partitioning decisions.
 
 ### `acc context`
 
-Workers receive context via `acc context --depth N --path <scope>` with appropriate filtering.
+Workers receive context via `acc context --depth N --path <scope>` with
+appropriate filtering.
 
 ### `acc impact`
 
-The coordinator uses `acc impact` to understand blast radius before assigning work.
+The coordinator uses `acc impact` to understand blast radius before
+assigning work. Know the blast radius before you hand someone the
+controls.
 
 ### Reserved Commands (Future)
 
@@ -583,7 +627,8 @@ These commands are reserved for future multi-agent CLI support:
 | `acc agents stop <id>` | Stop a specific agent. |
 | `acc agents logs <id>` | View agent logs. |
 
-**Note:** These commands are not part of V1. They are documented here for forward compatibility.
+**Note:** These commands are not part of V1. They are documented here
+for forward compatibility.
 
 ---
 
@@ -619,3 +664,7 @@ These codes are reserved. See [06 — Diagnostic Codes](./06-diagnostic-codes.md
 | **Resource limits** | CPU, memory, token budgets enforced. |
 | **Deterministic substrate** | ACC operations remain deterministic; agent decisions may not. |
 | **Graceful fallback** | Single-agent mode fully functional when multi-agent unavailable. |
+
+The golden thread through all of it: parallelism is powerful, and it's
+only safe when the substrate underneath is deterministic and the humans
+stay in control.

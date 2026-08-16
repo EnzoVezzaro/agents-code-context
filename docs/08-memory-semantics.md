@@ -1,6 +1,13 @@
 # 08 — Memory Semantics
 
-> `.acc-memory.md` is the **durable, functionality-local, agent-written, gitignored Markdown** memory layer. It is the scratchpad for durable knowledge that an agent learns about a functionality but that is not yet (or should not be) part of the committed `AGENTS.md` contract.
+> `.acc-memory.md` is the **durable, functionality-local, agent-written,
+> gitignored Markdown** memory layer. It is the scratchpad for durable
+> knowledge that an agent learns about a functionality but that is not
+> yet (or should not be) part of the committed `AGENTS.md` contract.
+>
+> In plain terms: it's the "things I wish I'd known before I started"
+> file — the place an agent writes down what it learned so the *next*
+> agent doesn't have to rediscover it the hard way.
 
 ---
 
@@ -12,14 +19,22 @@
 | `.acc-memory.md` | Durable | No (gitignored) | Agent knowledge | The next agent/human to touch this functionality |
 | Source code | Permanent | Yes | Discovered | Everyone |
 
-`.acc-memory.md` sits between the committed contract (`AGENTS.md`) and the ephemeral agent conversation. It is the place for:
+`.acc-memory.md` sits between the committed contract (`AGENTS.md`) and
+the ephemeral agent conversation. It is the place for:
 
 - Lessons learned during a modification that the next agent should not have to rediscover
 - Quirks, gotchas, non-obvious invariants that don't rise to the level of committed declarations
 - Rationale for a non-declared but observed pattern
 - A history of what has been tried and rejected
 
-It is **not** a commit log, not a chat transcript, and not a replacement for `AGENTS.md`. Anything load-bearing and architectural belongs in `AGENTS.md` (committed), not in memory. Memory is for the soft, agent-oriented "things I wish I'd known before I started."
+It is **not** a commit log, not a chat transcript, and not a
+replacement for `AGENTS.md`. Anything load-bearing and architectural
+belongs in `AGENTS.md` (committed), not in memory. Memory is for the
+soft, agent-oriented "things I wish I'd known before I started."
+
+The mental model: `AGENTS.md` is the contract the team commits to;
+`.acc-memory.md` is the institutional knowledge the agent keeps
+locally. One is for the record, the other is for the next session.
 
 ---
 
@@ -31,9 +46,12 @@ It is **not** a commit log, not a chat transcript, and not a replacement for `AG
 <functionality-dir>/.acc-memory.md
 ```
 
-A functionality directory is a directory containing an `AGENTS.md` (or the project root, which may or may not have one). Memory is scoped to the functionality boundary, not to arbitrary directories.
+A functionality directory is a directory containing an `AGENTS.md` (or
+the project root, which may or may not have one). Memory is scoped to
+the functionality boundary, not to arbitrary directories.
 
-If a directory has no `AGENTS.md` and no ancestor with one, `.acc-memory.md` there is an orphan and ACC emits `ACC050` (see [06 — Diagnostic Codes](./06-diagnostic-codes.md#9-memory-acc050-acc059)).
+If a directory has no `AGENTS.md` and no ancestor with one,
+`.acc-memory.md` there is an orphan and ACC emits `ACC050` (see [06 — Diagnostic Codes](./06-diagnostic-codes.md#9-memory-acc050-acc059)).
 
 ### Lifecycle
 
@@ -44,11 +62,17 @@ If a directory has no `AGENTS.md` and no ancestor with one, `.acc-memory.md` the
 
 ### Git
 
-`.acc-memory.md` **MUST** be in `.gitignore`. `acc init` ensures this. If a `.acc-memory.md` is found tracked by git, `acc check` emits `ACC053` (warn) but does not modify the repo.
+`.acc-memory.md` **MUST** be in `.gitignore`. `acc init` ensures this.
+If a `.acc-memory.md` is found tracked by git, `acc check` emits
+`ACC053` (warn) but does not modify the repo.
 
-Rationale: memory is local and agent-specific. Committing it would create merge conflicts across agents and users, and would blur the line between declared authority (`AGENTS.md`, committed) and agent knowledge (memory, local).
+Rationale: memory is local and agent-specific. Committing it would
+create merge conflicts across agents and users, and would blur the line
+between declared authority (`AGENTS.md`, committed) and agent knowledge
+(memory, local).
 
-If a team wants **shared** durable knowledge, it belongs in `AGENTS.md` (committed), not in `.acc-memory.md`.
+If a team wants **shared** durable knowledge, it belongs in `AGENTS.md`
+(committed), not in `.acc-memory.md`.
 
 ---
 
@@ -56,7 +80,8 @@ If a team wants **shared** durable knowledge, it belongs in `AGENTS.md` (committ
 
 ### Primary: Unstructured Prose
 
-`.acc-memory.md` is plain Markdown. No schema. No frontmatter. An entry is a `## <RFC 3339 UTC timestamp>` heading followed by free-form prose.
+`.acc-memory.md` is plain Markdown. No schema. No frontmatter. An entry
+is a `## <RFC 3339 UTC timestamp>` heading followed by free-form prose.
 
 ```markdown
 ## 2026-08-15T14:03:21Z
@@ -69,7 +94,10 @@ Workaround: queue callbacks and flush after the outer `validate()` returns.
 
 ### Optional: Well-Known Headings
 
-ACC recognizes a small set of well-known headings as structured keys. These are **convention**, not protocol — any agent can ignore them and just read the prose. They allow `acc memory` and `acc context --include memory` to surface key facts quickly.
+ACC recognizes a small set of well-known headings as structured keys.
+These are **convention**, not protocol — any agent can ignore them and
+just read the prose. They allow `acc memory` and
+`acc context --include memory` to surface key facts quickly.
 
 | Heading | Purpose |
 |---------|---------|
@@ -79,7 +107,9 @@ ACC recognizes a small set of well-known headings as structured keys. These are 
 | `## Tried & Rejected` | Approaches attempted and why they failed. |
 | `## Open Questions` | Unresolved architectural questions. |
 
-Entries under well-known headings MAY omit timestamps (they represent ongoing knowledge rather than a log event). Free-form timestamped entries coexist with well-known headings in the same file.
+Entries under well-known headings MAY omit timestamps (they represent
+ongoing knowledge rather than a log event). Free-form timestamped
+entries coexist with well-known headings in the same file.
 
 ```markdown
 ## Gotchas
@@ -101,7 +131,9 @@ blocker. See `## Gotchas` above. Decided to defer until v2.
 
 ## 4. Provenance
 
-Memory has its own provenance kind: `"memory"` (not declared, discovered, or inferred). It is agent-authored knowledge, not architectural authority and not code observation.
+Memory has its own provenance kind: `"memory"` (not declared,
+discovered, or inferred). It is agent-authored knowledge, not
+architectural authority and not code observation.
 
 ```json
 {
@@ -112,7 +144,12 @@ Memory has its own provenance kind: `"memory"` (not declared, discovered, or inf
 }
 ```
 
-`acc context --include memory` surfaces memory entries with this provenance. `acc check` never treats memory contents as architectural facts — memory is reported for existence and validity only, never interpreted as declared architecture. ACC MUST NOT use memory to derive graph edges, owners, or constraints.
+`acc context --include memory` surfaces memory entries with this
+provenance. `acc check` never treats memory contents as architectural
+facts — memory is reported for existence and validity only, never
+interpreted as declared architecture. ACC MUST NOT use memory to derive
+graph edges, owners, or constraints. Memory tells you what to watch out
+for; it never tells you how the system *should* be built.
 
 ---
 
@@ -130,7 +167,9 @@ Memory has its own provenance kind: `"memory"` (not declared, discovered, or inf
 
 - `acc memory add <path> <text>` appends a timestamped entry.
 - `acc memory clear <path>` truncates the file (the file is left empty, not deleted, to preserve the convention marker). Requires `--force` or interactive confirmation.
-- ACC never silently writes `.acc-memory.md` outside `acc memory` subcommands. In particular, `acc check`, `acc context`, `acc graph`, `acc discover`, `acc document`, `acc search` are pure reads and never modify memory.
+- `acc init` creates the root `.acc-memory.md` initial record when the file is missing or empty, seeded with project provenance (clone date, GitHub origin — see [04 — CLI Commands](./04-cli-commands.md#acc-init)).
+- `acc build --yes` creates an initial `.acc-memory.md` record for every directory whose `AGENTS.md` contract it creates.
+- These two commands are the only writers outside `acc memory`. Both are **create-if-missing only**: they never append to or overwrite an existing non-empty memory file. `acc check`, `acc context`, `acc graph`, `acc discover`, `acc document`, `acc search` are pure reads and never modify memory.
 - `acc discover --apply` updates `AGENTS.md`, NOT `.acc-memory.md`. The two stores are separate.
 
 ### Edge Cases
@@ -148,6 +187,9 @@ Memory has its own provenance kind: `"memory"` (not declared, discovered, or inf
 
 ## 6. Memory vs. `AGENTS.md` — When to Use Which
 
+The practical question everyone asks: *where does this piece of
+knowledge go?*
+
 | Knowledge | Where it goes |
 |-----------|---------------|
 | "This module owns the database connection." | `AGENTS.md` Ownership (declared). |
@@ -157,7 +199,8 @@ Memory has its own provenance kind: `"memory"` (not declared, discovered, or inf
 | "This module exports `validate()` and `refresh()`." | Source (discovered) + optionally `AGENTS.md` Outputs. |
 | "The TODO at line 42 of `validator.rs` is a known ergonomic issue, not a bug." | `.acc-memory.md` Open Questions. |
 
-Rule of thumb: **if it's architectural, declare it in `AGENTS.md`. If it's orientational, note it in `.acc-memory.md`.**
+Rule of thumb: **if it's architectural, declare it in `AGENTS.md`. If
+it's orientational, note it in `.acc-memory.md`.**
 
 ---
 
@@ -170,7 +213,7 @@ Because `.acc-memory.md` is plain Markdown with a stable path convention:
 - The absence of the CLI does not make memory inaccessible.
 - `acc memory` is an accelerator; the fallback is `cat`.
 
-This realizes the **portability guarantee** from [01 — Philosophy §10](./01-philosophy.md#10-portability-guarantee): context persistence is a property of the repository, not the agent.
+This realizes the **portability guarantee** from [01 — Philosophy §10](./01-philosophy.md#10-portability-guarantee): context persistence is a property of the repository, not the agent. Your agent can change, your memory doesn't.
 
 ---
 

@@ -121,3 +121,149 @@ test('acc inspect reports owners and memory', () => {
   const out = run(['inspect', 'src/auth'], root);
   assert.ok(out.includes('Owners: [auth-team]'));
 });
+
+test('acc build is a dry run by default and creates with --yes', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'acc-build-'));
+  fs.writeFileSync(path.join(root, 'AGENTS.md'), '# app\n');
+  fs.mkdirSync(path.join(root, 'lib', 'util'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'lib', 'util', 'index.js'), 'export const x = 1;\n');
+
+  const dry = run(['build'], root);
+  assert.ok(dry.includes('lib/util/AGENTS.md'));
+  assert.equal(fs.existsSync(path.join(root, 'lib', 'util', 'AGENTS.md')), false);
+
+  run(['build', '--yes'], root);
+  assert.equal(fs.existsSync(path.join(root, 'lib', 'util', 'AGENTS.md')), true);
+
+  const again = run(['build', '--yes'], root);
+  assert.ok(again.includes('Nothing to build'));
+});
+
+test('acc build --json reports missing and created', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'acc-build-json-'));
+  fs.writeFileSync(path.join(root, 'AGENTS.md'), '# app\n');
+  fs.mkdirSync(path.join(root, 'src'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'src', 'main.go'), 'package main\n');
+
+  const dry = JSON.parse(run(['build', '--json'], root));
+  assert.equal(dry.command, 'build');
+  assert.ok(dry.result.missing.includes('src'));
+  assert.equal(dry.result.created.length, 0);
+  assert.equal(dry.result.dry_run, true);
+
+  const wrote = run(['build', '--yes'], root);
+  assert.ok(wrote.includes('Created src/AGENTS.md'));
+  const done = JSON.parse(run(['build', '--json'], root));
+  assert.equal(done.result.missing.length, 0);
+  assert.equal(done.result.dry_run, true);
+});
+
+test('acc build scopes to a path', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'acc-build-scope-'));
+  fs.writeFileSync(path.join(root, 'AGENTS.md'), '# app\n');
+  fs.mkdirSync(path.join(root, 'a', 'x'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'b'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'a', 'x', 'f.js'), '// a\n');
+  fs.writeFileSync(path.join(root, 'b', 'g.js'), '// b\n');
+
+  run(['build', '--yes', 'a'], root);
+  assert.equal(fs.existsSync(path.join(root, 'a', 'x', 'AGENTS.md')), true);
+  assert.equal(fs.existsSync(path.join(root, 'b', 'AGENTS.md')), false);
+});
+
+test('acc init --scan scans and creates missing contracts (non-interactive)', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'acc-init-scan-'));
+  fs.mkdirSync(path.join(root, 'lib'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'lib', 'index.js'), 'export const x = 1;\n');
+
+  const out = run(['init', '.', '--scan'], root);
+  assert.ok(out.includes('Scanned codebase:'));
+  assert.ok(out.includes('lib/AGENTS.md'));
+  assert.equal(fs.existsSync(path.join(root, 'lib', 'AGENTS.md')), true);
+
+  const parsed = JSON.parse(run(['init', '.', '--scan', '--json'], root));
+  assert.equal(parsed.command, 'init');
+  assert.equal(parsed.result.scanned, true);
+  assert.ok(Array.isArray(parsed.result.scan.created_files));
+});
+
+test('acc init without flags does not scan or create contracts', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'acc-init-noscan-'));
+  fs.mkdirSync(path.join(root, 'lib'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'lib', 'index.js'), 'export const x = 1;\n');
+
+  const out = run(['init', '.'], root);
+  assert.ok(!out.includes('Scanned codebase'));
+  assert.equal(fs.existsSync(path.join(root, 'lib', 'AGENTS.md')), false);
+
+  const parsed = JSON.parse(run(['init', '.', '--json'], root));
+  assert.equal(parsed.result.scanned, false);
+});
+
+function fakeGit(root, origin, branch, cloneEpoch) {
+  fs.mkdirSync(path.join(root, '.git', 'logs'), { recursive: true });
+  fs.writeFileSync(
+    path.join(root, '.git', 'config'),
+    `[core]\n\trepositoryformatversion = 0\n\n[remote "origin"]\n\turl = ${origin}\n`,
+  );
+  fs.writeFileSync(path.join(root, '.git', 'HEAD'), `ref: refs/heads/${branch}\n`);
+  fs.writeFileSync(
+    path.join(root, '.git', 'logs', 'HEAD'),
+    `0000000000000000000000000000000000000000 9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b Tester <t@x.com> ${cloneEpoch} +0000\tclone: from ${origin}\n`,
+  );
+}
+
+test('acc init creates root .acc-memory.md with clone date and GitHub provenance', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'acc-init-git-'));
+  fakeGit(root, 'git@github.com:acme/example.git', 'main', 1720000000);
+
+  const out = run(['init', '.'], root);
+  assert.ok(out.includes('Created .acc-memory.md'));
+
+  const mem = fs.readFileSync(path.join(root, '.acc-memory.md'), 'utf8');
+  assert.ok(mem.includes('Initial record created by acc init'));
+  assert.ok(mem.includes('Cloned: 2024-07-03'));
+  assert.ok(mem.includes('Origin: https://github.com/acme/example.git'));
+  assert.ok(mem.includes('GitHub: acme/example (default branch: main)'));
+});
+
+test('acc init root memory omits provenance when there is no .git', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'acc-init-nogit-'));
+  const out = run(['init', '.'], root);
+  assert.ok(out.includes('Created .acc-memory.md'));
+  const mem = fs.readFileSync(path.join(root, '.acc-memory.md'), 'utf8');
+  assert.ok(!mem.includes('Cloned:'));
+  assert.ok(!mem.includes('GitHub:'));
+});
+
+test('acc init does not overwrite an existing root .acc-memory.md', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'acc-init-mem-'));
+  fs.writeFileSync(path.join(root, '.acc-memory.md'), '## Gotchas\n\n- do not touch X\n');
+  run(['init', '.'], root);
+  const mem = fs.readFileSync(path.join(root, '.acc-memory.md'), 'utf8');
+  assert.ok(mem.includes('do not touch X'));
+  assert.ok(!mem.includes('Initial record created by'));
+});
+
+test('acc build --yes creates .acc-memory.md alongside created contracts', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'acc-build-mem-'));
+  fs.writeFileSync(path.join(root, 'AGENTS.md'), '# app\n');
+  fs.mkdirSync(path.join(root, 'lib'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'lib', 'index.js'), 'export const x = 1;\n');
+
+  const dry = run(['build'], root);
+  assert.equal(fs.existsSync(path.join(root, 'lib', '.acc-memory.md')), false);
+
+  const out = run(['build', '--yes'], root);
+  assert.ok(out.includes('Created lib/AGENTS.md'));
+  assert.ok(out.includes('lib/.acc-memory.md'));
+  assert.ok(fs.existsSync(path.join(root, 'lib', '.acc-memory.md')));
+  assert.ok(fs.readFileSync(path.join(root, 'lib', '.acc-memory.md'), 'utf8').includes('Initial record created by acc build'));
+
+  const parsed = JSON.parse(run(['build', '--json'], root));
+  assert.deepEqual(parsed.result.memory_created, []);
+  assert.deepEqual(parsed.result.created, []);
+
+  const again = run(['build', '--yes'], root);
+  assert.ok(again.includes('Nothing to build'));
+});

@@ -1,5 +1,22 @@
 # 01 — Philosophy & Agent-Agnostic Operation
 
+> **The short version:** ACC doesn't own your agent. ACC doesn't replace
+> your agent. ACC doesn't even require your agent. ACC just makes your
+> repository *easier* for any agent to understand, navigate, modify, and
+> validate.
+>
+> The full story of how I got here (and why "give the agent more context"
+> was never the answer) is on [Medium (placeholder)](https://medium.com/PLACEHOLDER).
+
+I'll be honest about where this comes from: a year of building things
+with AI agents, and a very specific, very repetitive pain. The agents
+were smart. The agents were fast. But every time I started a new session,
+I had to explain the same things again — where things live, why a
+deceptively simple change would break something else, which file we're
+*never* touching. Eventually I stopped blaming the agent and started
+blaming the repository. The repository is the thing that's always there.
+So the repository should be the thing that carries the context.
+
 ## Core Principle
 
 > **ACC does not own the agent.**
@@ -21,22 +38,33 @@ Natural development with persistent, structured project context
 
 ## 1. No Wrapper Requirement
 
-An ACC-enabled project **MUST NOT** require any of the following for basic framework compliance:
+You don't need a special runtime, a special model, or a special editor
+for an ACC-enabled project. Plain and simple:
 
-- An ACC-specific runtime or `acc-agent`
-- An ACC-specific LLM wrapper or proprietary API
-- An ACC-specific IDE or editor plugin
-- A protocol handshake or registration step
+- No ACC-specific runtime or `acc-agent`
+- No ACC-specific LLM wrapper or proprietary API
+- No ACC-specific IDE or editor plugin
+- No protocol handshake or registration step
 
-An agent clones the repository and understands the framework by reading standard instruction files (`AGENTS.md`, `.acc-memory.md`). No installation, no plugin, no proprietary integration.
+An agent clones the repository and understands the framework by reading
+standard instruction files (`AGENTS.md`, `.acc-memory.md`). No
+installation, no plugin, no proprietary integration. If it can read
+Markdown, it can work with ACC.
 
 ---
 
 ## 2. `AGENTS.md` Is the Primary Agent Interface
 
-`AGENTS.md` is the primary instruction interface. It is the open convention used by Codex, Claude Code, Cursor, Copilot, OpenCode, Gemini, and others. The format emerged from collaborative efforts across the AI coding ecosystem — OpenAI Codex, Amp, Google Jules, Cursor, and Factory — and is stewarded as a standard by the Agentic AI Foundation under the Linux Foundation ([agents.md](https://agents.md/)).
+`AGENTS.md` is the instruction interface agents already understand. It's
+the open convention used by Codex, Claude Code, Cursor, Copilot,
+OpenCode, Gemini, and others. The format emerged from collaborative
+efforts across the AI coding ecosystem — OpenAI Codex, Amp, Google Jules,
+Cursor, and Factory — and is stewarded as a standard by the Agentic AI
+Foundation under the Linux Foundation ([agents.md](https://agents.md/)).
 
-ACC follows this convention rather than inventing a competing format. The framework's operational rules are expressed in plain Markdown that **any** coding agent can understand:
+ACC follows this convention rather than inventing a competing format.
+The framework's operational rules are expressed in plain Markdown that
+**any** coding agent can understand:
 
 ```markdown
 When modifying a functionality:
@@ -49,7 +77,9 @@ When modifying a functionality:
 6. Update durable functionality knowledge when appropriate.
 ```
 
-An agent that has never heard of ACC still understands these instructions — they are plain Markdown.
+An agent that has never heard of ACC still understands these
+instructions — they are plain Markdown. There's no secret sauce to
+decode, no new format to learn.
 
 ---
 
@@ -66,13 +96,18 @@ ACC adds a thin layer on top of the standard without forking it:
 | **Control plane** | `.acc/config/` | Project config, agents, workflows, standards | ACC-only |
 | **Deterministic tooling** | `acc` CLI | Graph derivation, context, validation, search | ACC-only |
 
-**The rule that keeps ACC upgrade-proof:** the standard surface is used exactly as the ecosystem defines it — plain Markdown, no schema, no required sections, no YAML frontmatter in `AGENTS.md`. Everything ACC-specific lives in its own namespace (`.acc/` and `.acc-memory.md`), separated from the standard surface. If the standard evolves, ACC absorbs the change without breaking existing repositories.
+**The rule that keeps ACC upgrade-proof:** the standard surface is used
+exactly as the ecosystem defines it — plain Markdown, no schema, no
+required sections, no YAML frontmatter in `AGENTS.md`. Everything
+ACC-specific lives in its own namespace (`.acc/` and `.acc-memory.md`),
+separated from the standard surface. If the standard evolves, ACC absorbs
+the change without breaking existing repositories.
 
 ---
 
 ## 4. Knowledge Lives Next to Code
 
-**A fundamental ACC rule:**
+This is probably the rule I'm most stubborn about:
 
 > **Never create a central description of something that can be described next to the thing itself.**
 
@@ -87,6 +122,10 @@ ACC adds a thin layer on top of the standard without forking it:
 └── ...
 ```
 
+Central docs have a half-life. Someone moves `src/audio` to
+`src/core/audio`, and `audio.md` is now a museum piece that an agent will
+confidently read and confidently get wrong.
+
 **Better** (follows the code):
 
 ```text
@@ -98,17 +137,22 @@ src/audio/
 └── .acc-memory.md
 ```
 
-The documentation travels with the functionality. If the functionality moves:
+The documentation travels with the functionality. If the functionality
+moves:
 
 ```bash
 git mv src/audio src/core/audio
 ```
 
-its knowledge and memory move with it.
+its knowledge and memory move with it. No doc to update, no stale file
+to hunt down.
 
-- **Code owns its knowledge.** Instructions and durable memory for a functionality live in the same directory as the code.
-- **Configuration owns the machinery.** Cross-cutting concerns (standards, skills, tooling, orchestration) live in `.acc/config/`.
-- Knowledge follows the **functionality boundary**, not the directory boundary.
+- **Code owns its knowledge.** Instructions and durable memory for a
+  functionality live in the same directory as the code.
+- **Configuration owns the machinery.** Cross-cutting concerns
+  (standards, skills, tooling, orchestration) live in `.acc/config/`.
+- Knowledge follows the **functionality boundary**, not the directory
+  boundary.
 
 An agent entering `src/audio/` immediately gets, in one place:
 
@@ -137,19 +181,23 @@ ACC is built on the agents.md standard and uses it verbatim:
 - **Plain Markdown, no schema** — no required sections, no frontmatter, no decorators. ACC parses heuristically and never requires structure.
 - **Optional `.agents/AGENTS.md`** — project base rules inherited by every agent, following the ecosystem convention for the `.agents/` directory.
 
-ACC also interoperates with the adjacent open standards rather than reinventing them:
+ACC also interoperates with the adjacent open standards rather than
+reinventing them:
 
 - **Skills** — reusable capabilities are [SKILL.md packages](https://agentskills.io/) (YAML frontmatter + Markdown body). ACC reads skills from the standard `.agents/skills/` location and manages its own under `.acc/config/skills/`, using the same format.
 - **MCP** — tool bridges reference standard [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server configurations (`.mcp.json` and agent-native configs). ACC does not define a competing format.
 - **`llms.txt`** — ACC leaves project PRD files untouched; they compose freely with ACC's instruction surface (per the [llms.txt](https://llmstxt.org/) convention).
 
-Because the standard surface is never forked, an ACC repository is always a valid agents.md repository — today and after any future evolution of the standard.
+Because the standard surface is never forked, an ACC repository is
+always a valid agents.md repository — today and after any future
+evolution of the standard.
 
 ---
 
 ## 6. `.agents/` Has a Specific Role
 
-`.agents/` is **not** a documentation directory. Its role follows the ecosystem convention:
+`.agents/` is **not** a documentation directory. Its role follows the
+ecosystem convention:
 
 ```text
 .agents/
@@ -157,7 +205,8 @@ Because the standard surface is never forked, an ACC repository is always a vali
 └── skills/                # Optional SKILL.md packages (Agent Skills standard)
 ```
 
-An agent entering the repository follows standard hierarchical instruction discovery:
+An agent entering the repository follows standard hierarchical
+instruction discovery:
 
 ```text
 .agents/AGENTS.md
@@ -173,13 +222,15 @@ src/audio/player.rs
 implementation
 ```
 
-An ordinary agent that understands `AGENTS.md` works unchanged. ACC simply makes the environment richer.
+An ordinary agent that understands `AGENTS.md` works unchanged. ACC
+simply makes the environment richer.
 
 ---
 
 ## 7. Configuration Remains Centralized
 
-Things that are **not knowledge about the code** stay centralized under `.acc/`:
+Things that are **not knowledge about the code** stay centralized under
+`.acc/`:
 
 ```text
 .acc/
@@ -211,7 +262,10 @@ Things that are **not knowledge about the code** stay centralized under `.acc/`:
 
 ## 8. The Graph Emerges from the Repository
 
-ACC derives the architecture graph at query time instead of asking the developer to maintain one:
+This is one of those "wait, you don't have to maintain that?" moments.
+ACC derives the architecture graph at query time instead of asking you
+to maintain one. No `graph.yaml`. No `architecture.json` to keep in
+sync. It reads:
 
 ```text
 imports
@@ -226,7 +280,8 @@ skills
 MCP capabilities
 ```
 
-The agent does not need to read the whole repository. It navigates the graph:
+The agent does not need to read the whole repository. It navigates the
+graph:
 
 ```text
 Task
@@ -250,7 +305,8 @@ Standards
 Implementation
 ```
 
-See [03 — Epistemology & Architecture Graph](./03-epistemology.md) for the graph model and truth categorization.
+See [03 — Epistemology & Architecture Graph](./03-epistemology.md) for
+the graph model and truth categorization.
 
 ---
 
@@ -274,17 +330,24 @@ source
 graph (acc graph)
 ```
 
-This navigation model MUST work with any capable coding agent.
+This navigation model MUST work with any capable coding agent. It's not
+a nice-to-have; it's the whole point.
 
 ---
 
 ## 10. Portability Guarantee
 
-If a user switches from Cursor today to Claude tomorrow, the project's accumulated context does not disappear.
+If you switch from Cursor today to Claude tomorrow, your project's
+accumulated context doesn't disappear. You don't lose your agent's
+"memory" because the memory was never the agent's.
 
-**Context lives in the repository** — in `AGENTS.md` (committed) and `.acc-memory.md` (local, gitignored) — both agent-agnostic and tool-agnostic.
+**Context lives in the repository** — in `AGENTS.md` (committed) and
+`.acc-memory.md` (local, gitignored) — both agent-agnostic and
+tool-agnostic.
 
-This is one of the strongest reasons ACC is architected this way: **context persistence across agents is a property of the repository, not the agent.**
+This is one of the strongest reasons ACC is architected this way:
+**context persistence across agents is a property of the repository, not
+the agent.**
 
 ---
 
@@ -298,17 +361,26 @@ This is one of the strongest reasons ACC is architected this way: **context pers
 | **Offline-first** | No telemetry, no uploads, no hidden network calls. |
 | **Strict security** | Inspection is safe on untrusted repos. Never execute arbitrary code, npm scripts, Makefiles, or build scripts. |
 
+The last row is worth saying out loud: ACC is designed to be safe on
+repositories you don't trust. It reads files and derives things — it
+never runs your repo's scripts. (That's why `acc tool` / `acc shell`
+are explicitly opt-in tooling, not core behavior.)
+
 ---
 
 ## 12. Dogfooding Requirement
 
-ACC MUST describe itself using ACC. The ACC repository contains:
+ACC describes itself using ACC. The ACC repository contains:
 
 - `AGENTS.md` contracts for its own modules
 - An `.acc/config/` control plane with config, agents, workflows, and standards
 - Full navigability using its own CLI commands
 
-This is both a validation of the framework and a reference implementation: if ACC cannot describe itself, the framework is over-constrained.
+This is both a validation of the framework and a reference
+implementation: if ACC cannot describe itself, the framework is
+over-constrained. And if you want to see ACC in action, this repo is the
+demo — everything you're reading is structured the way ACC says
+repositories should be.
 
 ---
 
@@ -329,4 +401,7 @@ remove(acc CLI)  →  valid agents.md repository  (still usable by any agent)
 remove(AGENTS.md)  →  ordinary repository  (ACC offers no added value here)
 ```
 
-The invariant is load-bearing: it shapes every design decision in the following documents. Any ACC feature that would violate it is rejected by specification.
+The invariant is load-bearing: it shapes every design decision in the
+following documents. Any ACC feature that would violate it is rejected
+by specification. It's also your escape hatch — ACC is always optional,
+and you can always leave.

@@ -1,5 +1,10 @@
 # 07 — JSON Output Schema
 
+> **What this page is about:** the machine contract. If you're wiring
+> `acc` into an agent, a script, or CI, this is the page that tells you
+> exactly what JSON you'll get back. It's stable, versioned, and
+> deterministic — you can build against it without fear.
+
 ## 1. Design Principles
 
 1. **Deterministic.** Same repo state + same flags → byte-identical JSON across runs. No timestamps, no random ordering, no locale-dependent formatting.
@@ -34,7 +39,7 @@ Every `--json` response wraps results in this envelope:
 | `acc_version` | yes | Semver of the `acc` binary. |
 | `root` | yes | Absolute resolved project root. |
 | `result` | yes | Command-specific payload (see §4). `null` if the command emits no result. |
-| `diagnostics` | yes | Array of diagnostics (see [06](./06-diagnostic-codes.md#15-json-shape)). Empty if none. |
+| `diagnostics` | yes | Array of diagnostics (see [06](./06-diagnostic-codes.md#16-json-shape)). Empty if none. |
 | `truncated` | yes | `true` when `--max-bytes` clipped output. |
 | `truncated_bytes_omitted` | yes | Bytes omitted due to truncation (0 when not truncated). |
 
@@ -52,7 +57,9 @@ Every `--json` response wraps results in this envelope:
 }
 ```
 
-`kind` is one of the four string literals. `source` is a path or a discovery description (e.g., `"Discovered from Rust imports"`). `detail` is optional.
+`kind` is one of the four string literals. `source` is a path or a
+discovery description (e.g., `"Discovered from Rust imports"`). `detail`
+is optional.
 
 ### `FunctionalityNode`
 
@@ -68,7 +75,8 @@ Every `--json` response wraps results in this envelope:
 }
 ```
 
-`roles`, `owners` are arrays of strings (possibly empty). They are declared-only fields; inferred roles/owners are never placed here.
+`roles`, `owners` are arrays of strings (possibly empty). They are
+declared-only fields; inferred roles/owners are never placed here.
 
 ### `Edge`
 
@@ -99,7 +107,8 @@ Every `--json` response wraps results in this envelope:
 }
 ```
 
-`canonical_severity` is only emitted when a `warn_only` override is in effect; otherwise the single `severity` field is canonical.
+`canonical_severity` is only emitted when a `warn_only` override is in
+effect; otherwise the single `severity` field is canonical.
 
 ---
 
@@ -140,7 +149,11 @@ Every `--json` response wraps results in this envelope:
 }
 ```
 
-(The envelope's `diagnostics` is empty for `check`; the command's `result.diagnostics` is the payload. This avoids duplication.) When `--json` is used with `check`, the envelope `diagnostics` is an empty array, and `result.diagnostics` carries the full list. Agents reading `check` should consume `result.diagnostics`.
+(The envelope's `diagnostics` is empty for `check`; the command's
+`result.diagnostics` is the payload. This avoids duplication.) When
+`--json` is used with `check`, the envelope `diagnostics` is an empty
+array, and `result.diagnostics` carries the full list. Agents reading
+`check` should consume `result.diagnostics`.
 
 ### `acc inspect <path> --json`
 
@@ -348,6 +361,9 @@ When `--format mermaid` or `--format dot`, the `result` is a single string:
 8. Paths are always relative POSIX strings unless the field explicitly documents absolute paths (e.g., envelope `root`).
 9. Times, if any, are RFC 3339 UTC (used only in memory entries).
 
+The upshot: `acc context --json` twice in a row gives you byte-identical
+output, or something is wrong.
+
 ---
 
 ## 6. Versioning Policy
@@ -361,7 +377,9 @@ When `--format mermaid` or `--format dot`, the `result` is a single string:
 | Change a field's type or semantics | Major bump. |
 | Reorder / rename keys | Major bump. |
 
-`schema_version` begins at `1`. Consumers SHOULD assert `schema_version` major matches their expectation and ignore unknown optional fields forward-compatibly.
+`schema_version` begins at `1`. Consumers SHOULD assert `schema_version`
+major matches their expectation and ignore unknown optional fields
+forward-compatibly.
 
 ---
 
@@ -387,4 +405,5 @@ For usage errors (exit code `2`) and panics (exit code `3`), JSON output is a mi
 }
 ```
 
-`error` is mutually exclusive with a non-null `result`. Its presence means the command did not produce its normal payload.
+`error` is mutually exclusive with a non-null `result`. Its presence
+means the command did not produce its normal payload.

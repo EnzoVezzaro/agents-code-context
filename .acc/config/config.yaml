@@ -49,6 +49,9 @@ ignore:
   - "vendor/"
   - "__pycache__/"
   - "*.pyc"
+  # aba/ is its own self-contained repository (acc-battle-arena), never
+  # pushed with ACC; excluded so the parent graph stays clean.
+  - "aba/"
 
 # -----------------------------------------------------------------------------
 # Diagnostic Tuning

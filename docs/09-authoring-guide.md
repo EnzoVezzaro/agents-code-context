@@ -1,6 +1,13 @@
 # 09 — AGENTS.md Authoring Guide
 
-> `AGENTS.md` is plain Markdown. ACC imposes **no schema** and **no mandatory sections**. This guide describes conventions that maximize the value of the ACC tooling layer while keeping the file readable by any coding agent that has never heard of ACC.
+> `AGENTS.md` is plain Markdown. ACC imposes **no schema** and **no
+> mandatory sections**. This guide describes conventions that maximize
+> the value of the ACC tooling layer while keeping the file readable by
+> any coding agent that has never heard of ACC.
+>
+> If you write nothing else into your repository, write this. It's the
+> lowest-effort, highest-leverage thing you can do for your future self
+> and your agents.
 
 ---
 
@@ -23,7 +30,10 @@ authorization, and token management. It depends on the database module
 for persisted state and on logging.
 ```
 
-ACC will parse what it can (e.g., "depends on the database module" is a weak declared-dependency hint), and the file is fully usable by any agent without ACC.
+ACC will parse what it can (e.g., "depends on the database module" is a
+weak declared-dependency hint), and the file is fully usable by any
+agent without ACC. Done is better than perfect — a one-paragraph
+contract beats a perfectly-formatted file that was never written.
 
 ---
 
@@ -43,7 +53,9 @@ ACC's heuristic parser looks for these headings (case-insensitive, prefix-matche
 | `Architecture` | High-level architecture description. | `inspect`, `context`. |
 | `Workflows` | Pointer to `.acc/config/workflows/<name>.md`. | `discover`, `context`. |
 
-No file needs all of them. No file is rejected for missing any.
+No file needs all of them. No file is rejected for missing any. Think
+of the sections as "the more you fill in, the smarter ACC can be" —
+not an exam you can fail.
 
 ---
 
@@ -93,7 +105,8 @@ Owner: <team or module path>
 - See `.acc/config/workflows/feature.md` for the standard feature workflow.
 ```
 
-ACC's `acc document <path>` produces this template (optionally pre-filled from discovery with `<!-- inferred -->` markers).
+ACC's `acc document <path>` produces this template (optionally
+pre-filled from discovery with `<!-- inferred -->` markers).
 
 ---
 
@@ -123,13 +136,21 @@ Paths are canonical references ([02 §7](./02-repository-structure.md#7-path-con
 
 ### Relative to Project Root
 
-Paths are relative to the project root, not to the `AGENTS.md`'s own directory. If `src/auth/AGENTS.md` depends on `src/database/`, the entry is `src/database` (not `../database`).
+Paths are relative to the project root, not to the `AGENTS.md`'s own
+directory. If `src/auth/AGENTS.md` depends on `src/database/`, the
+entry is `src/database` (not `../database`).
 
 ### Declared vs. Discovered
 
-Declared dependencies are the architectural **intent**. They do not need to match discovered imports exactly — that's the point of [03 — Epistemology §5](./03-epistemology.md#5-truth-resolution): declared wins; mismatches surface as diagnostics.
+Declared dependencies are the architectural **intent**. They do not
+need to match discovered imports exactly — that's the point of
+[03 — Epistemology §5](./03-epistemology.md#5-truth-resolution):
+declared wins; mismatches surface as diagnostics.
 
-If you declare `src/database` and the code does import `src/database`, you've confirmed your architecture. If the code also imports `src/ui` that you didn't declare, ACC will surface `ACC022` and `acc discover` will suggest adding it.
+If you declare `src/database` and the code does import `src/database`,
+you've confirmed your architecture. If the code also imports `src/ui`
+that you didn't declare, ACC will surface `ACC022` and `acc discover`
+will suggest adding it. Disagreement is information, not failure.
 
 ---
 
@@ -143,7 +164,9 @@ If you declare `src/database` and the code does import `src/database`, you've co
 Owner: auth-team
 ```
 
-If two `AGENTS.md` files both claim the same path, `ACC030` fires. Ownership is exclusive by design — shared ownership is modeled as a meta-functionality that owns both (each with single-owner).
+If two `AGENTS.md` files both claim the same path, `ACC030` fires.
+Ownership is exclusive by design — shared ownership is modeled as a
+meta-functionality that owns both (each with single-owner).
 
 ### Owner Can Be a Path
 
@@ -153,17 +176,22 @@ If two `AGENTS.md` files both claim the same path, `ACC030` fires. Ownership is 
 Owner: src/platform
 ```
 
-This declares that the `src/platform` functionality owns this one. ACC treats path owners as `ownership` edges in the graph.
+This declares that the `src/platform` functionality owns this one. ACC
+treats path owners as `ownership` edges in the graph.
 
 ### Inferred Owners Are Never Asserted
 
-ACC may guess an owner from heuristics (recent committers, most-touched file). It returns the guess with `provenance.kind = "inferred"` and a suggestion (`ACC034`), never as authoritative. Declared ownership always wins.
+ACC may guess an owner from heuristics (recent committers, most-touched
+file). It returns the guess with `provenance.kind = "inferred"` and a
+suggestion (`ACC034`), never as authoritative. Declared ownership
+always wins.
 
 ---
 
 ## 7. Writing Constraints
 
-Constraints are declared invariants. They are the most load-bearing piece of `AGENTS.md` for `acc impact` and `acc check`.
+Constraints are declared invariants. They are the most load-bearing
+piece of `AGENTS.md` for `acc impact` and `acc check`.
 
 ```markdown
 ## Constraints
@@ -176,9 +204,16 @@ Constraints are declared invariants. They are the most load-bearing piece of `AG
 
 ### Constraint Language
 
-ACC does not parse constraint semantics — it treats constraints as text, surfaced verbatim in `acc context` and `acc impact`. The **agent** interprets them when it touches the functionality. ACC's job is to surface the right constraints in the right context, not to enforce them mechanically.
+ACC does not parse constraint semantics — it treats constraints as
+text, surfaced verbatim in `acc context` and `acc impact`. The
+**agent** interprets them when it touches the functionality. ACC's job
+is to surface the right constraints in the right context, not to
+enforce them mechanically.
 
-This is deliberate: constraints are often domain-specific prose ("must preserve token rotation atomicity") that no static analyzer can parse. Keeping them as plain text preserves `AGENTS.md`'s agent-readability and ACC's language-agnosticism.
+This is deliberate: constraints are often domain-specific prose ("must
+preserve token rotation atomicity") that no static analyzer can parse.
+Keeping them as plain text preserves `AGENTS.md`'s agent-readability
+and ACC's language-agnosticism.
 
 ---
 
@@ -203,7 +238,10 @@ This functionality inherits from `src/AGENTS.md` and specializes the
 auth contract described in `src/auth/AGENTS.md`.
 ```
 
-Inheritance is positional (directory hierarchy), not link-based ([02 §1](./02-repository-structure.md#1-agentsmd--standard-ecosystem)). Links in prose are for the human/agent reader, not for ACC's graph derivation.
+Inheritance is positional (directory hierarchy), not link-based
+([02 §1](./02-repository-structure.md#1-agentsmd--standard-ecosystem)).
+Links in prose are for the human/agent reader, not for ACC's graph
+derivation.
 
 ---
 
@@ -235,15 +273,26 @@ ACC does not parse frontmatter. The hard invariant ([01](./01-philosophy.md#13-t
 
 ### Competing Instruction Standards
 
-`AGENTS.md` is the primary instruction interface. Don't add `CLAUDE.md`/`CURSOR.md`/`CODEX.md` competing files — those split authority. If you need agent-specific notes, put them in `.acc/config/agents/<name>.md` (profiles) or `.acc-memory.md` (durable agent knowledge).
+`AGENTS.md` is the primary instruction interface. Don't add
+`CLAUDE.md`/`CURSOR.md`/`CODEX.md` competing files — those split
+authority. If you need agent-specific notes, put them in
+`.acc/config/agents/<name>.md` (profiles) or `.acc-memory.md` (durable
+agent knowledge).
 
 ### Putting Memory in `AGENTS.md`
 
-If it's architectural, it's `AGENTS.md`. If it's agent-learned and durable but not architectural, it's `.acc-memory.md`. Don't put gotchas, tried-and-rejected notes, or open questions in `AGENTS.md` unless they've risen to declared invariants.
+If it's architectural, it's `AGENTS.md`. If it's agent-learned and
+durable but not architectural, it's `.acc-memory.md`. Don't put
+gotchas, tried-and-rejected notes, or open questions in `AGENTS.md`
+unless they've risen to declared invariants.
 
 ### Declaring Inferred Facts
 
-Never write a dependency or owner based on an ACC suggestion without reviewing it. `acc discover` suggestions are `Inferred` until a human promotes them. Copying an inferred suggestion into `AGENTS.md` is the promotion act — do it deliberately.
+Never write a dependency or owner based on an ACC suggestion without
+reviewing it. `acc discover` suggestions are `Inferred` until a human
+promotes them. Copying an inferred suggestion into `AGENTS.md` is the
+promotion act — do it deliberately. ACC is great at *suggesting*; the
+decision stays yours.
 
 ---
 
@@ -316,7 +365,9 @@ Token validation is the hot path; it uses a lock-free cache backed by
 
 ## 12. Relationship to the AGENTS.md Ecosystem
 
-ACC follows the inheritance convention defined by the open [agents.md](https://agents.md/) standard — the same convention used by Codex, Claude Code, Cursor, Copilot, OpenCode, and others:
+ACC follows the inheritance convention defined by the open
+[agents.md](https://agents.md/) standard — the same convention used by
+Codex, Claude Code, Cursor, Copilot, OpenCode, and others:
 
 ```text
 project/AGENTS.md          → project-wide context
@@ -324,7 +375,9 @@ project/AGENTS.md          → project-wide context
         └── src/auth/AGENTS.md  → auth-specific context
 ```
 
-Your `AGENTS.md` files work with those tools today, unchanged. ACC reads the same files and adds graph derivation, provenance, context generation, and validation on top.
+Your `AGENTS.md` files work with those tools today, unchanged. ACC
+reads the same files and adds graph derivation, provenance, context
+generation, and validation on top.
 
 An agent that has never heard of ACC reads your `AGENTS.md` and gets:
 - a description of the functionality
