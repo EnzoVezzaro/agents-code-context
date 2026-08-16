@@ -21,7 +21,7 @@ Here's the TLDR of how I got here:
 
 <div align="center">
 
-<iframe src="https://github.com/sponsors/EnzoVezzaro/button" title="Sponsor EnzoVezzaro" height="32" width="114" style="border: 0; border-radius: 6px;"></iframe>
+[![Sponsor](https://img.shields.io/github/sponsors/EnzoVezzaro?label=Sponsor&logo=GitHub)](https://github.com/sponsors/EnzoVezzaro)
 
 </div>
 

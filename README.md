@@ -43,7 +43,7 @@ These are the non-negotiables that shaped ACC. They’re not features — they�
 - **🔄 Agent-Agnostic** — Works with *any* coding agent; no wrapper, runtime, or API required
 - **📁 Filesystem-First** — Repository is the sole source of truth; no database, no network calls
 - **🔒 Offline & Secure** — No telemetry, no code execution, safe on untrusted repos
-- **📊 Deterministic** — Same repo state + same flags = byte-identical output (critical for CI/agents)
+- **📊 Deterministic tools** — Same repo state + same flags = byte-identical output (critical for CI/agents)
 - **🔗 Compatibility Invariant** — Removing `.acc/` and the CLI leaves a perfectly valid agents.md repository
 
 ---
@@ -350,7 +350,7 @@ We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for:
 
 <div align="center">
 
-<iframe src="https://github.com/sponsors/EnzoVezzaro/button" title="Sponsor EnzoVezzaro" height="32" width="114" style="border: 0; border-radius: 6px;"></iframe>
+[![Sponsor](https://img.shields.io/github/sponsors/EnzoVezzaro?label=Sponsor&logo=GitHub)](https://github.com/sponsors/EnzoVezzaro)
 
 </div>
 
@@ -380,7 +380,7 @@ MIT License — see [LICENSE](./LICENSE) for details.
 <div align="center">
 
 **Built for an AI-native development future.**  
-Filesystem-first • Offline • Agent-agnostic • Deterministic
+Filesystem-first • Offline • Agent-agnostic • Deterministic tools
 
 If you try ACC on your project, I’d love to hear how it goes — [⭐ Star this repo](https://github.com/EnzoVezzaro/agents-code-context) if you find it useful!
 
