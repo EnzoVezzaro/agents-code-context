@@ -33,4 +33,14 @@ Este proyecto se construye sobre el trabajo abierto y de gente que cree en la te
 * **Estándares abiertos**: agents.md, Agent Skills, MCP, llms.txt. Y todos los participantes en el ecosistema.
 * **Comunidad open source** en general — quienes mantienen codigo abierto, herramientas para el mundo y prácticas que hacen posible un futuro donde el código este al servicio de todos.
 
-Gracias por los aportes. 🙌
+Gracias a todos los desarrolladores del mundo. Su trabajo es irremplazable. 🙌
+
+Y si alguien tiene forma de hacerles llegar este mensaje a **@t3dotgg** y **@ThePrimeagen** 🥺, por favor, háganle llegar el mensaje. Soy gran fan de todos los que están aquí. Me encantaría que también les llegue este pequeño y modesto esfuerzo que hago al open source. ❤️🇩🇴🌎
+
+**Disclaimer:** Cuando hablo de "desarrolladores", no me refiero únicamente a quienes escriben código profesionalmente. Me refiero a todo aquel que, por trabajo o por pasión, crea con 0 y 1; a toda persona que crea software desde el lenguaje maquina a quienes trabajan con A y B (que se basan en 0 y 1), a quienes crean las herramientas en las que otros construyen y, muchas veces, nos ayudan a mejorar todo el ecosistema del software.
+
+Me refiero a todos los que, de alguna manera, tocan el software, lo construyen, lo usan, lo cuestionan, lo mejoran o inspiran a otros a crear mejores sistemas y mejores soluciones a los problemas que tenemos.
+
+Quiero que toda la industria pueda sentirse orgullosa y segura de lo que hemos construido, y que nuestro futuro como creadores de cambio no se vea tragado por el *greed* corporativo ni por una búsqueda de automatización que ponga la eficiencia por encima del recurso humano y de la inteligencia humana.
+
+El problema no es la máquina. El problema es quien te dice que la máquina es mejor que el humano.
