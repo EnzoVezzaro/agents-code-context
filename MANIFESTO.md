@@ -16,7 +16,7 @@ Nuestros pueblos son vulnerables a lo que se acerca, yo soy italo-dominicano, no
 
 En estos últimos dos años he podido ver y sufrir directamente el costo de la IA, pero también he podido ver y percibir su verdadero potencial. Me imagino un futuro donde ya el código no es exclusivo, está a la mano de todos. Donde crear no tiene un costo, más allá de tu imaginación. Donde los dispositivos electrónicos serán tan fáciles de hacer como el software que los hace funcionar. Me imagino un futuro lleno de posibilidades para nuestra profesión y el mundo. No es una herramienta que viene a sustituir desarrolladores, como las grandes corporaciones te quieren hacer pensar, es una herramienta que viene a revolucionar las vidas de los desarrolladores. Que tú seas hard-core vieja escuela, o que seas de la nueva generación de desarrolladores que tienen herramientas que yo hubiera soñado en mis días, todos verán las ventajas de tener gran parte del código como una abstracción del mismo. Para muchos se volverá una abstracción. Para otros será el microscopio para poder mejorar sus softwares, para otros será simplemente un landing page builder. El uso lo dará cada quien, lo importante es que todos puedan usarlo.
 
-Quisiera mandar saludos especiales y agradecimiento desde el corazón al equipo de freebuff, a midu, a y a todo el ecosistema open source, que sigamos creando, que sigamos construyendo, y que sigamos impulsando la industria hacia el futuro.
+Quisiera mandar saludos especiales y agradecimiento desde el corazón al equipo de freebuff, al equipo de opencode, a midu, y a todo el ecosistema open source, que sigamos creando, que sigamos construyendo, y que sigamos impulsando la industria hacia el futuro.
 
 ¿Y si se preguntan por qué escribo esto en español, sabiendo inglés (y italiano 🇮🇹🍝)? Porque también el lenguaje se volvió una abstracción y prefiero comunicar con el lenguaje más íntimo para mí. De desarrollar a desarrollar. 🇩🇴
 
@@ -27,6 +27,7 @@ Quisiera mandar saludos especiales y agradecimiento desde el corazón al equipo 
 Este proyecto se construye sobre el trabajo abierto y de gente que cree en la teconologia como bien común:
 
 * **Equipo de Freebuff** — [freebuff.com](https://freebuff.com) / [GitHub CodebuffAI/freebuff](https://github.com/CodebuffAI/freebuff) — por poner modelos potentes a $0 y permitir construir desde la República Dominicana.
+* **Equipo de OpenCode** — [opencode.ai](https://opencode.ai) / [GitHub anomalyco/opencode](https://github.com/anomalyco/opencode) — el agente de código abierto que hace que la IA esté al alcance de todos, sin vendor lock-in.
 * **midu / @midudev** — [GitHub midudev](https://github.com/midudev) — `isbetter.ai`, inspiración directa del arena de ABA.
 * **Michael Movsesov** — [mini-coding-agent](https://github.com/michaelmov/mini-coding-agent) — el bucle agéntico read → think → act → verify que modela el harness de ABA.
 * **Quorinex** — [Freebuff2API](https://github.com/Quorinex/Freebuff2API) — proxy local de Freebuff para clientes OpenAI-compatibles. It's a hack, CodebuffAI implement this please, or even better hire Quorinex 👨🏽‍💻
