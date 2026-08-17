@@ -276,7 +276,7 @@
                 class="agc-back-link"
                 :href="withBase('/markdown-is-all-you-need')"
               >
-                Read the readings
+                Want to dig deeper?
                 <span class="agc-back-arrow">→</span>
               </a>
             </div>
