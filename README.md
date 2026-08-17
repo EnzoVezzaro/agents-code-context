@@ -155,15 +155,35 @@ acc memory add src/auth "JWT validation rejects tokens with 'kid' header mismatc
 acc context src/auth --include memory
 ```
 
-### 🤖 Multi-Agent Orchestration (Optional)
-Enable structured multi-agent workflows with graph-driven partitioning, isolation, and deterministic validation.
+### 🤖 Always-On AI Engine (`acc engine`)
+The engine does automatically what the coding agent should have done:
+it reviews changed code, keeps `AGENTS.md` contracts and `.acc-memory.md`
+knowledge in sync, and regenerates `ACC_WARN.md` (the developer-facing
+drift alarm). Deterministic scan always; AI phase only when triggered
+(default 3 commits) and only on the **changed** code.
 
-```yaml
-# .acc/config/config.yaml
-multi_agent:
-  enabled: true
-  max_concurrency: 4
-  isolation_mode: "git_worktree"
+```bash
+acc engine --watch          # always-on daemon (engine ON)
+acc engine --supervisor     # score proposals vs rules (≥85%) before writing
+acc engine --init-context   # bootstrap a repo into full ACC context
+```
+
+**Engine limits (measured).** The AI phase is hard-budgeted so the
+repository size never affects per-review cost: contract ≤ 4 KB, slice
+≤ 1.5 KB, ≤ 10 changed files, ≤ 6 KB of changed code, ≤ 5 knowledge
+entries. Benchmarked live (22 → 3,900 files, NVIDIA NIM): drift
+detection held at 4/4 sizes with constant ~4.6 KB per-review context,
+ACC files doubled the drift items the model reported, and the graph
+stayed ~180 bytes/item with no prose at every scale — the engine
+doesn't get dumber as the repo grows. (On the one run where the model
+hallucinated — a small repo — the deterministic scan + supervisor
+caught it: a made-up path fails `acc check` and never reaches the 85%
+approval threshold.) See
+[Engine limits](./docs/05-cli-commands.md#engine-limits-measured) and
+[The over-feeding problem](./docs/04-epistemology.md#the-over-feeding-problem-and-how-acc-avoids-it).
+
+```bash
+npm run benchmark:engine   # live: degradation + ACC contribution + graph size
 ```
 
 ### 🔍 Architecture-Aware Search
@@ -292,7 +312,6 @@ See the ABA repo's [README](./aba/README.md) for details.
 | [09 — Memory Semantics](./docs/09-memory-semantics.md) | `.acc-memory.md` lifecycle, format, rules |
 | [10 — Authoring Guide](./docs/10-authoring-guide.md) | Writing effective `AGENTS.md` files |
 | [11 — Multi-Agent](./docs/11-multi-agent-orchestration.md) | Orchestration substrate, partitioning, isolation |
-| [12 — Tooling Subsystem](./docs/12-tooling.md) | Automatic tool detection, plugins, permissions |
 | [13 — Security Model](./docs/13-security.md) | Offline guarantees, read/write surface, untrusted input |
 
 ---

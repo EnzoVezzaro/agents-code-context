@@ -1,13 +1,16 @@
 # 03 — Repository Structure
 
-> **TLDR:** an ACC-enabled project is three layers stacked on top of
-> each other — the standard `AGENTS.md` surface, the `.acc/` control
-> plane, and the gitignored memory layer. Any agent can navigate all of
-> it with plain files; the CLI is an optional accelerator.
+> **TLDR:** ACC is an agent skill, not a framework on top. The
+> repository stays standard — `AGENTS.md` + source. When a project
+> opts in, the `.acc/` control plane and the gitignored memory layer
+> become optional conventions the skill reads and maintains. Any agent
+> can navigate all of it with plain files; the CLI is an optional
+> accelerator.
 
 Here's the layout this repository follows — and the one ACC recommends
-for any repo that wants to be agent-native. Nothing is sacred; the
-structure exists to communicate.
+for a repo that wants the full agent-native experience. Nothing is
+sacred; the structure exists to communicate. A repository without any
+of it is still fully navigable by an agent with the ACC skill installed.
 
 ## Overview
 
@@ -52,15 +55,16 @@ The strict boundary — who owns what:
 |-------|------|-----------|
 | `AGENTS.md` (root + nested) | Standard agent instructions (primary interface). | The ecosystem. Markdown, no proprietary schema. |
 | `.agents/AGENTS.md` | Optional project-wide rules. | The ecosystem (project base tier). |
-| `.agents/skills/` | Optional SKILL.md packages. | The ecosystem (Agent Skills standard). |
+| `.agents/skills/` | Optional SKILL.md packages. | The ecosystem (Agent Skills standard) — ACC's own skill installs here via `acc install`. |
 | `*/.acc-memory.md` | Functionality-local durable memory. | Agent-written, gitignored, moves with functionality. |
 | `.acc/config/` | Project-level ACC control plane. | ACC-specific configuration, profiles, workflows, standards. |
 | `acc` CLI | Deterministic accelerator. | Optional tooling, never required for understanding. |
 
 The whole thing reads like a conversation: the standard says *this is
-how agents find instructions*, `.acc/` says *this is where ACC-specific
-machinery lives*, and code folders say *this is what we know about this
-code*.
+how agents find instructions*, the ACC skill says *this is how I
+operate on it deterministically*, `.acc/` says *this is where optional
+ACC-specific machinery lives*, and code folders say *this is what we
+know about this code*.
 
 ---
 
@@ -130,6 +134,20 @@ Reusable capabilities in the standard [SKILL.md format](https://agentskills.io/)
 
 ACC reads standard skill locations as well as its own (see §4, `skills/`).
 
+**ACC's own skill installs here.** The canonical ACC skill lives at
+`skills/acc/` in the ACC repository and is published as an Agent Skill:
+
+```bash
+npx skills add EnzoVezzaro/agents-code-context --skill acc
+```
+
+`acc install` (default `--agent generic`) copies the same canonical
+skill (SKILL.md + `references/`) to `.agents/skills/acc/SKILL.md`,
+teaching any skill-aware agent the engine ON/OFF contract, the
+deterministic command surface, and the engine workflow — the repository
+stays a standard agents.md repo either way (see
+[05 — CLI Commands § acc install](./05-cli-commands.md#acc-install-—-deploy-acc-as-an-agent-skill)).
+
 ---
 
 ## 3. `.acc/config/` — ACC Control Plane
@@ -197,8 +215,86 @@ diagnostics:
   # warn_only: ["ACC014"]
   warn_only: []
 
+forbidden_deps:
+  # Dependency rules the repository must never have (directory prefixes,
+  # relative to the project root). A declared or discovered edge under
+  # both prefixes → ACC024 (error); a rule whose paths exist but never
+  # match → ACC025 (warn, inert); a rule naming a missing path →
+  # ACC065 (warn). Honored by `acc check` and the engine scan.
+  # - from: "src/auth/"
+  #   to: "src/ui/"
+
 ownership:
   strict: false
+
+graph:
+  # Default output format for `acc graph`: text | mermaid | dot | json.
+  # Default: json (machine-first — agents parse it directly).
+  default_format: "json"
+  # Include provenance tags in text output.
+  default_provenance: true
+
+memory:
+  # Warn (ACC054) when a memory file exceeds this many bytes.
+  warn_bytes: 65536
+  # Timestamp format for `acc memory add` entries: rfc3339 | date.
+  timestamp_format: "rfc3339"
+
+discover:
+  # Default suggestion kinds for `acc discover` when --kind is not
+  # passed. The engine's sync plan uses its own additive-only kinds as
+  # a safety invariant (never auto-removes declared facts).
+  default_kinds:
+    - "missing-contract"
+    - "missing-dependency"
+    - "stale-dependency"
+    - "unknown-owner"
+    - "orphan-code"
+
+engine:
+  # Trigger: how much change the engine waits for before running the
+  # (token-consuming) AI phase. mode: commits | changes | always.
+  # commits → counts git commits since the last triggered run (reads the
+  # reflog as plain files). changes → keeps a content-hash snapshot and
+  # counts changed files. Default: 3 commits. The trigger also exposes
+  # the changed files so the AI evaluates the actual code.
+  trigger:
+    mode: commits
+    threshold: 3
+  # Supervisor: a second AI pass scores the engine's proposed changes
+  # against ACC rules (0-100) before anything is written. Below the
+  # threshold, the engine iterates on its own proposals with the
+  # supervisor's feedback until compliant or max_iterations is hit.
+  # Enabled via config or the --supervisor flag.
+  supervisor:
+    enabled: false
+    threshold: 85
+    max_iterations: 3
+  # AI resilience: retries per provider call, fallback to the next
+  # configured provider when one fails, and how many consecutive
+  # all-providers-failed runs `acc engine --watch` tolerates before
+  # stopping with a clear error.
+  ai:
+    retries: 3
+    retry_delay_ms: 1000
+    fallback: true
+    max_consecutive_failures: 3
+
+ai:
+  # Optional AI configuration (AI SDK v5). Core ACC stays offline and
+  # deterministic — AI is explicit opt-in, never required. Keys are read
+  # from the environment (api_key_env), never stored in the repo.
+  enabled: false
+  default: main
+  providers:
+    - id: main
+      provider: openai            # openai | anthropic | google | <npm package>
+      model: gpt-4o
+      api_key_env: OPENAI_API_KEY
+    - id: fallback
+      provider: anthropic
+      model: claude-sonnet-4-5
+      api_key_env: ANTHROPIC_API_KEY
 
 multi_agent:
   enabled: false
@@ -213,36 +309,13 @@ multi_agent:
   conflict_policy: "sequentialize"
 
 tools:
+  # Auto-discover project tools (package.json scripts, Cargo.toml, etc.)
+  # for the `acc tools` manifest. `acc tools` is a listing, never an
+  # executor — ACC does not run project code (see [13 — Security Model](./13-security.md)).
   auto_discover: true
-  defaults:
-    filesystem: true
-    search: true
-    shell: true
-    git: true
-    project: true
-    context: true
-    graph: true
-    memory: true
-    check: true
-  detected:
-    enabled: true
   plugins:
     enabled: true
     directory: ".acc/config/tools"
-  permissions:
-    filesystem:
-      read: true
-      write: true
-      glob: true
-    shell:
-      enabled: true
-      approval: "auto"
-      allowed_commands: []
-    git:
-      read: true
-      write: true
-    network:
-      enabled: false
 ```
 
 `config.yaml` MUST NOT be required for any command to run. Its absence
@@ -250,9 +323,36 @@ means: "use defaults." This keeps ACC usable on a git clone with zero
 configuration — no setup ceremony, no config file to generate before you
 can do anything.
 
+### `ai/` — AI Providers (Optional, AI SDK v5)
+
+The `ai:` section configures one or more AI providers used by commands
+that need a model. It is **explicit opt-in**: `ai.enabled` defaults to
+`false`, no provider package is loaded, and no network call ever happens
+at config, graph, scan, or list time — only when a command explicitly
+requests a model via `getModel()` (lib/core/ai.js). Each provider declares
+`id`, `provider` (`openai` \| `anthropic` \| `google` \| a custom npm
+package name), `model`, and optionally `api_key_env` (the environment
+variable holding the key — keys are never stored in the repository) and
+`base_url`. `acc ai` lists configured providers and their status without
+contacting any network. See [05 — CLI Commands § acc ai](./05-cli-commands.md#acc-ai).
+
+The CLI manages providers through `acc ai` (add / remove / default /
+models): keys are stored in the project's `.env` (gitignored) as
+`ACC_<PROVIDER_ID>_KEY` and providers are written to the CLI-managed
+`.acc/config/ai.yaml`, loaded on top of `config.yaml`. You can still
+declare providers by hand in `config.yaml`; both sources merge.
+See [.env and secrets](./03-repository-structure.md#env-and-secrets) below.
+
 When the `multi_agent` section is absent, the defaults shown above
 apply. The `enabled: false` default ensures backward compatibility —
 existing projects are unaffected.
+
+### `.env` and secrets
+
+The project's `.env` (gitignored) holds API keys. `.env.example` is
+committed as the template. `acc ai add` writes keys here as
+`ACC_<PROVIDER_ID>_KEY`; the config loader reads them into the
+environment so `api_key_env` resolves. Never commit the real `.env`.
 
 ### `agents/` — Agent Profiles
 
@@ -454,6 +554,7 @@ The reassuring table: what happens if you remove pieces of ACC.
 
 | Component removed | Project usability |
 |-------------------|-------------------|
+| The ACC skill (`.agents/skills/acc/`) | Repository unaffected; any agent still reads `AGENTS.md` directly. |
 | `.acc/config/` | Still valid agents.md repository; agents read `AGENTS.md` directly. |
 | `.acc/config/skills` | Functionality knowledge still in `*/AGENTS.md` and `*/.acc-memory.md`. |
 | `.acc/config/mcp` | MCP config optional; functionality knowledge unaffected. |
@@ -463,8 +564,8 @@ The reassuring table: what happens if you remove pieces of ACC.
 | `*.acc-memory.md` | Lose durable memory, but `AGENTS.md` remains the durable contract. |
 | `AGENTS.md` | Ordinary repository; ACC offers no added value here. |
 
-Every row above is a design requirement, not an accident. ACC is
-furniture, not load-bearing walls.
+Every row above is a design requirement, not an accident. ACC is a tool
+the agent carries, not load-bearing walls in the repository.
 
 ---
 

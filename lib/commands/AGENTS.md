@@ -36,8 +36,9 @@ Owner: EnzoVezzaro/agents-code-context
 
 ## Dependencies
 
-- lib/ (core engine: graph, diagnostics, config, memory, output, util)
-- lib/templates.js (conservative AGENTS.md + config templates)
+- lib/core/ (domain logic: graph, diagnostics, config, memory, output,
+  util, ai, engine, skill, templates)
+- lib/core/templates.js (conservative AGENTS.md + config templates)
 
 ## Constraints
 

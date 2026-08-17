@@ -97,6 +97,83 @@ No AGENTS.md found at root — printed template to stdout. Review and commit.
 
 ---
 
+## `acc install` — deploy ACC as an agent skill
+
+**Purpose:** ACC is an agent capability, not a per-repository framework.
+The skill teaches any agent how to operate on the repository (engine
+ON/OFF contract, command surface, workflows) — the repository itself
+stays a standard agents.md repository.
+
+**Two distribution channels, one source.** npm distributes the engine
+(the `acc` CLI); the skill is distributed as an **Agent Skill** from the
+same GitHub repository. The canonical skill lives at `skills/acc/` in
+the ACC repo — `npx skills` and `acc install` both read that one file,
+so they always install the same skill.
+
+### Universal install (Agent Skills standard)
+
+```bash
+npx skills add EnzoVezzaro/agents-code-context --skill acc
+```
+
+Globally (available to every agent), or per project:
+
+```bash
+npx skills add EnzoVezzaro/agents-code-context --skill acc --agent codex
+npx skills add EnzoVezzaro/agents-code-context --skill acc --global
+```
+
+This is the standard flow used by the skills ecosystem — ACC's skill is
+just another Agent Skill. It is installed **into the agent**, never into
+the repository.
+
+### Via the CLI (`acc install`)
+
+`acc install` copies the same canonical skill (SKILL.md + `references/`)
+into a project-local agent directory.
+
+**Flags:**
+- `--agent <name>` — target a well-known project-local directory:
+  `generic` (`.agents/skills/acc`), `claude` (`.claude/skills/acc`),
+  `cursor` (`.cursor/skills/acc`), `codex` (`.codex/skills/acc`),
+  `opencode` (`.opencode/skills/acc`), `gemini` (`.gemini/skills/acc`),
+  `vscode` (`.vscode/skills/acc`). Default: `generic`.
+- `--dir <path>` — install to an explicit path (absolute, or relative to
+  the project root) — e.g. a global agent skills directory.
+- `--force` — overwrite an existing `SKILL.md`.
+- `--json`, `--root <path>`.
+
+Deterministic, offline, idempotent: it copies the fixed canonical skill
+and never executes anything. An existing skill is left untouched
+without `--force`. The installed skill is detected by the graph as a
+`skill` node (`.agents/skills/<name>/SKILL.md`), so `acc slice` surfaces
+it in `requires.skills`.
+
+### Native host adapters
+
+The ACC repository also ships per-ecosystem adapter manifests so each
+agent can discover and load the skill natively — the same pattern used
+by ponytail and other skill repos:
+
+| Host | Adapter | What it does |
+|---|---|---|
+| OpenCode | `opencode.json` + `.opencode/plugins/acc.mjs` | Exposes the `acc` CLI as a native OpenCode tool |
+| Claude Code | `.claude-plugin/marketplace.json` + `plugin.json` | Marketplace + plugin entry point |
+| Codex | `.codex-plugin/plugin.json` | Plugin with `skills: ./skills/` + interface |
+| Grok | `.grok-plugin/marketplace.json` | Marketplace entry point |
+| Gemini CLI | `gemini-extension.json` | Extension manifest (`contextFileName: AGENTS.md`) |
+| Cursor | `.cursor/rules/acc.mdc` | Always-on rule teaching the CLI |
+| Generic | `plugin.json` + `plugin.yaml` | Generic / Hermes-style plugin manifests |
+
+All version-bearing manifests must agree with `package.json` —
+`npm run check:versions` enforces it, and `npm run bump` keeps them in
+sync automatically. The skill itself installs into each agent's native
+skills directory via `acc install --agent <name>`; the installed copies
+are verified byte-identical to `skills/acc/` by `npm run
+check:skill-copies`.
+
+---
+
 ## `acc check`
 
 **Purpose:** Validate the repository against ACC rules: broken
@@ -107,10 +184,12 @@ This is the "did anything drift" command.
 **Flags:**
 - `--json`
 - `--root <path>`
-- `--watch` — re-run on filesystem change, emit only new diagnostics (V1.1)
 - `--exit-zero` — always exit `0` regardless of diagnostics (for CI lint modes). Default: exit `1` if any error-level diagnostic.
 - `--severity <error\|warn\|info>` — minimum severity to emit. Default: emit all.
 - `--code <ACC0xx>` — filter to a specific diagnostic code (repeatable).
+
+(Watch mode lives on the engine: `acc engine --watch` re-runs the full
+scan on filesystem change. `acc check` itself is a one-shot command.)
 
 **Behavior:** runs the full derivation pipeline (see [04 — Epistemology](./04-epistemology.md#8-graph-derivation-algorithm-v1-in-memory)) and surfaces diagnostics per [07 — Diagnostic Codes](./07-diagnostic-codes.md).
 
@@ -272,7 +351,7 @@ repository — the thing that tells an agent "here's the terrain" instead
 of making it explore everything blindly.
 
 **Flags:**
-- `--format <text\|mermaid\|dot\|json>` — output format. Default `text` (or `json` when `--json`).
+- `--format <text\|mermaid\|dot\|json>` — output format. Default `json` (configurable via `graph.default_format` in `.acc/config/config.yaml`; `--json` forces it).
 - `--json` — shorthand for `--format json`.
 - `--root <path>`
 - `--provenance` — include provenance annotations on every edge/node. Default: on for JSON and `text`; off for `mermaid` and `dot` unless specified (or enabled via `graph.default_provenance` in config).
@@ -298,6 +377,62 @@ graph LR
   auth --> log
   classDef inferred stroke-dasharray: 5 5;
 ```
+
+---
+
+## `acc slice <path>`
+
+**Purpose:** The context router — the compact, AI-optimized slice of
+ the knowledge-graph index for a path. The graph is an index of
+ relationships, not a knowledge store; `acc slice` answers "what governs
+ this", "what owns this", "what does this depend on", "what depends on
+ this", "what tests this", "what skills/standards apply", and "what is
+ the impact budget" — never the whole repository.
+
+**Flags:**
+- `--json` — emit the slice as structured JSON.
+- `--root <path>`
+
+**Behavior:**
+1. Resolve the target (file, test, directory, or boundary) to its
+   owning functionality boundary.
+2. Collect from the derived graph:
+   - `governed_by` — the nearest `AGENTS.md` contract chain (root → scope).
+   - `owns` — files and tests belonging to the scope boundary.
+   - `depends_on` / `dependents` — declared and discovered dependency edges.
+   - `tested_by` — for a file target, the tests covering it; for a
+     boundary, the tests it owns.
+   - `requires` — skills (`.agents/skills/`, `.acc/config/skills/`) and
+     standards (`.acc/config/standards/`) referenced from the contract.
+   - `impact` — the expansion budget over the scope + transitive
+     dependents: files, boundaries, tests, contracts.
+3. Never includes prose, contracts, or memory — the slice points at the
+   filesystem; `acc context` assembles readable context on demand.
+
+**Terminal output:**
+```text
+SCOPE: src/auth
+GOVERNED_BY:
+  AGENTS.md
+  src/auth/AGENTS.md
+OWNS (files):
+  src/auth/token.rs
+OWNS (tests):
+  src/auth/token_test.rs
+DEPENDS_ON:
+  src/database (declared)
+DEPENDENTS:
+  src/app (declared)
+TESTED_BY:
+  src/auth/token_test.rs
+SKILLS:
+  oauth
+STANDARDS:
+  idempotency
+IMPACT: 2 files, 2 boundaries, 1 test, 2 contracts
+```
+
+**Exit:** `0` on success, `2` on usage error or missing path.
 
 ---
 
@@ -622,20 +757,383 @@ modify `AGENTS.md`. They never network.
 
 ---
 
+## `acc ai` — manage AI providers
+
+**Purpose:** The CLI-managed setup for the engine's AI phase. AI
+configuration uses the AI SDK v5 (`ai` + provider packages). Core ACC
+stays offline and deterministic; AI is explicit opt-in — `ai.enabled`
+defaults to `false` and nothing is loaded, required, or contacted
+unless a command requests a model.
+
+**The setup flow is: select provider → api key → model.**
+
+```text
+$ acc ai add --provider openrouter --api-key sk-or-v1-… --model nvidia/nemotron-3-nano-30b-a3b:free
+Added provider 'openrouter': openai / nvidia/nemotron-3-nano-30b-a3b:free
+  API key stored in .env as ACC_OPENROUTER_KEY (gitignored)
+  Provider saved to .acc/config/ai.yaml
+```
+
+Interactively (no flags), `acc ai add` walks the three steps: it lists
+the known providers (OpenAI, Anthropic, Google, OpenRouter, NVIDIA NIM,
+Groq, Together), asks for the API key, and — when `--model` is not
+given — loads the provider's available models dynamically from its
+models endpoint so you can pick one.
+
+### Subcommands
+
+- `acc ai` — list configured providers and their status (`ready`,
+  `invalid`, `not installed`, `missing API key`). Offline, no network.
+- `acc ai add [--provider <id>] [--api-key <key>] [--model <model>]
+  [--id <id>] [--base-url <url>] [--yes]` — add a provider. `--provider`
+  selects from the known catalog (or `--base-url` for a custom
+  OpenAI-compatible endpoint); `--api-key` is stored in the project's
+  `.env` as `ACC_<ID>_KEY`; `--model` is used as-is, or loaded
+  dynamically when omitted (interactive only). `--yes` requires all
+  values as flags (deterministic, no prompts).
+- `acc ai remove <id>` — remove a provider and delete its key from
+  `.env`.
+- `acc ai default <id>` — set the default provider.
+- `acc ai models <id>` — load the provider's available models from its
+  models endpoint (network call, requires the key to be set).
+
+### Where keys and providers live
+
+- **API keys** — `.env` (gitignored), as `ACC_<PROVIDER_ID>_KEY`.
+  Keys are read into the environment when the config loads; they are
+  never written to the config file and never committed.
+- **Providers** — `.acc/config/ai.yaml`, a CLI-managed control file
+  loaded on top of `config.yaml` (CLI wins). The human-written
+  `config.yaml` is never rewritten; you can still declare providers
+  there by hand.
+
+Models are instantiated on demand via `getModel()` (lib/core/ai.js) only
+when a command explicitly needs one.
+
+**Terminal output:**
+```text
+AI: enabled
+Default: main
+  main: openai / gpt-4o — ready
+  local: anthropic / claude-sonnet-4-5 — missing API key (ANTHROPIC_API_KEY)
+```
+
+**Exit:** `0` on success, `2` on usage error.
+
+---
+
+## `acc engine [path]` — the always-on AI intelligence engine
+
+**Purpose:** the engine does automatically what the coding agent working
+on the project should have done. It keeps the ACC files (`AGENTS.md`
+contracts, `.acc-memory.md` knowledge, `ACC_WARN.md` drift) in sync
+with the code.
+
+**Who maintains the ACC files?**
+
+- **Engine ON** — run `acc engine --watch` (the always-on daemon). The
+  coding agent can then **ignore the ACC files and just code**; the
+  engine reviews changed code, updates knowledge/memory, and regenerates
+  `ACC_WARN.md`. The agent should read `ACC_WARN.md` before finishing.
+- **Engine OFF** — the coding agent is **exclusively responsible** for
+  the ACC files. Every task must include the ACC workflow (`acc context`
+  / `acc impact` / `acc check` / update `AGENTS.md` / `acc memory add`)
+  — see the ACC skill (`.agents/skills/acc/SKILL.md`, installed with
+  `acc install`) and `.acc/config/workflows/`.
+
+Three phases:
+
+1. **Deterministic (always, offline)** — derives the graph, runs the
+   diagnostic scan, computes per-boundary graph slices and the
+   dependency-gap plan (discovered deps not yet declared).
+2. **AI (only when `ai.enabled`)** — for each scoped boundary with a
+   contract, asks the configured model to review the contract against
+   the **changed source code** (the files the trigger identified) plus
+   the derived slice, and produce durable knowledge and drift proposals.
+3. **Supervisor (optional, `--supervisor`)** — a second model pass scores
+   the engine's proposals against ACC rules (0–100). Below the config
+   threshold (default `85`), the engine iterates on its own proposals
+   with the supervisor's feedback until compliant or `max_iterations`
+   (default `3`) is reached. Knowledge is written only after approval.
+
+**Flags:**
+- `--apply` — apply the deterministic sync (`acc build` + `acc discover`
+  additive kinds: missing contracts, declared discovered deps) and, in
+  the AI phase, write knowledge entries to `.acc-memory.md` (gitignored)
+  — only after the supervisor approves (when enabled). Contract rewrites
+  / skill / standard gaps are always proposals only.
+- `--force` — bypass the trigger and run the AI phase now.
+- `--supervisor` — enable the supervisor scoring loop.
+- `--init-context` — bootstrap a repository into a fully
+  ACC-contextualized state: scaffold ACC (`acc init --scan`), create the
+  root `AGENTS.md` contract, create every missing per-boundary contract
+  from the codebase (`acc build --yes --from-discovery`), declare
+  discovered dependencies (additive), write `ACC_WARN.md`, and report
+  what still needs human context (`acc fill`). Deterministic, additive,
+  idempotent — never rewrites existing content.
+- `--watch` — live server mode: keep the process alive in the terminal,
+  re-run the engine on filesystem changes (debounced 1.5s), and stream
+  phase logs, AI results, and supervisor scores to stdout. Ctrl-C exits.
+- `--model <id>` — use a specific configured AI provider.
+- `--json`, `--root <path>`.
+
+**Trigger (token protection):** the AI phase only runs when enough
+change has accumulated, per `engine.trigger` in config (default: `3`
+commits). With `mode: commits`, the engine counts commits since its last
+triggered run by reading the git reflog as plain files (no git binary);
+with `mode: changes`, it keeps a content-hash snapshot and counts
+changed files. `mode: always` never waits. The baseline (last processed
+commit / snapshot) is stored in the gitignored `.acc/state/engine.json`.
+Without git, commits mode falls back to triggered (never skips work).
+
+**Code-aware evaluation:** the trigger also exposes the list of changed
+files (content-hash diff against the previous run's snapshot) in both
+modes. The AI prompt embeds that changed code (budgeted) so the model
+reviews the actual code, not just the derived relationships.
+
+**Supervisor config** (`.acc/config/config.yaml`):
+```yaml
+engine:
+  supervisor:
+    enabled: false      # or pass --supervisor
+    threshold: 85       # minimum approval score (0-100)
+    max_iterations: 3   # iterate on feedback until compliant
+```
+
+**AI resilience (`.acc/config/config.yaml`):** the engine's AI phase
+handles failing providers deterministically and reports every failure so
+the developer can fix it:
+
+```yaml
+engine:
+  ai:
+    retries: 3                    # attempts per provider call before giving up on it
+    retry_delay_ms: 1000          # pause between attempts
+    fallback: true                # try the next configured provider when one fails
+    max_consecutive_failures: 3   # watch mode: stop the server after this many
+                                  # consecutive runs where every provider failed
+```
+
+- **Provider fallback** — when a provider fails (bad key, endpoint
+  error, timeout), the engine tries the next configured provider in
+  priority order (requested → `ai.default` → config order). Providers
+  that cannot be resolved (e.g. missing API key) are skipped and
+  reported as `skipped provider 'id': <reason>`; the working provider is
+  reported in the `AI:` line.
+- **Per-call retries** — each provider call is attempted up to
+  `retries + 1` times with a pause between attempts; every failed
+  attempt is recorded and shown as `retries needed:` / failed-attempt
+  lines, so transient failures are visible, not silent.
+- **All providers exhausted** — the run reports every boundary's error
+  (`✗ AI call failed for <dir>: <provider> attempt N: <message>`) and
+  the full failed-attempt list. Nothing is written, nothing is thrown —
+  the deterministic scan and `ACC_WARN.md` still complete.
+- **Watch mode** — `acc engine --watch` retries automatically after a
+  failure (no filesystem change needed). After
+  `max_consecutive_failures` consecutive runs where every provider was
+  exhausted, it prints `FATAL: N consecutive AI failures — stopping the
+  engine.` and exits `1`, so the developer sees the error instead of a
+  silent server burning tokens.
+
+**ACC_WARN.md (drift report):** every engine run — AI or not, `--apply`
+or dry-run — regenerates `ACC_WARN.md` in the project root. It is the
+developer-facing alarm for drift, listing:
+
+- **Code violations** — every `ACC0xx` error/warn diagnostic from the scan.
+- **Docs behind code** — discovered dependencies the docs don't declare
+  (and orphan code): the code moved ahead of the documentation.
+- **Docs ahead of code** — declared dependencies no code references: the
+  docs promise something the code doesn't deliver.
+- **AI findings** — per-boundary drift / knowledge / skill+standard gaps
+  from the last triggered AI run, with the supervisor verdict when
+  enabled.
+
+The report is deterministic whenever the AI phase is disabled/skipped
+(no timestamps). It is gitignored derived state — fix the code or the
+docs, never the report. The engine output shows a one-line summary:
+`⚠️  ACC_WARN.md updated — N diagnostics, N docs-behind, N docs-ahead`.
+
+**Terminal output:**
+```text
+ACC engine — deterministic scan
+Boundaries: 4 · Files: 3 · Tests: 2 · Skills: 1 · Standards: 1
+Edges: 2 declared, 1 discovered · Cycles: 0
+Diagnostics: 3 (0 errors, 1 warning, 2 infos)
+Slices: 4 · Dependency gaps: 1
+  gap: src/auth → src/logging (discovered reference in src/auth/token.rs)
+
+Sync (dry-run): 0 contract(s) missing, 2 suggestion(s) — run with --apply to apply
+
+Trigger: commits 1/3 — waiting for 1/3 commits
+
+AI: enabled but waiting (waiting for 1/3 commits) — run with --force to trigger now
+```
+
+**Exit:** `0` on success, `2` on usage error.
+
+### Engine limits (measured)
+
+The engine is deliberately **budgeted** — every input to the AI phase is
+capped so a single review stays small and predictable, no matter how
+large the repository is:
+
+| Budget | Value | What it bounds |
+|--------|-------|----------------|
+| Contract | 4,000 chars | the boundary's `AGENTS.md` text sent to the model |
+| Slice | 1,500 chars | the derived graph slice JSON for the boundary |
+| Changed files | 10 files | how many changed files are embedded in the prompt |
+| Changed code | 6,000 chars | total source text embedded for the AI to review |
+| Knowledge | 5 entries | max knowledge proposals written per boundary |
+| Supervisor | 0–100, iterates ≤ 3 | the approval score and re-work loop |
+
+These caps are what make the AI phase **size-independent**: the model
+never sees "the whole repo" — only a bounded slice of one boundary at a
+time. See the benchmark below for what happens as the repository grows.
+
+#### Intelligence degradation (measured, 2026-08-17)
+
+`scripts/benchmark-engine.cjs` (live; needs a `TEST_*_KEY`) measures how
+the AI phase holds up as repositories grow from 22 to ~3,900 files
+(NVIDIA NIM, `nemotron-3-nano-omni-30b-a3b-reasoning`):
+
+| Size | Files | Drift detected | Hallucinated | Contract OK | Knowledge ≤5 | Context bytes |
+|------|------:|:--------------:|:------------:|:------------:|:------------:|--------------:|
+| small | 22 | ✅ | ❌ | ✅ | ✅ | 879 |
+| medium | 110 | ✅ | ✅ | ✅ | ✅ | 4,654 |
+| large | 828 | ✅ | ✅ | ✅ | ✅ | 4,654 |
+| xlarge | 3,908 | ✅ | ✅ | ✅ | ✅ | 4,654 |
+
+**Finding 1 — size does not degrade detection.** Drift was caught in
+4/4 sizes. Because the engine slices the repository per boundary, the
+model's working context stays constant (~4.6 KB) from 110 files to
+3,900 files — the repository grows, the per-review context does not.
+
+**Finding 2 — the deterministic layer is the guarantee.** The scan's
+dependency-gap detection caught the seeded drift at *every* size
+regardless of the AI. The AI adds nuance (knowledge, drift prose,
+skill/standard gaps); the deterministic scan is what guarantees the
+engine never silently misses drift. (One nuance from the run: on the
+22-file repo the model hallucinated a path — invented a file that
+doesn't exist. The supervisor + the deterministic scan catch this: a
+hallucinated path can't survive `acc check`, and the supervisor scores
+it down before it's written. On larger repos, with more real context to
+anchor on, it didn't happen.)
+
+**Finding 3 — ACC files measurably help.** Same medium repo, same code:
+
+| ACC files | Drift items | Hallucinated | Contract bytes |
+|-----------|------------:|:------------:|---------------:|
+| On (contracts + memory) | 2 | ✅ | 4,504 |
+| Off (plain `AGENTS.md` + code) | 1 | ✅ | 55 |
+
+With contracts + memory the model reports **2× the drift items** — the
+constraint text and gotchas give the AI concrete things to check
+against, instead of it having to infer intent from a 55-byte contract.
+
+**Finding 4 — graph compactness is constant.** The derived index stays
+~180 bytes/item with no prose at any scale:
+
+| Size | Files | Index bytes | Bytes/file | Bytes/item | Prose? |
+|------|------:|------------:|-----------:|-----------:|:------:|
+| small | 22 | 8,720 | 396 | 188 | no |
+| medium | 110 | 42,636 | 388 | 182 | no |
+| large | 828 | 319,350 | 386 | 180 | no |
+| xlarge | 3,908 | 1,491,690 | 382 | 179 | no |
+
+Bytes/file is flat (~380) — the index is a routing table of ids, types,
+hashes and provenance, never a copy of the repo. Full report:
+`docs/benchmarks/engine-2026-08-17.md`. Re-run with
+`npm run benchmark:engine` (see README).
+
+**What this means, in plain English:** the engine doesn't get dumber as
+the repository grows (drift caught at 4/4 sizes, per-review context
+flat at ~4.6 KB), the ACC contracts + memory make the model's review
+about 2× more thorough (2 drift items vs 1 without them), and the graph
+stays tiny at any scale (~180 bytes/item, no prose — it's a routing
+table, not a copy of the repo). On the one run where the model
+hallucinated (small repo), the deterministic scan + supervisor are the
+safety net — a made-up path can't pass `acc check` or reach the
+85% approval threshold.
+
+---
+
+## `acc review [path]` — on-demand AI compliance review
+
+**Purpose:** the manual, on-demand counterpart to the engine's
+supervisor: ask "is this scope compliant with the ACC rules right now?"
+and get a deterministic scan plus a supervisor-scored verdict (0–100)
+without touching any state. An external agent or developer can run it
+at any time — it never waits for the engine trigger.
+
+**Flags:**
+- `--model <id>` — use a specific configured AI provider.
+- `--json`, `--root <path>`.
+
+**Behavior:**
+1. **Deterministic scan (always, offline)** — the same scan the engine
+   runs: graph, diagnostics, per-boundary slices, dependency gaps.
+2. **AI phase (only when `ai.enabled`)** — for each scoped boundary
+   with a contract, reviews the contract against its derived slice
+   (drift, knowledge, skill/standard gaps) and scores it with the
+   supervisor prompt. The supervisor's `issues` are the actionable
+   feedback.
+3. **Read-only** — never writes `AGENTS.md`, memory, or `ACC_WARN.md`.
+
+Without a path, the whole repository is reviewed. The overall verdict
+is the weakest boundary's score (min), so one broken boundary fails the
+review. AI disabled or missing API key → exit `0` with the deterministic
+scan and a clear explanation of what to configure.
+
+**Terminal output:**
+```text
+ACC review — whole repository
+Scan: 3 diagnostics (0 errors, 1 warning, 2 infos) · 1 dependency gap(s)
+AI: openai / gpt-4o (id: main) · threshold 85
+
+  src/auth — 92/85 ✓ approved
+  src/payments — 78/85 ✗ below threshold
+    supervisor issues:
+      - Declared dependency src/payments → src/legacy is stale; no code references it.
+
+Overall: 78/85 — NOT COMPLIANT
+```
+
+**Exit:** `0` on success, `2` on usage error.
+
+---
+
 ## `acc tools`
 
 **Purpose:** List available tools and capabilities. The primary interface
-for agents to discover what they can do.
+for agents and developers to discover what they can do — with an
+**explicit tier separation** so an external agent never confuses
+deterministic commands with intelligence commands.
+
+**Tiers (in the JSON manifest):**
+- `tiers.cli` — **deterministic, offline, zero-intelligence.** Same repo
+  + same flags = byte-identical output. No network, no API keys, safe on
+  untrusted repositories. Any agent or developer can call these directly.
+- `tiers.engine` — **the intelligence subsystem**: `ai` (offline
+  provider control), `engine` (the always-on AI engine — deterministic
+  scan always, AI phase requires `ai.enabled` + a provider API key
+  (`api_key_env`), token-gated by the trigger), and `review` (on-demand
+  AI compliance scoring). `battle`/ABA is deliberately NOT listed — it
+  is a separate product, not part of the ACC capability surface.
+
+Each command entry carries `{ name, tier, deterministic,
+requires_api_key, summary, capabilities[] }`, so a consuming agent can
+filter by tier before calling.
 
 **Flags:**
-- `--json` — emit JSON capability manifest.
+- `--json` — emit JSON capability manifest (tiers + per-command metadata).
 - `--root <path>`
-- `--category <core\|detected\|plugins\|all>` — filter by category. Default: `all`.
+- `--category <core\|detected\|plugins\|commands\|all>` — filter. Default: `all`.
 
 **Behavior:**
-1. Load tool registry from `.acc/config/config.yaml` and project detection.
-2. Return core tools, detected project tools, and plugins with capabilities.
-3. Include permission model and project type.
+1. Load tool registry and project detection.
+2. Return the command manifest split by tier, core tools, detected
+   project tools, and plugins with capabilities.
+3. Include the tier descriptions and the no-network guarantee for CLI.
 
 **Terminal output:**
 ```text
@@ -643,103 +1141,35 @@ Core tools
   ✓ filesystem (read, write, glob)
   ✓ search (contracts, edges, code)
   ✓ context (progressive_depth, provenance)
-  ✓ graph (text, mermaid, dot, json)
-  ✓ check (diagnostics, severity_filter)
-  ✓ memory (read, write)
-  ✓ inspect (roles, owners, dependencies)
-  ✓ impact (dependents, tests, constraints)
+  …
+
+CLI — deterministic (offline, no API key)
+  ✓ init           Initialize ACC structure in a directory
+  ✓ check          Validate repository against ACC rules
+  ✓ graph          Derive the architecture graph (text, mermaid, dot, json)
+  ✓ slice          Compact AI-optimized graph slice for a path (context router)
+  …
+  ✓ install        Install the ACC skill into an agent environment
+  ✓ tools          List available tools and capabilities (this manifest)
+
+Engine — intelligence subsystem (AI phase requires API key)
+  ⚡ ai            List AI providers and status (offline)
+  ⚡ engine        Keep ACC files and knowledge in sync (deterministic scan + optional AI)
+  ⚡ review        On-demand AI compliance review of a scope
 
 Detected project tools (from package.json scripts)
   ✓ build — npm run build
-  ✓ test — vitest run
 
 Plugins (from .acc/config/tools/)
   ○ docker
 ```
 
-**JSON output:** See [12 — Tooling Subsystem](./12-tooling.md#9-agent-capability-discovery) for full schema.
+**JSON output:** the manifest is `result.commands[]` (per-command
+`{ name, tier, deterministic, requires_api_key, summary, capabilities[] }`)
+plus `tiers` (cli/engine), `core`, `detected`, `plugins`, and `note`
+under the standard envelope ([08 — JSON Output Schema](./08-json-schema.md)).
 
-**Exit:** `0` on success, `1` if registry invalid.
-
----
-
-## `acc tool <name>`
-
-**Purpose:** Execute a specific tool capability (e.g., test, lint, typecheck, build).
-
-**Flags:**
-- `--json`
-- `--root <path>`
-- `--args <string...>` — additional arguments passed to the tool command.
-- `--scope <path>` — limit execution to a functionality scope.
-
-**Behavior:**
-1. Resolve tool name to capability in registry (core, detected, or plugin).
-2. Check permissions (moderate: `shell_enabled`, `run_tests`, etc.).
-3. Execute the associated command in project sandbox.
-4. Return structured result with stdout, stderr, exit code, duration.
-
-**Available tools (project-dependent):**
-- `test` — run project test suite (`npm test`, `cargo test`, `pytest`, etc.)
-- `lint` — run linter (`npm run lint`, `cargo clippy`, `ruff check`, etc.)
-- `typecheck` — run type checker (`npm run build`, `cargo check`, `mypy`, etc.)
-- `build` — run build (`npm run build`, `cargo build`, etc.)
-- `format` — run formatter (`npm run format`, `cargo fmt`, `black`, etc.)
-- `audit` — run security audit (`npm audit`, `cargo audit`, `bandit`, etc.)
-
-**Example:**
-```bash
-$ acc tool test
-Running: npm test
-✓ 42 tests passed in 3.2s
-
-$ acc tool lint --json
-{
-  "tool": "lint",
-  "command": "npm run lint",
-  "exit_code": 0,
-  "stdout": "No issues found",
-  "stderr": "",
-  "duration_ms": 1240
-}
-```
-
-**Exit:** Tool's exit code (0 = success, non-zero = failure), `2` if tool not found, `1` if permission denied.
-
----
-
-## `acc shell <command>`
-
-**Purpose:** Execute arbitrary shell command in project sandbox (subject to permissions).
-
-**Flags:**
-- `--json`
-- `--root <path>`
-- `--cwd <path>` — working directory (default: project root, must be within project).
-- `--timeout <seconds>` — max execution time. Default: 300.
-- `--env <KEY=VALUE>` — additional environment variables (repeatable).
-
-**Behavior:**
-1. Validate command against permission model (`shell_enabled`, `shell_approval`).
-2. Resolve working directory within project root.
-3. Execute command with timeout.
-4. Return structured result.
-
-**Security:** Command runs with:
-- Restricted environment (no secrets unless explicitly passed)
-- Project root as working directory boundary
-- No network access unless `network.enabled: true`
-- Resource limits from `multi_agent.resource_limits` (if applicable)
-
-**Example:**
-```bash
-$ acc shell "cargo test --package auth"
-Running: cargo test --package auth
-auth :: tests::test_token_validation ... ok
-auth :: tests::test_refresh_flow ... ok
-```
-
-**Exit:** Command's exit code, `1` if permission denied, `2` if validation failed.
+**Exit:** `0` on success, `2` on invalid category, `1` if registry invalid.
 
 ---
 
@@ -760,10 +1190,12 @@ auth :: tests::test_refresh_flow ... ok
 | `acc document <path>` | Generate `AGENTS.md` template. | Only with `--apply`. |
 | `acc build [path]` | Create missing `AGENTS.md` contract files. | Only with `--yes`. |
 | `acc fill [path]` | Fill directive for completing placeholder `AGENTS.md` files. | No. |
+| `acc install` | Install the ACC skill into an agent environment. | Yes — writes `SKILL.md`. |
 | `acc memory show/add/clear <path>` | `.acc-memory.md` read/write. | Yes — `add`/`clear` only. |
 | `acc tools` | List capabilities. | No. |
-| `acc tool <name>` | Execute tool (test, lint, typecheck, build, format, audit). | Depends on tool. |
-| `acc shell <command>` | Execute arbitrary shell command. | Depends on command. |
+
+Reserved for future versions (not yet registered in the CLI): the
+`acc agents` family.
 
 ---
 
@@ -779,6 +1211,24 @@ auth :: tests::test_refresh_flow ... ok
 
 **Note:** These commands are not part of V1. They are documented here for
 forward compatibility. See [11 — Multi-Agent Orchestration](./11-multi-agent-orchestration.md).
+
+---
+
+## Test Metrics (`npm run test:metrics`)
+
+Run the whole suite with a formatted report — one command:
+
+```bash
+npm run test:metrics            # table of suites + coverage + health
+npm run test:metrics -- --json  # machine-readable aggregate
+npm run test:metrics -- --quiet # summary only
+```
+
+The report shows per-suite pass/fail/skip/time, the CLI vs engine tier
+coverage from the `acc tools` manifest, pass rate, and the final verdict.
+Each suite runs in its own process, so a crash in one never hides the
+others. Live suites (`engine.live`, `engine.quality`) skip without
+`TEST_*_KEY` env keys and are counted as skipped.
 
 ---
 
@@ -798,22 +1248,30 @@ contract; everything pretty is allowed to evolve.
 ## V1 Implementation Status
 
 The reference implementation (`bin/acc.js`, zero runtime dependencies)
-implements the core commands in this document: `init`, `check`, `inspect`,
-`context`, `graph`, `dependencies`, `dependents`, `impact`, `search`,
-`discover`, `document`, `build`, `fill`, `memory`, and `tools`. Language
-analyzers fall back on filesystem structure per [03 §7](./04-epistemology.md#7-language-analyzers--optional-accuracy).
+implements every command in this document: the deterministic CLI
+(`init`, `check`, `inspect`, `context`, `graph`, `slice`, `dependencies`,
+`dependents`, `impact`, `search`, `discover`, `document`, `build`, `fill`,
+`install`, `memory`, `tools`) and the intelligence tier (`ai`, `engine`,
+`review`). Language analyzers fall back on filesystem structure per
+[03 §7](./04-epistemology.md#7-language-analyzers--optional-accuracy).
 
-`acc tool`, `acc shell`, and `acc agents` are reserved and documented for
-future versions (see [12 — Tooling Subsystem](./12-tooling.md) and
+`acc agents` is reserved and documented for future versions (see
 [11 — Multi-Agent Orchestration](./11-multi-agent-orchestration.md)).
+
+In `acc tools`, `battle` is exposed under its own `launcher` tier (not
+as a CLI or engine capability), so external agents see it as the
+separate-product launcher it is.
 
 `acc battle` launches the standalone ABA benchmark harness — ABA is a
 separate application and is never required by the framework. It is
 published as the npm package `acc-battle-arena` (a dependency of
 `acc-agents`, so `acc battle` works out of the box), and lives in its own
-repository with its own license. By default it spawns the ABA web app
-(battle arena: side-by-side ACC vs no-ACC benchmarks, live streaming,
-per-panel provider/model); `--headless` runs a single terminal benchmark
-instead. Docker is optional for ABA: benchmarks run on an isolated
-snapshot copy, in a container when Docker is available and on the host
-otherwise (`--local` forces host mode).
+repository with its own license. **When ABA is not already available,
+`acc battle` installs it on first use**: it clones the aba-arena
+repository into the per-user cache (`~/.cache/acc/aba-arena`) and
+installs its dependencies, then runs it. By default it spawns the ABA
+web app (battle arena: side-by-side ACC vs no-ACC benchmarks, live
+streaming, per-panel provider/model); `--headless` runs a single
+terminal benchmark instead. Docker is optional for ABA: benchmarks run
+on an isolated snapshot copy, in a container when Docker is available
+and on the host otherwise (`--local` forces host mode).

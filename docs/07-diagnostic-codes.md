@@ -40,7 +40,6 @@ and in a year.
 | `ACC080`–`ACC089` | Security / safety |
 | `ACC090`–`ACC099` | Reserved |
 | `ACC100`–`ACC109` | Multi-agent orchestration |
-| `ACC110`–`ACC119` | Tooling subsystem |
 
 ---
 
@@ -189,23 +188,6 @@ Reserved for future categories. MUST NOT be assigned in V1.
 
 ---
 
-## 15. Tooling Subsystem (`ACC110`–`ACC119`)
-
-| Code | Severity | Message pattern | Trigger |
-|------|----------|-----------------|---------|
-| `ACC110` | warn | `tool '<name>' declared but not found in PATH` | Project declares tool (e.g., `eslint`) but binary missing |
-| `ACC111` | error | `tool '<name>' version mismatch: expected <v>, found <v>` | Detected tool version doesn't match declared range |
-| `ACC112` | warn | `multiple package managers detected: <list>` | Both `package-lock.json` and `pnpm-lock.yaml` present |
-| `ACC113` | info | `project type '<type>' detected but no tools configured` | Ecosystem detected but no tools section in config |
-| `ACC114` | error | `plugin '<name>' failed validation: <reason>` | Plugin manifest invalid or dependencies missing |
-| `ACC115` | error | `permission denied: <operation> requires <level> permission` | Agent attempted operation beyond granted permissions |
-| `ACC116` | warn | `shell command '<cmd>' exited with code <n>` | Shell tool command failed (non-zero exit) |
-| `ACC117` | info | `tool registry refreshed: <n> tools added, <m> removed` | Automatic or manual refresh completed |
-| `ACC118` | error | `plugin '<name>' capability '<cap>' not implemented` | Plugin declares capability but no handler |
-| `ACC119` | warn | `detected tool '<name>' conflicts with core tool '<name>'` | Name collision between detected and core |
-
----
-
 ## 16. JSON Shape
 
 See [08 — JSON Output Schema](./08-json-schema.md). Each diagnostic in JSON output:
@@ -274,14 +256,18 @@ are never emitted by V1.
 | `ACC012` | error | `acc check` — reference is not a functionality boundary |
 | `ACC014` | warn | `acc check` — circular declared dependency |
 | `ACC022` | warn | `acc check` — discovered dependency not declared |
+| `ACC024` | error | `acc check` — forbidden dependency (matches a `forbidden_deps` rule) |
+| `ACC025` | warn | `acc check` — inert `forbidden_deps` rule (paths exist, never match) |
 | `ACC030` | error | `acc check` — duplicate ownership |
 | `ACC031` | warn | `acc check` — unowned dependency target |
 | `ACC040` | info | `acc check` — no language analyzer for an extension |
 | `ACC050` | warn | `acc check` — orphan `.acc-memory.md` |
 | `ACC051` | info | `acc check` — empty `.acc-memory.md` |
 | `ACC053` | warn | `acc check` — committed `.acc-memory.md` |
+| `ACC054` | info | `acc check` + `acc memory add` — memory file exceeds `memory.warn_bytes` |
 | `ACC060` | error | `acc check` — malformed `.acc/config/config.yaml` |
 | `ACC062` | info | `acc check` — config absent; using defaults |
+| `ACC065` | warn | `acc check` — `forbidden_deps` rule names a missing path |
 | `ACC072` | info | `acc check` + `acc discover` — orphaned code |
 
 `ACC020` is emitted by `acc discover` (as `stale-dependency`
@@ -289,6 +275,6 @@ suggestions), not by `acc check`, in V1. `ACC012` is registered and its
 emission site exists, but it cannot currently fire: the root node always
 resolves, so every declared dependency finds a boundary. All other codes
 in this registry — `ACC002`–`ACC006`, `ACC011`, `ACC013`, `ACC021`,
-`ACC023`–`ACC025`, `ACC032`–`ACC034`, `ACC041`/`ACC042`, `ACC052`/`ACC054`,
-`ACC061`, `ACC063`–`ACC065`, `ACC070`/`ACC071`, `ACC073`, `ACC080`–`ACC083`,
+`ACC023`, `ACC032`–`ACC034`, `ACC041`/`ACC042`, `ACC052`,
+`ACC061`, `ACC063`/`ACC064`, `ACC070`/`ACC071`, `ACC073`, `ACC080`–`ACC083`,
 and the `ACC100`+ ranges — are future work.

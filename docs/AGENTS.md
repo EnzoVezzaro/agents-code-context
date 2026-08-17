@@ -58,7 +58,6 @@ covers one area:
 - `09-memory-semantics.md` — `.acc-memory.md` lifecycle and format.
 - `10-authoring-guide.md` — how to write `AGENTS.md` for ACC.
 - `11-multi-agent-orchestration.md` — graph-driven partitioning, concurrency, handoff.
-- `12-tooling.md` — automatic tool detection, plugins, permissions.
 - `13-security.md` — the security model: offline guarantees, read/write surface, untrusted input.
 
 Changes to the CLI surface MUST be reflected here before release (see

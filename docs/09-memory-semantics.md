@@ -36,7 +36,7 @@ belongs in `AGENTS.md` (committed), not in memory. Memory is for the
 soft, agent-oriented "things I wish I'd known before I started."
 
 The mental model: `AGENTS.md` is the contract the team commits to;
-`.acc-memory.md` is the institutional knowledge the agent keeps
+`.acc-memory.md` is the personal knowledge the agent keeps
 locally. One is for the record, the other is for the next session.
 
 ---
@@ -172,7 +172,17 @@ for; it never tells you how the system *should* be built.
 - `acc memory clear <path>` truncates the file (the file is left empty, not deleted, to preserve the convention marker). Requires `--force` or interactive confirmation.
 - `acc init` creates the root `.acc-memory.md` initial record when the file is missing or empty, seeded with project provenance (clone date, GitHub origin — see [05 — CLI Commands](./05-cli-commands.md#acc-init)).
 - `acc build --yes` creates an initial `.acc-memory.md` record for every directory whose `AGENTS.md` contract it creates.
-- These two commands are the only writers outside `acc memory`. Both are **create-if-missing only**: they never append to or overwrite an existing non-empty memory file. `acc check`, `acc context`, `acc graph`, `acc discover`, `acc document`, `acc search` are pure reads and never modify memory.
+- `acc engine --apply` (AI phase) appends knowledge entries to a
+  boundary's `.acc-memory.md` — only after the supervisor approves the
+  proposal (when `--supervisor` or `engine.supervisor.enabled` is on).
+  These are timestamped entries in the same format `acc memory add`
+  uses, so the two writers stay interoperable (see
+  [05 — CLI Commands § acc engine](./05-cli-commands.md#acc-engine-path-—-the-always-on-ai-intelligence-engine)).
+- These commands are the only writers outside `acc memory`. `acc init`
+  and `acc build --yes` are **create-if-missing only**: they never
+  append to or overwrite an existing non-empty memory file. `acc check`,
+  `acc context`, `acc graph`, `acc discover`, `acc document`, `acc
+  search`, and `acc review` are pure reads and never modify memory.
 - `acc discover --apply` updates `AGENTS.md`, NOT `.acc-memory.md`. The two stores are separate.
 
 ### Edge Cases
@@ -184,7 +194,7 @@ for; it never tells you how the system *should* be built.
 | Memory file not UTF-8 | `ACC052` warn. `acc memory show` prints an error; `acc context` omits contents. |
 | Memory in dir with no `AGENTS.md` and no ancestor | `ACC050` warn (orphan memory). |
 | Memory tracked by git | `ACC053` warn. No automatic fix. |
-| Memory very large (> `memory_warn_bytes`, default 65536) | `ACC054` info. `acc context --include memory` truncates to `--max-bytes`. |
+| Memory very large (> `memory.warn_bytes`, default 65536) | `ACC054` info. `acc context --include memory` truncates to `--max-bytes`. |
 
 ---
 
@@ -223,5 +233,8 @@ This realizes the **portability guarantee** from [01 — Philosophy §10](./01-p
 ## 8. Format Stability
 
 - The well-known headings (`Gotchas`, `Invariants`, `Decisions`, `Tried & Rejected`, `Open Questions`) are stable; new headings may be added in a minor bump but existing ones are never removed or renamed.
-- Timestamps are RFC 3339 UTC. `acc memory add` always emits UTC.
+- Timestamps are RFC 3339 UTC by default. `memory.timestamp_format` in
+  `.acc/config/config.yaml` selects the format: `rfc3339` (default,
+  `2026-08-15T14:03:21Z`) or `date` (`2026-08-15`). Both are stable;
+  `acc memory add` honors the configured format.
 - The file is UTF-8 Markdown. ACC will not introduce a binary or non-Markdown memory format in V1.

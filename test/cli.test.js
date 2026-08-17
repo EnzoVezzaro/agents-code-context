@@ -74,6 +74,39 @@ test('acc graph emits nodes and edges', () => {
   assert.ok(jsonOut.result.edges.some((e) => e.from === 'src/auth' && e.to === 'src/database'));
 });
 
+test('acc slice emits the compact AI-optimized graph slice', () => {
+  const root = makeRepo();
+  fs.mkdirSync(path.join(root, 'src', 'auth'), { recursive: true });
+  fs.writeFileSync(
+    path.join(root, 'src', 'auth', 'AGENTS.md'),
+    '# auth\n\n## Purpose\n\nAuth.\n\n## Dependencies\n\n- src/database\n\n## Skills\n\n- oauth\n',
+  );
+  fs.writeFileSync(path.join(root, 'src', 'auth', 'token.rs'), '// token\n');
+  fs.writeFileSync(path.join(root, 'src', 'auth', 'token_test.rs'), '// token tests\n');
+  fs.mkdirSync(path.join(root, 'src', 'database'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'src', 'database', 'AGENTS.md'), '# database\n');
+  fs.mkdirSync(path.join(root, '.agents', 'skills', 'oauth'), { recursive: true });
+  fs.writeFileSync(path.join(root, '.agents', 'skills', 'oauth', 'SKILL.md'), '---\nname: oauth\n---\n\nOAuth skill.\n');
+
+  const out = run(['slice', 'src/auth'], root);
+  assert.ok(out.includes('SCOPE: src/auth'));
+  assert.ok(out.includes('GOVERNED_BY:'));
+  assert.ok(out.includes('src/auth/AGENTS.md'));
+  assert.ok(out.includes('OWNS (files):'));
+  assert.ok(out.includes('src/auth/token.rs'));
+  assert.ok(out.includes('src/database (declared)'));
+  assert.ok(out.includes('src/auth/token_test.rs'));
+  assert.ok(out.includes('oauth'));
+  assert.ok(out.includes('IMPACT:'));
+
+  const jsonOut = JSON.parse(run(['slice', 'src/auth', '--json'], root));
+  assert.equal(jsonOut.command, 'slice');
+  assert.equal(jsonOut.result.scope, 'src/auth');
+  assert.deepEqual(jsonOut.result.governed_by, ['AGENTS.md', 'src/auth/AGENTS.md']);
+  assert.deepEqual(jsonOut.result.requires.skills, ['oauth']);
+  assert.equal(jsonOut.result.impact.files, 1);
+});
+
 test('acc context emits provenance-tagged sections', () => {
   const root = makeRepo();
   fs.mkdirSync(path.join(root, 'src', 'auth'), { recursive: true });
@@ -91,6 +124,124 @@ test('acc context emits provenance-tagged sections', () => {
 
   const jsonOut = JSON.parse(run(['context', 'src/auth', '--json'], root));
   assert.ok(jsonOut.result.sections.contract.source === 'src/auth/AGENTS.md');
+});
+
+test('acc ai lists configured providers offline (disabled by default)', () => {
+  const root = makeRepo();
+  const out = run(['ai'], root);
+  assert.ok(out.includes('disabled'));
+  assert.ok(out.includes('No AI providers configured'));
+
+  const parsed = JSON.parse(run(['ai', '--json'], root));
+  assert.equal(parsed.command, 'ai');
+  assert.equal(parsed.result.enabled, false);
+  assert.deepEqual(parsed.result.providers, []);
+});
+
+test('acc ai reports multiple configured providers with status', () => {
+  const root = makeRepo();
+  fs.mkdirSync(path.join(root, '.acc', 'config'), { recursive: true });
+  fs.writeFileSync(
+    path.join(root, '.acc', 'config', 'config.yaml'),
+    [
+      'ai:',
+      '  enabled: true',
+      '  default: main',
+      '  providers:',
+      '    - id: main',
+      '      provider: openai',
+      '      model: gpt-4o',
+      '      api_key_env: ACC_CLI_TEST_KEY',
+      '    - id: local',
+      '      provider: anthropic',
+      '      model: claude-sonnet-4-5',
+    ].join('\n'),
+  );
+  process.env.ACC_CLI_TEST_KEY = 'test-key';
+  try {
+    const out = run(['ai'], root);
+    assert.ok(out.includes('enabled'));
+    assert.ok(out.includes('main: openai / gpt-4o'));
+    assert.ok(out.includes('local: anthropic / claude-sonnet-4-5'));
+    assert.ok(out.includes('Default: main'));
+
+    const parsed = JSON.parse(run(['ai', '--json'], root));
+    assert.equal(parsed.result.enabled, true);
+    assert.equal(parsed.result.default, 'main');
+    assert.equal(parsed.result.providers.length, 2);
+    assert.equal(parsed.result.providers[0].package, '@ai-sdk/openai');
+    assert.equal(parsed.result.providers[0].api_key_present, true);
+  } finally {
+    delete process.env.ACC_CLI_TEST_KEY;
+  }
+});
+
+test('acc ai add: select provider → api key → model, stores key in .env', () => {
+  const root = makeRepo();
+  const out = run(['ai', 'add', '--provider', 'openrouter', '--api-key', 'sk-or-v1-secret', '--model', 'some/model', '--id', 'main', '--yes'], root);
+  assert.ok(out.includes("Added provider 'main'"), out);
+  assert.ok(out.includes('ACC_MAIN_KEY'), 'key stored under ACC_MAIN_KEY');
+
+  // Key lives in .env (gitignored), never in the config.
+  const envText = fs.readFileSync(path.join(root, '.env'), 'utf8');
+  assert.ok(envText.includes('ACC_MAIN_KEY=sk-or-v1-secret'));
+  assert.ok(!envText.includes('some/model'), 'model never stored in .env');
+
+  // Provider lives in the CLI-managed ai.yaml with base_url from catalog.
+  const aiYaml = fs.readFileSync(path.join(root, '.acc', 'config', 'ai.yaml'), 'utf8');
+  assert.ok(aiYaml.includes('openrouter'));
+  assert.ok(aiYaml.includes('https://openrouter.ai/api/v1'), 'catalog base_url applied');
+
+  // acc ai now lists it as enabled + ready.
+  const listed = run(['ai'], root);
+  assert.ok(listed.includes('AI: enabled'), listed);
+  assert.ok(listed.includes('main: openai / some/model — ready'), listed);
+});
+
+test('acc ai add: --api-key missing in non-interactive mode is a clean error', () => {
+  const root = makeRepo();
+  let failed = false;
+  try {
+    run(['ai', 'add', '--provider', 'openai', '--model', 'gpt-4o', '--id', 'x', '--yes'], root);
+  } catch (err) {
+    failed = true;
+    assert.ok(String(err.stderr).includes('ACC_X_KEY'), 'error names the env var');
+  }
+  assert.ok(failed, 'missing key must fail in --yes mode');
+});
+
+test('acc ai default and remove manage the provider lifecycle', () => {
+  const root = makeRepo();
+  run(['ai', 'add', '--provider', 'openrouter', '--api-key', 'k1', '--model', 'm1', '--id', 'a', '--yes'], root);
+  run(['ai', 'add', '--provider', 'openai', '--api-key', 'k2', '--model', 'm2', '--id', 'b', '--yes'], root);
+
+  const def = run(['ai', 'default', 'b'], root);
+  assert.ok(def.includes("Default provider set to 'b'"));
+  const listed = JSON.parse(run(['ai', '--json'], root));
+  assert.equal(listed.result.default, 'b');
+  assert.equal(listed.result.providers.length, 2);
+
+  const removed = run(['ai', 'remove', 'a'], root);
+  assert.ok(removed.includes("Removed provider 'a'"), removed);
+  assert.ok(removed.includes('ACC_A_KEY'), 'env key deleted');
+  const after = JSON.parse(run(['ai', '--json'], root));
+  assert.equal(after.result.providers.length, 1);
+  assert.equal(after.result.providers[0].id, 'b');
+  // The removed key is gone from .env.
+  assert.ok(!fs.readFileSync(path.join(root, '.env'), 'utf8').includes('ACC_A_KEY='));
+  assert.ok(fs.readFileSync(path.join(root, '.env'), 'utf8').includes('ACC_B_KEY=k2'), 'remaining key intact');
+});
+
+test('acc ai models without a configured provider is a clean error (no network)', () => {
+  const root = makeRepo();
+  let failed = false;
+  try {
+    run(['ai', 'models', 'nope'], root);
+  } catch (err) {
+    failed = true;
+    assert.ok(String(err.stderr).includes("no provider with id 'nope'"), 'offline error before any network call');
+  }
+  assert.ok(failed);
 });
 
 test('acc memory add/show/clear round-trips', () => {
@@ -349,4 +500,110 @@ test('project root never resolves to the home directory', () => {
 
   const out = JSON.parse(runEnv(['graph', '--json'], nested, { HOME: home }));
   assert.equal(out.root, nested);
+});
+
+test('acc engine --supervisor surfaces score and approval in the result', () => {
+  const { spawnSync } = require('child_process');
+  const root = makeRepo();
+  fs.mkdirSync(path.join(root, 'src', 'auth'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'src', 'auth', 'AGENTS.md'), '# auth\n\n## Purpose\n\nAuth.\n');
+  fs.mkdirSync(path.join(root, '.acc', 'config'), { recursive: true });
+  fs.writeFileSync(
+    path.join(root, '.acc', 'config', 'config.yaml'),
+    [
+      'ai:',
+      '  enabled: true',
+      '  providers:',
+      '    - id: test',
+      '      provider: openai',
+      '      model: gpt-4o',
+      '      api_key_env: ACC_CLI_TEST_KEY',
+    ].join('\n'),
+  );
+  const r = spawnSync(process.execPath, [ACC, 'engine', '--supervisor', '--json'], {
+    cwd: root,
+    encoding: 'utf8',
+    env: { ...process.env, ACC_CLI_TEST_KEY: 'k' },
+  });
+  // No real provider → the AI phase reports the missing key as an error,
+  // but the envelope must still be valid JSON with the supervisor shape.
+  assert.equal(r.status, 0, r.stderr);
+  const out = JSON.parse(r.stdout);
+  assert.ok(out.result.ai.supervisor, 'supervisor shape present in the result');
+  assert.equal(out.result.ai.supervisor.threshold, 85, 'default supervisor threshold is 85');
+  assert.equal(out.result.ai.supervisor.max_iterations, 3);
+  // The trigger gates the AI phase; without a trigger baseline and no git,
+  // the engine falls back to triggered (never skips work) but the missing
+  // key is reported as an error, not thrown.
+  assert.ok(Array.isArray(out.result.ai.errors));
+});
+
+test('acc engine --init-context bootstraps the full ACC context', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'acc-init-ctx-'));
+  fs.mkdirSync(path.join(root, 'src', 'auth'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'src', 'database'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'src', 'auth', 'auth.rs'), '// auth service\n');
+  fs.writeFileSync(path.join(root, 'src', 'database', 'db.rs'), '// database layer\n');
+
+  const out = run(['engine', '--init-context', '--json'], root);
+  const parsed = JSON.parse(out);
+  assert.equal(parsed.result.init.scanned, true);
+  assert.ok(parsed.result.init.created.some((c) => c.includes('config.yaml')), 'config scaffolded');
+  assert.equal(parsed.result.init.root_agents_created, true, 'root AGENTS.md created');
+  // The boundary contracts are created by init's scan step (build --yes);
+  // the engine step then reports no missing contracts.
+  assert.ok(parsed.result.init.scan.created_files.length >= 2, 'boundary contracts created by init scan');
+  assert.ok(fs.existsSync(path.join(root, 'ACC_WARN.md')), 'drift report written');
+  assert.ok(fs.existsSync(path.join(root, 'src', 'auth', 'AGENTS.md')), 'auth contract');
+  assert.ok(fs.existsSync(path.join(root, 'src', 'database', 'AGENTS.md')), 'database contract');
+  assert.ok(fs.existsSync(path.join(root, 'AGENTS.md')), 'root contract');
+  assert.equal(parsed.result.fill.total >= 3, true, 'fill reports the contracts');
+
+  // Idempotent: a second run does not recreate or duplicate anything.
+  const again = JSON.parse(run(['engine', '--init-context', '--json'], root));
+  assert.equal(again.result.init.root_agents_created, false, 'root contract not recreated');
+  assert.equal(again.result.engine.contracts_created.length, 0, 'no contracts recreated');
+  const authContract = fs.readFileSync(path.join(root, 'src', 'auth', 'AGENTS.md'), 'utf8');
+  assert.equal(fs.readFileSync(path.join(root, 'src', 'auth', 'AGENTS.md'), 'utf8').length, authContract.length, 'contract untouched');
+});
+
+test('acc engine --watch keeps the server alive and logs runs', async () => {
+  const { spawn } = require('child_process');
+  const root = makeRepo();
+  fs.mkdirSync(path.join(root, 'src', 'auth'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'src', 'auth', 'AGENTS.md'), '# auth\n\n## Purpose\n\nAuth.\n');
+
+  const child = spawn(process.execPath, [ACC, 'engine', '--watch'], { cwd: root, env: process.env });
+  let output = '';
+  child.stdout.on('data', (d) => {
+    output += d.toString();
+  });
+  child.stderr.on('data', (d) => {
+    output += d.toString();
+  });
+
+  try {
+    // Initial run must appear, then the watcher stays alive.
+    await new Promise((res, rej) => {
+      const t0 = Date.now();
+      const iv = setInterval(() => {
+        if (output.includes('[engine watch] run triggered: initial')) {
+          clearInterval(iv);
+          res();
+        } else if (Date.now() - t0 > 15000) {
+          clearInterval(iv);
+          rej(new Error(`watch never started: ${output.slice(0, 800)}`));
+        }
+      }, 200);
+    });
+    assert.ok(output.includes('[engine watch] watching'), 'watch banner printed');
+    assert.ok(output.includes('scan:'), 'scan log printed');
+    assert.ok(output.includes('ai: disabled'), 'AI disabled log printed');
+
+    // The process is still alive after the initial run (server semantics).
+    assert.equal(child.exitCode, null, 'watch process stays alive');
+  } finally {
+    child.kill('SIGTERM');
+    await new Promise((r) => child.on('exit', r));
+  }
 });

@@ -52,6 +52,14 @@ standard instruction files (`AGENTS.md`, `.acc-memory.md`). No
 installation, no plugin, no proprietary integration. If it can read
 Markdown, it can work with ACC.
 
+ACC *can* additionally be deployed into an agent's skill environment
+(`acc install` → `SKILL.md` under `.agents/skills/acc/` or a per-agent
+directory) — an optional accelerator that teaches the agent the
+engine ON/OFF contract and command surface. The repository never
+depends on it: removing the skill leaves a perfectly valid agents.md
+repository. Installation is a convenience for the agent, never a
+requirement of the project (see [05 — CLI Commands § acc install](./05-cli-commands.md#acc-install-—-deploy-acc-as-an-agent-skill)).
+
 ---
 
 ## 2. `AGENTS.md` Is the Primary Agent Interface
@@ -84,25 +92,40 @@ decode, no new format to learn.
 
 ---
 
-## 3. ACC Is a Strict Superset of the AGENTS.md Standard
+## 3. ACC Is a Skill, Not a Framework on Top
 
-ACC adds a thin layer on top of the standard without forking it:
+ACC is deployed as an **agent skill** — a capability the agent carries,
+not something a repository must adopt:
 
-| Layer | Artifact | Purpose | Standard? |
-|-------|----------|---------|-----------|
-| **Instructions** | `AGENTS.md` (root + nested) | Primary agent interface, nearest file wins | agents.md standard |
-| **Project-wide rules** | `.agents/AGENTS.md` (optional) | Inherited project base rules | agents.md ecosystem convention |
-| **Local contracts** | `functionality/AGENTS.md` | Functionality-scoped declarations | agents.md standard |
-| **Durable memory** | `functionality/.acc-memory.md` | Agent-written, gitignored knowledge | ACC-only |
-| **Control plane** | `.acc/config/` | Project config, agents, workflows, standards | ACC-only |
-| **Deterministic tooling** | `acc` CLI | Graph derivation, context, validation, search | ACC-only |
+```text
+Repository                 AI Agent
+──────────                 ─────────
+AGENTS.md                  skills/acc/
+source                     tools/acc
+```
+
+The repository stays **standard**: `AGENTS.md` (root + nested, nearest
+file wins) and source code. ACC — installed with `acc install` into the
+agent's skill environment — knows how to operate on any compatible
+agents.md repository. The project doesn't need to know ACC exists.
+
+The agent-side skill understands optional per-project conventions when
+present (all removable without breaking anything):
+
+| Convention | Artifact | Purpose |
+|------------|----------|---------|
+| Durable memory | `functionality/.acc-memory.md` | Agent-written, gitignored knowledge |
+| Control plane | `.acc/config/` | Project config, agents, workflows, standards |
+| Deterministic tooling | `acc` CLI | Graph derivation, context, validation, search |
+| AI engine | `acc engine` | Always-on maintenance of the above |
 
 **The rule that keeps ACC upgrade-proof:** the standard surface is used
 exactly as the ecosystem defines it — plain Markdown, no schema, no
 required sections, no YAML frontmatter in `AGENTS.md`. Everything
-ACC-specific lives in its own namespace (`.acc/` and `.acc-memory.md`),
-separated from the standard surface. If the standard evolves, ACC absorbs
-the change without breaking existing repositories.
+ACC-specific lives in the agent's skill and the optional `.acc/` /
+`.acc-memory.md` namespaces, separated from the standard surface. If
+the standard evolves, ACC absorbs the change without breaking existing
+repositories.
 
 ---
 
@@ -228,10 +251,11 @@ simply makes the environment richer.
 
 ---
 
-## 7. Configuration Remains Centralized
+## 7. Optional Project Configuration
 
-Things that are **not knowledge about the code** stay centralized under
-`.acc/`:
+When a project *chooses* to opt into ACC conventions (never required),
+things that are **not knowledge about the code** stay centralized under
+`.acc/config/`:
 
 ```text
 .acc/
@@ -246,16 +270,19 @@ Things that are **not knowledge about the code** stay centralized under
     └── multi-agent/       # Orchestration configuration
 ```
 
+This is the **repository-side** of ACC: the skill reads and maintains
+it when present, and a repository without it is fully navigable.
+
 ### The Clean Distinction
 
 | Location | Purpose |
 |----------|---------|
 | `AGENTS.md` (root + nested) | Standard agent instructions |
 | `.agents/AGENTS.md` (optional) | Project-wide rules (standard) |
-| `.agents/skills/` (optional) | Standard skill packages |
+| `.agents/skills/` (optional) | Standard skill packages (ACC's own skill installs here) |
 | Code folder | Functionality knowledge |
 | `*/.acc-memory.md` | Local persistent agent memory |
-| `.acc/config/` | ACC-specific configuration |
+| `.acc/config/` | ACC-specific configuration (optional) |
 
 > **Knowledge follows the code. Configuration follows ACC. The graph connects them.**
 
@@ -364,8 +391,10 @@ the agent.**
 
 The last row is worth saying out loud: ACC is designed to be safe on
 repositories you don't trust. It reads files and derives things — it
-never runs your repo's scripts. (That's why `acc tool` / `acc shell`
-are explicitly opt-in tooling, not core behavior.)
+never runs your repo's scripts. There is no `acc shell` or `acc tool`
+command: executing project code is deliberately outside ACC's scope
+(the agent it works with does the executing, ACC does the
+understanding).
 
 ---
 
@@ -390,12 +419,14 @@ repositories should be.
 Formally:
 
 ```text
-ACC-enhanced  =  Repository  +  AGENTS.md  +  .acc/
+ACC  =  an agent skill  +  a deterministic CLI  +  an optional AI engine
+Repository  =  AGENTS.md  +  source  (never requires ACC)
 ```
 
 ```text
-remove(.acc/)    →  valid agents.md repository  (still usable by any agent)
+remove(skill)    →  valid agents.md repository  (still usable by any agent)
 remove(acc CLI)  →  valid agents.md repository  (still usable by any agent)
+remove(.acc/)    →  valid agents.md repository  (still usable by any agent)
 ```
 
 ```text

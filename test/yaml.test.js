@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert');
-const { parse } = require('../lib/yaml');
+const { parse } = require('../lib/core/yaml');
 
 test('parses nested mappings', () => {
   const out = parse('schema_version: 1\nmulti_agent:\n  enabled: false\n  max_concurrency: 4\n');

@@ -1,11 +1,64 @@
 <script setup>
 // Progressive reveal — gated on IntersectionObserver, skipped on reduced motion.
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { withBase } from 'vitepress'
 import Logo from './Logo.vue'
 
 // Injected at build time by docs/.vitepress/config.ts from package.json.
 const version = __ACC_VERSION__
+
+// Copy the install command to the clipboard (used by the install terminal).
+const INSTALL_CMDS = 'npx skills add EnzoVezzaro/agents-code-context --skill acc'
+const installCopied = ref(false)
+function copyInstall() {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(INSTALL_CMDS).then(() => {
+      installCopied.value = true
+      setTimeout(() => (installCopied.value = false), 1800)
+    })
+  } else {
+    const ta = document.createElement('textarea')
+    ta.value = INSTALL_CMDS
+    document.body.appendChild(ta)
+    ta.select()
+    try { document.execCommand('copy') } catch {}
+    document.body.removeChild(ta)
+    installCopied.value = true
+    setTimeout(() => (installCopied.value = false), 1800)
+  }
+}
+
+// Streaming lanes behind the engine: two FULL documents being processed —
+// a code document (left) and a formatted markdown document (right). Each
+// entry is ONE line of that document; every line is distinct. { c, h }
+const codeDoc = [
+  { c: 's-file', h: 'src/auth/refresh.rs' },
+  { c: 's-line', h: "<i>import</i> { refreshToken } <i>from</i> './token'" },
+  { c: 's-line', h: "<i>export async function</i> refresh() {" },
+  { c: 's-line', h: '  <i>const</i> token = <i>await</i> refreshToken(session)' },
+  { c: 's-line', h: '  <i>return</i> { token, exp: Date.now() + 900_000 }' },
+  { c: 's-line', h: '}' },
+  { c: 's-file', h: 'src/auth/session.rs' },
+  { c: 's-line', h: '<i>pub struct</i> Session { user, expires }' },
+  { c: 's-line', h: '<i>impl</i> Session { fn is_valid(&self) { self.expires > now() } }' },
+  { c: 's-file', h: 'src/graph/build.rs' },
+  { c: 's-line', h: '<i>fn</i> index(dir) -> Graph { g.insert(node(f, hash)) }' },
+]
+const mdDoc = [
+  { c: 's-mdh1', h: '# Authentication' },
+  { c: 's-mdh2', h: '## Purpose' },
+  { c: 's-mdline', h: '- Owns identity and session state.' },
+  { c: 's-mdh2', h: '## Boundaries' },
+  { c: 's-mdline', h: '- Must not import UI code.' },
+  { c: 's-mdh2', h: '## Dependencies' },
+  { c: 's-mdline', h: '- crypto · database' },
+  { c: 's-mdh2', h: '## Standards' },
+  { c: 's-mdline', h: '- Tokens never in localStorage.' },
+  { c: 's-file', h: '.acc-memory.md' },
+  { c: 's-mdline ok', h: '+ refresh rotation: clock skew ≤ 30s' },
+  { c: 's-file warn', h: 'ACC_WARN.md' },
+  { c: 's-mdline warn', h: '! ACC022 auth → ui boundary violation' },
+]
 
 onMounted(() => {
   if (typeof window === 'undefined') return
@@ -37,8 +90,9 @@ onMounted(() => {
       <div class="wrap">
         <nav class="nav-links" aria-label="Primary">
           <a href="#cli">Commands</a>
+          <a href="#engine">Engine</a>
+          <a href="#install">Install</a>
           <a href="#flow">Navigation</a>
-          <a href="#layers">Layers</a>
           <a href="#diagnostics">Diagnostics</a>
         </nav>
         <Logo
@@ -125,8 +179,8 @@ onMounted(() => {
             <p>Any agent reads <code>AGENTS.md</code> and gets it — it's just Markdown. Switch agents whenever you like; the context lives in the repo, not in the chat.</p>
           </div>
           <div class="cap">
-            <h3><span class="mark">◆</span>Leave anytime</h3>
-            <p>Delete the <code>.acc/</code> folder and the CLI tomorrow and you still have a perfectly normal repository. ACC adds to the ecosystem — it never replaces it.</p>
+            <h3><span class="mark">◆</span>It's a skill, not a framework</h3>
+            <p>ACC installs into the agent, not the repository. The repo stays a standard <code>AGENTS.md</code> project — remove the skill and the CLI tomorrow and nothing changes. ACC adds to the ecosystem, it never replaces it.</p>
           </div>
           <div class="cap">
             <h3><span class="mark">◆</span>A map that never goes stale</h3>
@@ -209,6 +263,78 @@ Discovered:
             <p class="blurb">A starting <code>AGENTS.md</code> for features that don't have one yet. Anything guessed is clearly marked for you to review.</p>
             <div class="mini-out"><span class="tag">write</span> src/payments/AGENTS.md</div>
           </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ACC ENGINE -->
+    <section class="section engine" id="engine">
+      <!-- Streaming data passing behind the engine: a full code document (left) and a
+           full markdown document (right), each a vertical stack of distinct lines,
+           sliding left → right behind the panel. -->
+      <div class="engine-streams" aria-hidden="true">
+        <div class="stream-col stream-code">
+          <div class="stream-track">
+            <template v-for="n in 2" :key="n">
+              <div class="stream-doc">
+                <span v-for="(item, i) in codeDoc" :key="i" :class="item.c" v-html="item.h"></span>
+              </div>
+            </template>
+          </div>
+        </div>
+        <div class="stream-col stream-md">
+          <div class="stream-track">
+            <template v-for="n in 2" :key="n">
+              <div class="stream-doc">
+                <span v-for="(item, i) in mdDoc" :key="i" :class="item.c" v-html="item.h"></span>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <div class="wrap engine-wrap">
+        <div class="section-head engine-head">
+          <div class="label">acc engine — always on</div>
+          <h2>An intelligent compiler, like your agent<span class="period">.</span></h2>
+          <p class="tagline">ai driven · rust engine · acc compiler</p>
+          <p class="engine-lede">It automates the boring part of programming. The engine runs the same deterministic tools as the CLI — like another agent working on the project — but focused on one thing only: the ACC documentation. When the engine is on, the coding agent just codes.</p>
+        </div>
+
+        <div class="engine-panel">
+          <div class="engine-term">
+            <div class="head"><span class="dotr"></span>acc engine --watch · supervisor 85%</div>
+            <div class="trow"><span class="p">$</span> acc engine <span class="f">--watch</span></div>
+            <div class="trow"><span class="s">engine ON — same CLI tools, one job …</span></div>
+            <div class="trow"><span class="s">→</span> <span class="s">acc check</span> <span class="ok">deterministic ✓</span></div>
+            <div class="trow"><span class="s">→</span> <span class="s">acc build</span> <span class="s">src/auth/AGENTS.md</span> <span class="ok">in sync</span></div>
+            <div class="trow"><span class="s">→</span> <span class="s">acc memory</span> <span class="s">.acc-memory.md</span> <span class="warn">+2 lessons</span></div>
+            <div class="trow"><span class="s">→</span> <span class="s">acc discover</span> <span class="s">ACC_WARN.md</span> <span class="ok">regenerated</span></div>
+            <div class="trow"><span class="s">supervisor: 92/100 ≥ 85 — approved ✓</span></div>
+          </div>
+          <div class="engine-copy">
+            <h3>Your Code Changes. ACC Keeps Up.</h3>
+            <p>The engine works like another agent on the project: it runs the same deterministic ACC tools (<code>acc check</code>, <code>acc build</code>, <code>acc discover</code>, <code>acc memory</code>…), but it only cares about one thing — keeping the ACC documentation in sync with the code. No code changes, no refactors. Just the docs, always current.</p>
+            <ul class="engine-points">
+              <li><span class="mark">◆</span>Same tools — it executes the deterministic CLI commands, like an agent would, on its own trigger (default 3 commits).</li>
+              <li><span class="mark">◆</span>One focus — ACC documentation only: contracts, knowledge, drift. Never your code.</li>
+              <li><span class="mark">👀</span>Need an extra pair of eyes? Bring the supervisor along — it reviews the engine's own changes before they land.</li>
+              <li><span class="mark">◆</span>Supervisor-scored — proposals must reach the configured threshold (default 85) before anything is written.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="engine-install" id="install">
+          <div class="install-text">
+            <div class="label">install as a skill</div>
+            <h3>Bring the whole toolkit into any agent.</h3>
+            <p>ACC installs as an agent skill — the repo stays a standard <code>AGENTS.md</code> repo. Two channels, one source: the skill teaches any agent how to operate; the CLI (<code>npm</code>) is the engine underneath.</p>
+          </div>
+          <div class="install-actions">
+            <div class="term install-term"><span class="p">$</span> npx skills add EnzoVezzaro/agents-code-context<button class="copy-btn" type="button" @click="copyInstall" aria-label="Copy install command">{{ installCopied ? '✓' : '⧉' }}</button></div>
+            <div class="install-agents">works with any agent — claude · cursor · codex · opencode · gemini</div>
+            <a class="btn btn-primary" :href="withBase('/cli-commands#acc-install-—-deploy-acc-as-an-agent-skill')">Skill docs<span class="arr">↗</span></a>
+          </div>
         </div>
       </div>
     </section>
@@ -325,9 +451,9 @@ Discovered:
     <section class="section" id="layers">
       <div class="wrap">
         <div class="section-head">
-          <div class="label">three layers</div>
+          <div class="label">what the skill understands</div>
           <h2>Convention, memory, and tooling.</h2>
-          <p>ACC follows the <code>AGENTS.md</code> convention everyone already uses — it doesn't compete with it. Anything ACC adds is extra context, never a replacement.</p>
+          <p>ACC follows the <code>AGENTS.md</code> convention everyone already uses — it doesn't compete with it. The skill reads what the repo already has and adds optional context, never a replacement.</p>
         </div>
         <div class="layers">
           <article class="layer">
@@ -562,8 +688,9 @@ Discovered:
   cursor: pointer; white-space: nowrap;
 }
 .btn:active { transform: translateY(1px); }
-.btn-primary { background: var(--primary); color: var(--bg); }
-.btn-primary:hover { background: var(--primary-ink); }
+.btn.btn-primary { background: var(--primary); color: var(--bg); }
+.btn.btn-primary:hover { background: var(--primary-ink); color: var(--bg); }
+.btn.btn-primary .arr { color: inherit; }
 .btn-ghost { background: transparent; color: var(--ink); border-color: var(--hair-strong); }
 .btn-ghost:hover { border-color: var(--ink); background: var(--surface); }
 .btn .arr { display: inline-block; transition: transform 0.18s ease; }
@@ -886,13 +1013,189 @@ Discovered:
 .gh-card .link svg { transition: transform 0.18s ease; }
 .gh-card:hover .link svg { transform: translateX(3px); }
 
+/* ---- ACC engine ---- */
+.engine { position: relative; overflow: hidden; background: var(--code-bg); color: var(--code-fg); }
+.engine .section-head .label { color: var(--code-red); }
+.engine .section-head .label::before { background: var(--code-red); }
+.engine-head { max-width: 680px; margin-bottom: 48px; }
+.engine-head h2 { color: var(--bg); }
+.engine-head h2 .period { color: var(--code-red); }
+.engine-head .tagline {
+  font-family: var(--mono); font-size: 13px; color: var(--code-red);
+  letter-spacing: 0.04em; margin: -8px 0 22px; text-transform: lowercase;
+}
+.engine-head .engine-lede { color: var(--code-mute); font-size: 1.02rem; }
+.engine-head .engine-lede code { color: var(--code-cool); background: transparent; padding: 0; }
+
+.engine-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(28px, 4vw, 56px);
+  align-items: center;
+  border: 1px solid oklch(0.32 0.012 355);
+  border-radius: 12px;
+  background: oklch(0.13 0.007 355);
+  padding: clamp(24px, 3.5vw, 40px);
+  margin-bottom: 64px;
+}
+.engine-term {
+  font-family: var(--mono); font-size: 12.5px;
+  background: oklch(0.1 0.006 355);
+  border: 1px solid oklch(0.3 0.01 355);
+  border-radius: 8px;
+  padding: 18px 20px;
+  color: var(--code-fg);
+  align-self: stretch;
+}
+.engine-term .head {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--code-mute); font-size: 11px;
+  margin-bottom: 12px; padding-bottom: 10px;
+  border-bottom: 1px solid oklch(0.28 0.008 355);
+}
+.engine-term .head .dotr { width: 7px; height: 7px; border-radius: 50%; background: var(--code-red); flex-shrink: 0; }
+.engine-term .trow { display: block; line-height: 1.9; white-space: nowrap; }
+.engine-term .p { color: var(--code-cool); }
+.engine-term .f { color: var(--code-red); }
+.engine-term .s { color: var(--code-mute); }
+.engine-term .ok { color: oklch(0.75 0.13 155); }
+.engine-term .warn { color: oklch(0.72 0.14 70); }
+.engine-copy h3 { color: var(--bg); font-size: 1.5rem; margin-bottom: 12px; }
+.engine-copy p { color: var(--code-mute); font-size: 14.5px; line-height: 1.6; }
+.engine-points { list-style: none; padding: 0; margin: 18px 0 0; display: flex; flex-direction: column; gap: 10px; }
+.engine-points li {
+  font-size: 13.5px; color: var(--code-fg); line-height: 1.5;
+  display: flex; gap: 10px; align-items: baseline;
+}
+.engine-points li .mark { color: var(--code-red); font-family: var(--mono); font-size: 0.8em; }
+.engine-points code { color: var(--code-cool); background: transparent; padding: 0; }
+
+.engine-install {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: clamp(24px, 4vw, 48px);
+  align-items: center;
+  border: 1px solid oklch(0.32 0.012 355);
+  border-radius: 12px;
+  background: oklch(0.13 0.007 355);
+  padding: clamp(24px, 3.5vw, 40px);
+}
+.install-text .label { color: var(--code-cool); }
+.install-text .label::before { background: var(--code-cool); }
+.install-text h3 { color: var(--bg); font-size: 1.45rem; margin-bottom: 10px; }
+.install-text p { color: var(--code-mute); font-size: 14px; line-height: 1.6; }
+.install-text code { color: var(--code-cool); background: transparent; padding: 0; }
+.install-actions { display: flex; flex-direction: column; gap: 14px; }
+.install-agents { font-size: 11px; color: var(--code-mute); letter-spacing: 0.04em; }
+.install-term {
+  position: relative;
+  font-size: 12px;
+  background: oklch(0.1 0.006 355);
+  border: 1px solid oklch(0.3 0.01 355);
+  padding: 14px 16px;
+  padding-right: 44px;
+}
+.copy-btn {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid oklch(0.3 0.01 355);
+  border-radius: 6px;
+  background: oklch(0.16 0.008 355);
+  color: var(--code-cool);
+  font-family: var(--mono);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.copy-btn:hover { background: oklch(0.22 0.01 355); color: var(--code-fg); }
+.copy-btn:active { transform: translateY(1px); }
+.install-actions .btn { align-self: flex-start; }
+
+/* Streaming lanes passing BEHIND the engine panel: raw code in (left),
+   formatted markdown out (right) — both flowing left → right. */
+.engine-streams {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  gap: 48px;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.5;
+}
+.stream-col {
+  width: min(30vw, 300px);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  padding: 0 16px;
+}
+.stream-track {
+  display: flex;
+  align-items: center;
+  animation: stream-scroll-x 6s linear infinite;
+  will-change: transform;
+}
+.stream-md .stream-track {
+  animation-duration: 7.5s;
+}
+.stream-doc {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  white-space: nowrap;
+}
+@keyframes stream-scroll-x {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+.s-file {
+  font-family: var(--mono); font-size: 9px;
+  color: var(--code-red);
+  letter-spacing: 0.02em;
+}
+.s-line {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--code-mute);
+  line-height: 1.45;
+  white-space: nowrap;
+}
+.s-line i { font-style: normal; color: var(--code-cool); }
+.s-mdh1 {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  color: var(--code-fg);
+}
+.s-mdh2 {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--code-cool);
+}
+.s-mdline {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--code-mute);
+  line-height: 1.45;
+  white-space: nowrap;
+}
+.s-mdline.ok { color: oklch(0.75 0.13 155); }
+.s-mdline.warn, .s-file.warn { color: oklch(0.72 0.14 70); }
+
+/* The engine panel + install blocks sit in front of the streams. */
+.engine-wrap { position: relative; z-index: 2; }
+
 /* ---- Reveal motion ---- */
 .reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
 .reveal.in { opacity: 1; transform: none; }
 
 /* ---- Responsive ---- */
 @media (max-width: 980px) {
-  .hero-grid, .flow .wrap, .prov-pair { grid-template-columns: 1fr; }
+  .hero-grid, .flow .wrap, .prov-pair, .engine-panel, .engine-install { grid-template-columns: 1fr; }
+  .stream-col { width: 26vw; }
   .github-grid { grid-template-columns: 1fr; }
   .cli-bento { grid-template-columns: repeat(2, 1fr); }
   .cell.span3, .cell.span2 { grid-column: span 2; }
@@ -909,6 +1212,8 @@ Discovered:
   .foot-grid { grid-template-columns: 1fr; }
   .diag-row { grid-template-columns: 78px 64px 1fr; }
   .diag-row .msg { display: none; }
+  .stream-col { width: 40vw; }
+  .engine-streams { opacity: 0.3; }
   .nav-actions { gap: 6px; }
   .btn { padding: 8px 13px; font-size: 13px; }
 }

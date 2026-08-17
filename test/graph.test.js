@@ -5,8 +5,8 @@ const assert = require('node:assert');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { buildGraph } = require('../lib/graph');
-const { load } = require('../lib/config');
+const { buildGraph } = require('../lib/core/graph');
+const { load } = require('../lib/core/config');
 
 function makeFixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'acc-graph-'));

@@ -15,7 +15,9 @@ deliberate, documented invariants, not best-effort behavior:
    project code, npm scripts, Makefiles, or build scripts. The only
    subprocess the core runs is a read-only `git ls-files` call — used
    solely to detect committed `.acc-memory.md` files for diagnostic
-   `ACC053`.
+   `ACC053`. (The engine reads the git reflog as plain files, never
+   executing git; the AI phase is explicit opt-in via `ai.enabled` and
+   only calls the configured model provider.)
 3. **Path-boundary enforcement.** Project-root detection stops at the
    home directory, and every ACC operation stays inside the detected
    root. Generated directories (`.git/`, `node_modules/`, `target/`,
@@ -47,10 +49,13 @@ project root:
 | Command | Writes |
 |---------|--------|
 | `acc init` | `.acc/config/` scaffolding; appends `.acc-memory.md` to `.gitignore` |
+| `acc install` | the ACC skill `SKILL.md` into the agent environment (`.agents/skills/acc/` or `--dir` target) |
 | `acc build --yes` | missing `AGENTS.md` contract files (+ initial `.acc-memory.md`) |
 | `acc document --apply` | the target `AGENTS.md` |
 | `acc discover --apply` | suggested `AGENTS.md` changes |
 | `acc memory add\|clear` | `.acc-memory.md` entries |
+| `acc engine --apply` | knowledge entries in `.acc-memory.md` (after supervisor approval, when enabled) |
+| `acc engine` (any run) | regenerates `ACC_WARN.md` (gitignored drift report) in the project root |
 
 **Dry-run is the default** for every write-capable command (`build`,
 `document`, `discover`). See the "Modifies repo?" column in
@@ -76,11 +81,16 @@ do not fully trust.
 ## 4. `acc battle` (ABA) — Outside the Framework's Model
 
 `acc battle` launches **ABA (ACC Battle Arena)**, a separate benchmark
-application published as `acc-battle-arena`. ABA is **not** part of the
-ACC framework's security model: it runs benchmarks against copies of
-repositories, may start projects, and can make network calls to model
-providers. ABA has its own documentation and should be used only on
-repositories you trust. The framework never requires ABA.
+application published as `acc-battle-arena` (repository:
+`github.com/EnzoVezzaro/aba-arena`). When ABA is not already installed,
+`acc battle` clones that repository into the per-user cache
+(`~/.cache/acc/aba-arena`) and runs its `npm install` — so the first
+`acc battle` needs network and executes the cloned project's own build
+scripts. ABA is **not** part of the ACC framework's security model: it
+runs benchmarks against copies of repositories, may start projects, and
+can make network calls to model providers. ABA has its own
+documentation and should be used only on repositories you trust. The
+framework never requires ABA.
 
 ## 5. Secrets and Memory
 

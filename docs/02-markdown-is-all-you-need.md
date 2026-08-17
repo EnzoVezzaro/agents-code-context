@@ -81,10 +81,11 @@ not the tool:
 - **Deterministic validation.** Stable `ACC0xx` diagnostics and a stable
   JSON schema give you the "gates outside" half of spec-driven
   development — feedback agents can act on without re-interpreting.
-- **Agent-agnostic by construction.** ACC is a strict superset of the
-  agents.md standard: remove `.acc/` and the CLI and you still have a
-  valid `AGENTS.md` repository. Context persistence across agents is a
-  property of the repository, not the agent.
+- **Agent-agnostic by construction.** ACC installs as a skill any
+  agent can load; the repository stays a standard agents.md repository
+  and never depends on ACC. Remove the skill (or the CLI) and nothing
+  changes. Context persistence across agents is a property of the
+  repository, not the agent.
 
 ### On the skills-vs-MCP debate
 

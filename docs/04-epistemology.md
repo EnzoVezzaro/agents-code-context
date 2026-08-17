@@ -193,6 +193,84 @@ An edge is a directed relationship between two functionality boundaries.
 
 All graph edges are directed. All carry a `provenance` object.
 
+### The Knowledge-Graph Index (machine-only extension)
+
+Alongside the architecture graph, ACC derives a **typed index**
+(`items`/`links`) that is deliberately machine-only. It is an index of
+relationships, not a knowledge store: nodes and edges carry **no prose,
+no descriptions, no documentation, no knowledge** — those live in
+`AGENTS.md` / `SKILL.md` / `.acc-memory.md` and are read from the
+filesystem on demand. The index points at the filesystem; it never
+duplicates it.
+
+**Node metadata is minimal:** `id` (canonical POSIX path), `type`,
+`parent`, `hash` (content hash for change detection), `flags`, and the
+mandatory `provenance` tag. Nothing else.
+
+**Node types (closed set):**
+
+| Type | Meaning |
+|------|---------|
+| `boundary` | Functionality boundary (the architecture-graph nodes) |
+| `agents` | An `AGENTS.md` contract file |
+| `file` | A source file |
+| `test` | A test file (test dirs or `*_test.*` / `*.test.*` / `*.spec.*` naming) |
+| `skill` | A `SKILL.md` package (`.agents/skills/`, `.acc/config/skills/`) |
+| `standard` | A standard (`.acc/config/standards/*.md`) |
+
+**Edge kinds (closed set):** `dependency`, `ownership` (architecture),
+plus `governs` (agents → boundary), `owns` (boundary → file/test),
+`requires` (boundary → skill/standard referenced in its contract), and
+`tested_by` (file → test). Edges carry only `from`, `to`, `kind`, and
+`provenance`.
+
+The index is **queried, not read**: `acc slice <path>` (and
+`graphSlice()` in lib/core/graph.js) returns the compact AI-optimized slice
+for a path — governed_by, owns, depends_on, dependents, tested_by,
+requires, and the impact budget (files/boundaries/tests/contracts over
+the scope + transitive dependents). That slice is the context boundary:
+no agent ever needs the whole index, only the slice.
+
+#### The over-feeding problem (and how ACC avoids it)
+
+**The problem:** a large repository, fed to an agent whole, overwhelms
+it. Every extra irrelevant file competes with the relevant one for
+attention — and for tokens. Empirically, models degrade on tasks when
+the prompt is padded with unrelated context (lost-in-the-middle
+behavior), and the cost grows linearly with what you feed. Feeding a
+100k-file repo to a model because the change touches one file is both
+slow and *worse*: the signal-to-noise ratio collapses. This is the
+**over-feeding problem** — context explosion that makes agents slower,
+more expensive, and less accurate, all at once.
+
+**ACC's answer is structural, not prompt-engineering:**
+
+1. **The graph is a routing index, not a context dump.** It stores
+   ids, types, hashes and provenance — never prose, never code, never
+descriptions. Measured: ~180 bytes/item, flat (~380 bytes/file) from
+22 files to 3,900 files (see
+[05 — Engine limits](./05-cli-commands.md#engine-limits-measured)).
+The graph stays small *because* it points at the filesystem instead
+of copying it.
+2. **Context is assembled per scope, on demand.** `acc context` and
+   `acc slice` return only what a path needs, at the depth asked for.
+   The engine reviews **one boundary at a time** with a hard budget
+   (contract ≤ 4 KB, slice ≤ 1.5 KB, ≤ 10 changed files, ≤ 6 KB of
+   changed code) — so a 3,900-file repo costs the same per review as
+   a 22-file one.
+3. **The engine is trigger-gated.** The AI phase only runs after
+   enough real change accumulates (default 3 commits), and only on the
+   changed code — never a periodic re-read of everything.
+4. **Determinism is the floor.** The scan, graph and dependency gaps
+   are deterministic and catch drift at every scale regardless of the
+   AI. The AI layer adds nuance on top of a bounded slice; it is never
+   the only thing looking.
+
+Measured consequence: drift detection held at 4/4 sizes from 22 to
+3,900 files with constant per-review context (~4.6 KB) — the repository
+grows, the context given to the model does not. Full numbers:
+`docs/benchmarks/engine-2026-08-17.md`.
+
 ---
 
 ## 5. Truth Resolution
@@ -213,6 +291,24 @@ deterministic answer:
 
 The philosophy: your written intent wins, reality still gets heard, and
 the gap between them becomes visible work instead of silent drift.
+
+### Drift Is Directional
+
+The disagreement between declared and discovered facts is surfaced with
+its direction, so the developer knows which side is out of sync:
+
+- **Docs behind code** — discovered references exist that no declaration
+  covers (e.g. `src/auth` uses `src/logging` but no AGENTS.md says so).
+  The code moved ahead of the documentation.
+- **Docs ahead of code** — a declaration has no code backing (e.g.
+  `src/auth` declares `src/database` but nothing references it). The
+  documentation promises something the code doesn't deliver.
+
+`acc engine` writes both directions to `ACC_WARN.md` in the project
+root on every run, alongside the code-violation diagnostics, so drift
+is impossible to miss. The graph tracks code-backed declarations
+(`graph.codeBacked`) to distinguish "declared AND implemented" from
+"declared but unimplemented" — both facts are kept, neither is erased.
 
 ---
 
@@ -321,3 +417,12 @@ ACC had a mood.
 1. Nodes sorted lexicographically by `id` (POSIX byte order)
 2. Edges sorted by `from`, then `to`, then `kind`
 3. Provenance sort: declared < discovered < inferred < memory
+
+The guarantee is locked by a test battery (`test/determinism.test.js`):
+every read-only command is executed twice in fresh processes and must
+produce byte-identical stdout; write commands must report identical
+results on fresh copies. `acc tools` sorts directory listings and
+`package.json` script names explicitly — filesystem `readdir` order is
+never relied upon. Known exceptions are documented there (`acc battle`
+spawns an external process; `acc memory add` timestamps the file it
+writes; `acc ai` reflects the environment it runs in).

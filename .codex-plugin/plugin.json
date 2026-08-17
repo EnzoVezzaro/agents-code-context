@@ -1,0 +1,29 @@
+{
+  "name": "acc",
+  "version": "0.6.0",
+  "description": "ACC — Agent Code Context. A deterministic, offline CLI that makes repositories agent-native, navigable, and self-describing.",
+  "author": {
+    "name": "EnzoVezzaro",
+    "url": "https://github.com/EnzoVezzaro"
+  },
+  "homepage": "https://github.com/EnzoVezzaro/agents-code-context",
+  "repository": "https://github.com/EnzoVezzaro/agents-code-context",
+  "license": "MIT",
+  "keywords": ["agents", "agreements", "code-context", "graph", "documentation", "productivity"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "ACC",
+    "shortDescription": "Agent Code Context",
+    "longDescription": "A deterministic, offline CLI that makes repositories agent-native, navigable, and self-describing. Install the skill to teach any agent how to use the acc CLI against AGENTS.md repositories.",
+    "developerName": "EnzoVezzaro",
+    "category": "Productivity",
+    "capabilities": ["Instructions"],
+    "websiteURL": "https://github.com/EnzoVezzaro/agents-code-context",
+    "defaultPrompt": [
+      "Use the acc CLI to understand this repository before editing.",
+      "Run acc check before finishing to validate ACC compliance.",
+      "Keep the AGENTS.md contracts and knowledge in sync with the code."
+    ],
+    "brandColor": "#8a63d2"
+  }
+}

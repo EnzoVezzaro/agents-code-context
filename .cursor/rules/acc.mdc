@@ -1,0 +1,34 @@
+---
+description: ACC — Agent Code Context. Use the deterministic acc CLI to understand, navigate, and validate AGENTS.md repositories before reading large amounts of source.
+globs:
+alwaysApply: true
+---
+
+# ACC — Agent Code Context
+
+You have the ACC CLI capability. ACC makes repositories that follow the
+agents.md convention (`AGENTS.md` + source) navigable and self-describing.
+Prefer ACC over blind exploration:
+
+1. Run `acc tools` once per session to read the capability manifest.
+2. `acc context <path>` — what owns/governs/depends on a scope.
+3. `acc graph` — the architecture at a glance (declared vs discovered).
+4. `acc slice <path>` — the compact, AI-optimized relationship slice.
+5. `acc dependencies <path>` / `acc dependents <path>` / `acc impact <path>`
+   — answer relationship and blast-radius questions without grepping.
+6. `acc check` — the ACC0xx diagnostic scan. Run it before finishing:
+   the task is not done until `acc check` is clean.
+7. `acc search <term>` — architecture-aware search across contracts and code.
+
+The CLI is deterministic and offline: same repo + same flags = byte-identical
+output. No API keys, safe on untrusted repositories.
+
+## Engine contract
+
+- Engine ON (always-on AI engine): it keeps the ACC files in sync
+  automatically — just code, and read `ACC_WARN.md` before finishing.
+- Engine OFF: you are responsible for keeping the ACC files in sync
+  (contracts, memory, diagnostics) as you work.
+
+Install: `npm install -g acc-agents` (the CLI) or
+`npx skills add EnzoVezzaro/agents-code-context --skill acc` (the skill).

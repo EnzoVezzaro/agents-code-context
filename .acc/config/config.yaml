@@ -3,7 +3,9 @@
 # This file is optional. When absent, ACC uses sensible defaults and
 # every command still works. See docs/03-repository-structure.md.
 #
-# All keys are optional. Comments explain each option.
+# All keys are optional. Comments explain each option. Only keys ACC
+# actually reads are shown here — the implementation ignores unknown
+# sections, so the example stays truthful.
 #
 # Configuration schema version. Increment on breaking changes.
 schema_version: 1
@@ -74,9 +76,12 @@ diagnostics:
 # -----------------------------------------------------------------------------
 # Forbidden Dependencies
 # -----------------------------------------------------------------------------
-# Forbidden dependency edges. A declared or discovered edge matching a
-# rule emits ACC024 (error). `from` is the dependee, `to` is the
-# forbidden target. Paths are relative to project root.
+# Dependency rules the repository must never have. Each rule is a
+# { from, to } pair (directory prefixes, relative to the project root).
+# A declared or discovered edge under both prefixes emits ACC024 (error);
+# a rule whose paths exist but never match is inert (ACC025, warn); a
+# rule naming a path that does not exist is ACC065 (warn). `acc check`
+# and the engine scan honor these rules.
 forbidden_deps:
   # - from: "src/auth/"
   #   to: "src/ui/"
@@ -92,6 +97,77 @@ ownership:
   # severity; this flag only controls whether ACC stops on the first ownership
   # conflict or continues to collect them all.
   strict: false
+
+# -----------------------------------------------------------------------------
+# Engine (AI-powered, token-gated)
+# -----------------------------------------------------------------------------
+# The engine keeps the ACC files in sync with the codebase. Its AI phase
+# only runs when the trigger fires — that is the token budget control.
+engine:
+  trigger:
+    # mode: commits | changes | always
+    #   commits → count git commits since the last triggered run.
+    #   changes → keep a content-hash snapshot and count changed files.
+    # The trigger also exposes the changed files, so the AI evaluates the
+    # actual code — never just the git log.
+    mode: commits
+    # How many commits (or changed files) the engine waits for before
+    # running the token-consuming AI phase. Default: 3.
+    threshold: 3
+  supervisor:
+    # Second AI pass that scores the engine's proposed changes against
+    # ACC rules and compliance (0-100) before anything is written.
+    # Below the threshold, the engine iterates on its own proposals with
+    # the supervisor's feedback until compliant or max_iterations is hit.
+    # Nothing is written to the ACC files without approval.
+    enabled: false
+    threshold: 85
+    max_iterations: 3
+  ai:
+    # How the engine's AI phase handles failing providers:
+    #   retries → attempts per provider call before giving up on it.
+    #   fallback → when one provider fails, try the next configured one.
+    #   retry_delay_ms → pause between attempts.
+    #   max_consecutive_failures → `acc engine --watch` stops with a
+    #     clear error after this many consecutive runs where every
+    #     provider was exhausted (fix the api keys and restart).
+    retries: 3
+    retry_delay_ms: 1000
+    fallback: true
+    max_consecutive_failures: 3
+
+# -----------------------------------------------------------------------------
+# AI Providers (optional, AI SDK v5)
+# -----------------------------------------------------------------------------
+# Explicit opt-in: with enabled: false nothing loads, nothing runs, and
+# no network call ever happens at config/graph/scan time. Providers are
+# only contacted by commands that explicitly request a model
+# (`acc engine`, `acc ai`). API keys are read from the environment
+# (api_key_env), never stored in the repository. `base_url` overrides
+# the endpoint — useful for OpenAI-compatible gateways (NVIDIA, OpenRouter,
+# self-hosted). See docs/05-cli-commands.md (acc ai).
+ai:
+  enabled: false
+  # default: main   # provider id used when none is passed
+  # providers:
+    # - id: main
+    #   provider: openai
+    #   model: gpt-4o
+    #   api_key_env: OPENAI_API_KEY
+    # - id: nvidia
+    #   provider: openai            # OpenAI-compatible endpoint
+    #   model: nvidia/nemotron-3-nano-30b-a3b
+    #   api_key_env: NVIDIA_API_KEY
+    #   base_url: https://integrate.api.nvidia.com/v1
+    # - id: gemini
+    #   provider: google
+    #   model: gemini-2.0-flash
+    #   api_key_env: GEMINI_API_KEY
+    # - id: openrouter
+    #   provider: openai            # OpenAI-compatible endpoint
+    #   model: nvidia/nemotron-3-nano-30b-a3b:free
+    #   api_key_env: OPENROUTER_API_KEY
+    #   base_url: https://openrouter.ai/api/v1
 
 # -----------------------------------------------------------------------------
 # Multi-Agent Orchestration
@@ -151,74 +227,48 @@ context:
 # -----------------------------------------------------------------------------
 graph:
   # Default output format: text, mermaid, dot, json
-  default_format: "text"
+  default_format: "json"
   # Include provenance by default in text output
   default_provenance: true
 
 # -----------------------------------------------------------------------------
 # Memory Defaults
 # -----------------------------------------------------------------------------
+# Defaults for `.acc-memory.md` handling — honored by `acc memory` and
+# `acc check` (ACC054 when a file exceeds the threshold).
 memory:
-  # Warn when memory file exceeds this many bytes.
+  # Warn (ACC054) when a memory file exceeds this many bytes.
   warn_bytes: 65536
-  # Default timestamp format for `acc memory add` entries.
+  # Timestamp format for `acc memory add` entries: rfc3339 | date.
   timestamp_format: "rfc3339"
 
 # -----------------------------------------------------------------------------
 # Discovery Defaults
 # -----------------------------------------------------------------------------
+# Default suggestion kinds for `acc discover` when --kind is not passed.
+# The engine's sync plan deliberately uses its own additive-only kinds
+# (missing-contract, missing-dependency, orphan-code) as a safety
+# invariant — it never auto-removes declared facts.
 discover:
-  # Default suggestion kinds to include.
   default_kinds:
     - "missing-contract"
     - "missing-dependency"
     - "stale-dependency"
     - "unknown-owner"
-    - "direction-mismatch"
     - "orphan-code"
 
 # -----------------------------------------------------------------------------
 # Tooling Subsystem
 # -----------------------------------------------------------------------------
-# Automatic, deterministic, project-aware tool management.
-# See docs/12-tooling.md for full specification.
+# Automatic, deterministic, project-aware tool listing for `acc tools`.
+# Only the keys read by the implementation are listed (no execution model:
+# ACC never runs project code — see docs/13-security.md).
 tools:
-  # Master switch for auto-discovery of project tools
+  # Master switch for auto-discovery of project tools (package.json scripts,
+  # Cargo.toml, etc. — listed as `detected` in the manifest).
   auto_discover: true
 
-  # Core tools (always available unless explicitly disabled)
-  defaults:
-    filesystem: true
-    search: true
-    shell: true
-    git: true
-    project: true
-    context: true
-    graph: true
-    memory: true
-    check: true
-
-  # Detected project tools (from package.json, Cargo.toml, etc.)
-  detected:
-    enabled: true
-
-  # Plugin tools (external, from .acc/config/tools/)
+  # Plugin listing (from .acc/config/tools/)
   plugins:
     enabled: true
     directory: ".acc/config/tools"
-
-  # Permission model (safe/moderate/dangerous)
-  permissions:
-    filesystem:
-      read: true
-      write: true
-      glob: true
-    shell:
-      enabled: true
-      approval: "auto"  # "auto" | "ask" | "deny"
-      allowed_commands: []  # empty = all (subject to approval)
-    git:
-      read: true
-      write: true
-    network:
-      enabled: false

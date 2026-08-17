@@ -82,6 +82,10 @@ is optional.
 `roles`, `owners` are arrays of strings (possibly empty). They are
 declared-only fields; inferred roles/owners are never placed here.
 
+`acc graph` nodes additionally carry `type: "boundary"` (additive). The
+full typed index (boundary, agents, file, test, skill, standard) is
+queried via `acc slice` — see below.
+
 ### `Edge`
 
 ```json
@@ -242,6 +246,207 @@ When `--format mermaid` or `--format dot`, the `result` is a single string:
 ```json
 { "format": "mermaid", "content": "graph LR\n  ..." }
 ```
+
+### `acc slice <path> --json`
+
+The compact AI-optimized graph slice (see [05 — CLI Commands](./05-cli-commands.md#acc-slice-path)):
+
+```json
+{
+  "scope": "src/auth",
+  "governed_by": ["AGENTS.md", "src/AGENTS.md", "src/auth/AGENTS.md"],
+  "owns": {
+    "files": ["src/auth/token.rs"],
+    "tests": ["src/auth/token_test.rs"]
+  },
+  "depends_on": [
+    { "to": "src/database", "provenance_kind": "declared" }
+  ],
+  "dependents": [
+    { "from": "src/app", "provenance_kind": "declared" }
+  ],
+  "tested_by": ["src/auth/token_test.rs"],
+  "requires": {
+    "skills": ["oauth"],
+    "standards": ["idempotency"]
+  },
+  "impact": { "files": 2, "boundaries": 2, "tests": 1, "contracts": 2 }
+}
+```
+
+`scope` uses `.` for the root. `governed_by` lists the contract chain
+root → scope (nearest file wins). `impact` is the expansion budget over
+scope + transitive dependents.
+
+### `acc engine [path] --json`
+
+```json
+{
+  "scan": {
+    "stats": { "boundaries": 4, "files": 3, "tests": 2, "skills": 1, "standards": 1,
+               "edges_declared": 2, "edges_discovered": 1, "links": 6, "cycles": 0 },
+    "diagnostics": [ ... ],
+    "diagnostics_summary": { "errors": 0, "warnings": 1, "infos": 2, "total": 3 },
+    "slices": [ ... graphSlice ... ],
+    "dependency_gaps": [ { "from": "src/auth", "to": "src/logging", "source": "..." } ],
+    "scope": null
+  },
+  "sync": {
+    "applied": false,
+    "contracts_missing": [],
+    "contracts_created": [],
+    "memory_records_created": [],
+    "suggestions": 2,
+    "suggestions_applied": 0,
+    "dependency_gaps": [ ... ]
+  },
+  "trigger": {
+    "mode": "commits", "threshold": 3, "current": 1,
+    "triggered": false, "reason": "waiting for 1/3 commits",
+    "changedFiles": [ "src/auth/token.rs" ]
+  },
+  "ai": {
+    "enabled": true,
+    "skipped": true,
+    "reason": "waiting for 1/3 commits",
+    "results": [],
+    "applied": false,
+    "errors": [],
+    "changed_files": [],
+    "supervisor": { "enabled": false }
+  },
+  "warn": {
+    "file": "ACC_WARN.md",
+    "diagnostics": 1,
+    "errors": 0,
+    "warnings": 1,
+    "docs_behind_code": 1,
+    "docs_ahead_of_code": 0,
+    "ai_findings": 0,
+    "supervisor_approved": null
+  }
+}
+```
+
+`warn` is the summary of the regenerated `ACC_WARN.md` drift report
+(written to the project root on every run): `diagnostics` counts
+error/warn diagnostics, `docs_behind_code` / `docs_ahead_of_code` are
+the two drift directions, and `ai_findings` / `supervisor_approved`
+reflect the last triggered AI run when one happened.
+
+When the AI phase runs (`triggered` or `--force`), `ai.results` carries
+per-boundary `{ dir, knowledge[], drift[], skill_gaps[], standard_gaps[],
+supervisor }` and `ai.provider` describes the model used. `trigger.changedFiles`
+and `ai.changed_files` list the files whose content changed since the last
+triggered run — the code the AI evaluates (embedded in the prompt).
+
+With `--supervisor`, each result carries:
+```json
+{
+  "dir": "src/payments",
+  "knowledge": [],
+  "drift": [],
+  "supervisor": {
+    "enabled": true,
+    "approved": true,
+    "score": 92,
+    "issues": [],
+    "iterations": [ { "iteration": 1, "score": 78, "issues": [ "..." ] } ]
+  }
+}
+```
+and `ai.supervisor` reports `{ enabled, threshold, max_iterations }`.
+Knowledge is written to `.acc-memory.md` only when `approved` is true.
+AI results are advisory (provenance memory/inferred); the `scan` and
+`sync` sections are deterministic.
+
+AI resilience is reported on the same object: `ai.knowledge_written`
+counts entries actually written to `.acc-memory.md` (0 when nothing was
+approved), `ai.provider_notes` lists providers skipped at resolve time
+(e.g. missing API key) as `{ id, error }`, and `ai.retry_log` records
+every failed attempt as `{ provider, model, attempt, error }` — empty
+when no retries were needed. When every provider is exhausted,
+`ai.errors` carries one entry per boundary and `ai.retry_log` holds all
+failed attempts; nothing is written and nothing is thrown.
+
+### `acc review [path] --json`
+
+On-demand AI compliance review (read-only — never writes state):
+
+```json
+{
+  "command": "review",
+  "scope": null,
+  "diagnostics": { "errors": 0, "warnings": 1, "infos": 2, "total": 3 },
+  "dependency_gaps": [ { "from": "src/auth", "to": "src/logging", "source": "..." } ],
+  "stale_declarations": [],
+  "ai": {
+    "enabled": true,
+    "skipped": false,
+    "provider": { "id": "main", "provider": "openai", "model": "gpt-4o" },
+    "threshold": 85,
+    "max_iterations": 3,
+    "errors": [],
+    "boundaries": [
+      {
+        "dir": "src/auth",
+        "score": 92,
+        "approved": true,
+        "issues": [],
+        "drift": [],
+        "knowledge": [],
+        "skill_gaps": [],
+        "standard_gaps": []
+      }
+    ]
+  },
+  "score": 92,
+  "approved": true
+}
+```
+
+`score` / `approved` are the overall verdict (the weakest boundary's
+score — min across reviewed boundaries). When AI is disabled or the
+provider can't be resolved, `ai` carries `enabled: false` (or
+`errors[]`) and `score`/`approved` are `null` — the deterministic scan
+fields are always present. See
+[05 — CLI Commands § acc review](./05-cli-commands.md#acc-review-path-—-on-demand-ai-compliance-review).
+
+### `acc ai --json`
+
+The AI provider manifest (offline — no provider package is loaded or
+contacted):
+
+```json
+{
+  "enabled": true,
+  "default": "main",
+  "providers": [
+    {
+      "id": "main",
+      "provider": "openai",
+      "package": "@ai-sdk/openai",
+      "model": "gpt-4o",
+      "api_key_env": "OPENAI_API_KEY",
+      "api_key_present": true,
+      "installed": true,
+      "errors": []
+    }
+  ]
+}
+```
+
+`api_key_present` reflects the environment at run time; keys themselves
+are never emitted or stored.
+
+The write subcommands return:
+
+- `acc ai add` → `{ provider: { id, provider, model, api_key_env,
+  base_url? }, env_var, env_file, control_file }`.
+- `acc ai remove <id>` → `{ removed, env_keys_removed, control_file }`.
+- `acc ai default <id>` → `{ default, control_file }`.
+- `acc ai models <id>` → `{ provider, models: string[] }` (network call,
+  explicitly requested).
 
 ### `acc dependencies <path> --json` / `acc dependents <path> --json`
 

@@ -1,0 +1,16 @@
+{
+  "name": "acc",
+  "description": "ACC — Agent Code Context. A deterministic, offline CLI that makes repositories agent-native, navigable, and self-describing.",
+  "owner": {
+    "name": "EnzoVezzaro",
+    "url": "https://github.com/EnzoVezzaro"
+  },
+  "plugins": [
+    {
+      "name": "acc",
+      "description": "Gives any coding agent the ACC CLI capability: derive the architecture graph, get focused context slices, validate against ACC rules, and keep the AGENTS.md contracts and knowledge in sync.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}

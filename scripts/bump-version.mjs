@@ -16,7 +16,7 @@
  *   npm test && npm run build:docs  # then commit + tag, run the Release workflow
  */
 
-import { readFileSync, writeFileSync } from 'node:fs'
+import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
@@ -69,6 +69,34 @@ if (!isPrerelease) {
     console.log(`CHANGELOG.md: cut [Unreleased] → [${requested}] (${date})`)
   }
 }
+
+// ---------------------------------------------------------------------------
+// Host adapter manifests — every version-bearing manifest must agree with
+// package.json (enforced by `npm run check:versions`). Keep them in sync
+// here so a bump can never ship hosts that advertise a stale version.
+// ---------------------------------------------------------------------------
+const HOST_MANIFESTS = [
+  '.claude-plugin/plugin.json', // Claude Code plugin
+  '.codex-plugin/plugin.json',  // Codex plugin
+  'gemini-extension.json',      // Gemini CLI extension
+  'plugin.json',                // generic plugin manifest
+  'plugin.yaml',                // Hermes Agent plugin manifest
+]
+
+function bumpVersion(relPath) {
+  const abs = path.join(root, relPath)
+  if (!existsSync(abs)) return
+  let text = readFileSync(abs, 'utf8')
+  const next = text
+    .replace(/("version"\s*:\s*")[^"]+(")/g, `$1${requested}$2`)
+    .replace(/(^version:\s*).+$/m, `$1${requested}`)
+  if (next !== text) {
+    writeFileSync(abs, next)
+    console.log(`${relPath}: ${previous} → ${requested}`)
+  }
+}
+
+for (const rel of HOST_MANIFESTS) bumpVersion(rel)
 
 // ---------------------------------------------------------------------------
 // Docs — nothing to edit here by hand. The version is read from package.json

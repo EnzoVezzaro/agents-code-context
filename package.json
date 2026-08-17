@@ -1,6 +1,6 @@
 {
   "name": "acc-agents",
-  "version": "0.4.0",
+  "version": "0.6.0",
   "description": "ACC — Agent Code Context. A convention + optional CLI that makes software repositories agent-native, navigable, and self-describing.",
   "license": "MIT",
   "type": "commonjs",
@@ -16,10 +16,19 @@
     "node": ">=18"
   },
   "dependencies": {
-    "acc-battle-arena": "^0.1.8"
+    "@ai-sdk/anthropic": "^2.0.95",
+    "@ai-sdk/google": "^2.0.88",
+    "@ai-sdk/openai": "^2.0.118",
+    "acc-battle-arena": "^0.1.8",
+    "ai": "^5.0.237"
   },
   "scripts": {
     "test": "node --test test/*.test.js",
+    "test:metrics": "node scripts/test-metrics.mjs",
+    "benchmark:engine": "node scripts/benchmark-engine.cjs",
+    "bump": "node scripts/bump-version.mjs",
+    "check:versions": "node scripts/check-versions.js",
+    "check:skill-copies": "node scripts/check-skill-copies.js",
     "acc": "node bin/acc.js"
   },
   "keywords": [

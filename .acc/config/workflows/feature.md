@@ -3,6 +3,16 @@
 A reproducible procedure for adding a new functionality boundary to an
 ACC-enhanced project.
 
+## Who owns the ACC files?
+
+- **Engine ON** — an always-on AI engine (`acc engine --watch`) is
+  maintaining the ACC files. You do NOT need to run the ACC steps
+  below; the engine reviews your changed code, updates knowledge, and
+  reports drift in `ACC_WARN.md`. Just implement the functionality and
+  check `ACC_WARN.md` before finishing.
+- **Engine OFF** — you are exclusively responsible. Follow the steps
+  below in every task; nobody else will keep the ACC files in sync.
+
 ## Steps
 
 1. **Isolate the functionality.** Identify the directory that will own

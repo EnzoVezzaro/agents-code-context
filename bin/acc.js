@@ -14,9 +14,9 @@
 'use strict';
 
 const path = require('path');
-const { parseArgv } = require('../lib/args');
-const { resolveRoot, load } = require('../lib/config');
-const { envelope, errorEnvelope, json } = require('../lib/output');
+const { parseArgv } = require('../lib/core/args');
+const { resolveRoot, load } = require('../lib/core/config');
+const { envelope, errorEnvelope, json } = require('../lib/core/output');
 
 const VERSION = require('../package.json').version;
 
@@ -26,6 +26,7 @@ const commandModules = {
   inspect: require('../lib/commands/inspect'),
   context: require('../lib/commands/context'),
   graph: require('../lib/commands/graph'),
+  slice: require('../lib/commands/slice'),
   dependencies: require('../lib/commands/relations').dependencies,
   dependents: require('../lib/commands/relations').dependents,
   impact: require('../lib/commands/relations').impact,
@@ -34,7 +35,11 @@ const commandModules = {
   document: require('../lib/commands/document'),
   build: require('../lib/commands/build'),
   fill: require('../lib/commands/fill'),
+  install: require('../lib/commands/install'),
   memory: require('../lib/commands/memory'),
+  ai: require('../lib/commands/ai'),
+  engine: require('../lib/commands/engine'),
+  review: require('../lib/commands/review'),
   tools: require('../lib/commands/tools'),
   battle: require('../lib/commands/battle'),
 };
@@ -176,7 +181,8 @@ async function runCommand(mod, parsed, ctx, { command, root, jsonFlag, quietFlag
   if (!outcome) {
     const e = errorEnvelope(command, root, 'panic', 'command produced no result', 3);
     process.stderr.write(jsonFlag ? json(e) : 'acc: internal error — command produced no result\n');
-    process.exit(3);
+    process.exitCode = 3;
+    return;
   }
 
   // Errors (usage / ACC errors).
@@ -184,10 +190,11 @@ async function runCommand(mod, parsed, ctx, { command, root, jsonFlag, quietFlag
     const exit = outcome.exit || 2;
     const e = errorEnvelope(command, root, exit === 2 ? 'usage' : 'io', outcome.error, exit);
     process.stderr.write(jsonFlag ? json(e) : `acc: ${outcome.error}\n`);
-    process.exit(exit);
+    process.exitCode = exit;
+    return;
   }
 
-  const exit = outcome.exit || 0;
+  process.exitCode = outcome.exit || 0;
 
   if (jsonFlag) {
     const env = envelope(command, root, outcome.result ?? null, {
@@ -201,21 +208,19 @@ async function runCommand(mod, parsed, ctx, { command, root, jsonFlag, quietFlag
   } else if (outcome.result !== undefined && !quietFlag) {
     process.stdout.write(json(outcome.result));
   }
-
-  process.exit(exit);
 }
 
 process.on('uncaughtException', (err) => {
   const e = errorEnvelope('unknown', null, 'panic', err.message, 3);
   process.stderr.write(json(e));
-  process.exit(3);
+  process.exitCode = 3;
 });
 
 if (require.main === module) {
   main().catch((err) => {
     const e = errorEnvelope('unknown', null, 'panic', err.message, 3);
     process.stderr.write(json(e));
-    process.exit(3);
+    process.exitCode = 3;
   });
 }
 

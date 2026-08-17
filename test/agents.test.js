@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert');
-const { parse } = require('../lib/agents');
+const { parse } = require('../lib/core/agents');
 
 const SAMPLE = `# auth
 
@@ -59,4 +59,13 @@ test('a single paragraph is still valid (no recognized sections)', () => {
 test('prose-only dependencies are not extracted (no schema)', () => {
   const out = parse('## Dependencies\n\nthe database module and logging\n');
   assert.deepEqual(out.deps, []);
+});
+
+test('backticked path deps resolve cleanly (no stray code marks)', () => {
+  const out = parse(
+    '## Dependencies\n\n- `.claude-plugin/`\n- `skills/acc`\n'
+  );
+  // Only path-like tokens (with a slash) are extracted; backticks and
+  // trailing slashes are stripped so the path resolves on disk.
+  assert.deepEqual(out.deps, ['.claude-plugin', 'skills/acc']);
 });

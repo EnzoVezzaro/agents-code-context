@@ -73,7 +73,6 @@ export default defineConfig({
     '09-memory-semantics.md': 'memory-semantics.md',
     '10-authoring-guide.md': 'authoring-guide.md',
     '11-multi-agent-orchestration.md': 'multi-agent-orchestration.md',
-    '12-tooling.md': 'tooling.md',
     '02-markdown-is-all-you-need.md': 'markdown-is-all-you-need.md',
     '13-security.md': 'security.md'
   },
@@ -102,7 +101,6 @@ export default defineConfig({
       { text: 'Memory semantics', link: '/memory-semantics' },
       { text: 'AGENTS.md authoring guide', link: '/authoring-guide' },
       { text: 'Multi-agent orchestration', link: '/multi-agent-orchestration' },
-      { text: 'Tooling subsystem', link: '/tooling' },
       { text: 'Security model', link: '/security' }
     ],
 

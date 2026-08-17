@@ -217,10 +217,21 @@ test('ACC022 — discovered dependency not declared', () => {
 
 test('ACC030 — duplicate ownership of the same boundary', () => {
   const root = makeRepo();
-  fs.writeFileSync(path.join(root, 'AGENTS.md'), '# app\n\n## Ownership\n\nOwner: team-a\n');
+  // The root contract names src/x as a path owner; src/x claims itself
+  // with a different owner → two sources claim the same boundary.
+  fs.writeFileSync(path.join(root, 'AGENTS.md'), '# app\n\n## Ownership\n\nOwner: src/x\n');
   makeBoundary(root, 'src/x', '# x\n\n## Ownership\n\nOwner: team-b\n');
   const { json: out } = jsonRunCatch(['check'], root);
   assert.ok(codes(out.result.diagnostics).includes('ACC030'));
+});
+
+test('ACC030 stays silent for distinct team owners on distinct boundaries', () => {
+  // Team names are labels for the local contract, not path claims.
+  const root = makeRepo();
+  fs.writeFileSync(path.join(root, 'AGENTS.md'), '# app\n\n## Ownership\n\nOwner: team-a\n');
+  makeBoundary(root, 'src/x', '# x\n\n## Ownership\n\nOwner: team-b\n');
+  const out = jsonRun(['check'], root);
+  assert.ok(!codes(out.result.diagnostics).includes('ACC030'));
 });
 
 test('ACC031 — dependency target with no declared owner', () => {
@@ -333,7 +344,9 @@ test('acc graph --json returns stable envelope and derived nodes/edges', () => {
 
 test('acc graph --nodes emits only nodes (no edges)', () => {
   const root = makeGraphRepo();
-  const text = run(['graph', '--nodes'], root);
+  // The default format is json (config.graph.default_format); --format
+  // text renders the human-readable form.
+  const text = run(['graph', '--nodes', '--format', 'text'], root);
   assert.ok(text.includes('Nodes:'));
   assert.ok(!text.includes('Edges:'));
   const out = jsonRun(['graph', '--nodes'], root);
