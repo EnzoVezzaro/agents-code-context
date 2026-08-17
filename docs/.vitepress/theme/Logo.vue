@@ -822,13 +822,9 @@ async function enter() {
       morph,
       {
         transform: ['scale(1)', 'scale(1.25)'],
-        // The icon starts fading a little before the morph completes —
-        // it dissolves into the card rather than snapping away once the
-        // outline has finished unfolding. Fully gone at ~85% of the
-        // morph, so the card content materializes alone at the tail.
-        opacity: [1, 1, 0]
+        opacity: [1, 0]
       },
-      { duration: 0.35, ease: 'easeInOut', times: [0, 0.55, 0.85] }
+      { duration: 0.12, ease: 'easeOut' }
     ),
     animate(
       marks,
@@ -836,7 +832,7 @@ async function enter() {
         opacity: [1, 0],
         transform: ['scale(1)', 'scale(1.5)']
       },
-      { duration: 0.3, ease: 'easeInOut' }
+      { duration: 0.12, ease: 'easeOut' }
     ),
     animate(
       content,
@@ -844,7 +840,7 @@ async function enter() {
         opacity: [0, 1],
         transform: ['scale(0.82)', 'scale(1)']
       },
-      { duration: 0.34, ease: [0.16, 1, 0.3, 1] }
+      { duration: 0.3, delay: 0.12, ease: [0.16, 1, 0.3, 1] }
     )
   ])
 
@@ -957,11 +953,11 @@ async function leave() {
   // folded document outline takes over, so the flight home is the file
   // folding back up. The glyph's unfolded state is restored instantly
   // beneath the still-opaque card, then it contracts as the card fades.
-  morph.style.opacity = '1'
+  morph.style.opacity = '0'
   morph.style.transform = 'scale(1.25)'
   outline.setAttribute('d', DOC_OUTLINE)
   outline.setAttribute('stroke-width', '3')
-  marks.style.opacity = '1'
+  marks.style.opacity = '0'
   marks.style.transform = 'scale(1)'
 
   animations.push(
@@ -976,7 +972,7 @@ async function leave() {
     animate(
       morph,
       { transform: ['scale(1.25)', 'scale(1)'] },
-      { duration: 0.24, ease: 'easeOut' }
+      { duration: 0.22, ease: 'easeOut' }
     )
   )
 
@@ -989,6 +985,8 @@ async function leave() {
   )
 
   // Fly back to the badge and shrink, with a soft settle on arrival.
+  // The morph icon fades in during the flight — it materialises while
+  // the card is still moving, reading as one continuous motion.
   const collapse = animate(
     card,
     {
@@ -1006,9 +1004,11 @@ async function leave() {
   )
 
   animations.push(collapse)
+
   await collapse
 
   // Card hidden, badge visible again.
+  morph.style.opacity = '0'
   expanded.value = false
   overlayVisible.value = false
   card.style.transform = ''
