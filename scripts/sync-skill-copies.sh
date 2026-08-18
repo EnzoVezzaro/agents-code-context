@@ -56,7 +56,7 @@ for dir in "${INSTALL_DIRS[@]}"; do
       echo "OK: $dir/SKILL.md"
     fi
   else
-    cp "$CANONICAL" "$target"
+    sed "s/__ACC_VERSION__/$(node -p "require('$ROOT/package.json').version")/g" "$CANONICAL" > "$target"
     echo "COPIED: $dir/SKILL.md"
   fi
 done
