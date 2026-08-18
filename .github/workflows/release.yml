@@ -1,6 +1,9 @@
 name: Release
 
 on:
+  push:
+    tags:
+      - "v*"
   workflow_dispatch:
     inputs:
       version:
@@ -38,13 +41,25 @@ jobs:
       - name: Run tests
         run: node --test test/*.test.js
 
-      - name: Verify version matches input
+      - name: Resolve version
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            TAG="${GITHUB_REF#refs/tags/v}"
+            echo "version=$TAG" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify version matches
         run: |
           PKG_VERSION=$(node -p "require('./package.json').version")
           PKG_NAME=$(node -p "require('./package.json').name")
+          RELEASE_VERSION="${{ steps.version.outputs.version }}"
           echo "Package: $PKG_NAME@$PKG_VERSION"
-          if [ "$PKG_VERSION" != "${{ github.event.inputs.version }}" ]; then
-            echo "::error::package.json version ($PKG_VERSION) does not match release version (${{ github.event.inputs.version }})"
+          echo "Release: $RELEASE_VERSION"
+          if [ "$PKG_VERSION" != "$RELEASE_VERSION" ]; then
+            echo "::error::package.json version ($PKG_VERSION) does not match release version ($RELEASE_VERSION)"
             exit 1
           fi
 
@@ -108,10 +123,10 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.event.inputs.version }}
-          name: "ACC v${{ github.event.inputs.version }}"
+          tag_name: v${{ steps.version.outputs.version }}
+          name: "ACC v${{ steps.version.outputs.version }}"
           body: |
-            ## ACC v${{ github.event.inputs.version }}
+            ## ACC v${{ steps.version.outputs.version }}
 
             See [CHANGELOG.md](./CHANGELOG.md) for details.
 
@@ -128,6 +143,6 @@ jobs:
             acc check  # validates an ACC-enhanced repository
             ```
           draft: false
-          prerelease: ${{ github.event.inputs.prerelease }}
+          prerelease: ${{ github.event.inputs.prerelease || false }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -22,6 +22,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   includes ownership edges to the root node even when root is outside
   the depth filter, so ownership relationships are never silently lost.
 
+## [0.6.5] - 2026-08-18
+
+### Changed
+- **Release workflow triggers on tag push** — `release.yml` now fires
+  on `v*` tags in addition to manual `workflow_dispatch`. Push a tag
+  (`git tag v0.6.5 && git push origin v0.6.5`) and the release runs
+  automatically: tests, npm publish, GitHub release. Version is
+  extracted from the tag so no manual input is needed.
+
 ## [Unreleased]
 
 ## [0.6.3] - 2026-08-18
