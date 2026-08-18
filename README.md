@@ -1,5 +1,22 @@
 # Agent Code Context (ACC)
 
+<div align="center">
+
+![ACC Logo](https://img.shields.io/badge/ACC-Agent%20Code%20Context-red?style=for-the-badge&logo=github)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub stars](https://img.shields.io/github/stars/EnzoVezzaro/agents-code-context?style=social)](https://github.com/EnzoVezzaro/agents-code-context/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/EnzoVezzaro/agents-code-context?style=social)](https://github.com/EnzoVezzaro/agents-code-context/network)
+[![GitHub issues](https://img.shields.io/github/issues/EnzoVezzaro/agents-code-context)](https://github.com/EnzoVezzaro/agents-code-context/issues)
+
+**Give your agent purpose.** A codebase an agent can read and understand.
+
+> I spent a year building side-by-side with AI agents. They're fast, they're smart — but every new session started with the same explanations. Where things live. Why that weird code exists. What not to touch. ACC is what happened when I got tired of explaining. The knowledge belongs to the project, so let it live with the project.
+
+[Quickstart](#quickstart) • [Documentation](./docs/README.md) • [Architecture](#-architecture) • [Contributing](./CONTRIBUTING.md) • [Community](#-community)
+
+</div>
+
 ## ⚠️ Work in Progress
 
 > **Still figuring itself out. We're just building, experimenting, chasing weird ideas, and seeing where they take us. Thanks for sticking around**
@@ -21,23 +38,6 @@ The goal right now isn't to make everything look finished.
 It's to **build, experiment, break things, learn, and keep making it better.**
 
 > **If you're looking for something polished and predictable... this might be a little early. 😄**
-
-<div align="center">
-
-![ACC Logo](https://img.shields.io/badge/ACC-Agent%20Code%20Context-red?style=for-the-badge&logo=github)
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub stars](https://img.shields.io/github/stars/EnzoVezzaro/agents-code-context?style=social)](https://github.com/EnzoVezzaro/agents-code-context/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/EnzoVezzaro/agents-code-context?style=social)](https://github.com/EnzoVezzaro/agents-code-context/network)
-[![GitHub issues](https://img.shields.io/github/issues/EnzoVezzaro/agents-code-context)](https://github.com/EnzoVezzaro/agents-code-context/issues)
-
-**Give your agent purpose.** A codebase an agent can read and understand.
-
-> I spent a year building side-by-side with AI agents. They're fast, they're smart — but every new session started with the same explanations. Where things live. Why that weird code exists. What not to touch. ACC is what happened when I got tired of explaining. The knowledge belongs to the project, so let it live with the project.
-
-[Quickstart](#quickstart) • [Documentation](./docs/README.md) • [Architecture](#-architecture) • [Contributing](./CONTRIBUTING.md) • [Community](#-community)
-
-</div>
 
 ---
 
