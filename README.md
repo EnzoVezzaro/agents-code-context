@@ -467,7 +467,7 @@ To **the open source community** — thank you for the revolutionary contributio
 
 ACC is built as a community project, and I want to make something visible through the project itself:
 
-> **I believe free software can build incredible things. Not because the price tag doesn't matter, or because technology doesn't matter, but because neither of them is what makes software great. It's the people behind it — the ones who care enough to build, share, and keep it alive.**
+> **I believe free software can build incredible things. Not because the price tag doesn't matter, or because technology doesn't matter, or even the code doesn't matter, but because neither of them is what makes software great. It's the people behind it — the ones who care enough to build, share, and keep it alive.**
 
 We prioritize free AI models and open tooling whenever capable options are available. At the same time, we don't require contributors to use a particular provider, model, or harness.
 

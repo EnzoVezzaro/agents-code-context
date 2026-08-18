@@ -39,8 +39,8 @@ ACC_WARN.md
 .env.*
 !.env.example
 
-# Engine trigger state — local derived state (last processed commit /
-# change snapshot), never committed.
+# Engine state — local derived state (last processed commit /
+# change snapshot, rollback snapshots), never committed.
 .acc/state/
 
 # ABA — standalone project (own git repo), never pushed with ACC.
