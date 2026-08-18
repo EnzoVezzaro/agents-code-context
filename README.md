@@ -22,8 +22,6 @@ It's to **build, experiment, break things, learn, and keep making it better.**
 
 > **If you're looking for something polished and predictable... this might be a little early. 😄**
 
-**More coming soon.**
-
 <div align="center">
 
 ![ACC Logo](https://img.shields.io/badge/ACC-Agent%20Code%20Context-red?style=for-the-badge&logo=github)
