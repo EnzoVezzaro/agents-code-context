@@ -32,7 +32,9 @@
     "check:versions": "node scripts/check-versions.js",
     "check:skill-copies": "node scripts/check-skill-copies.js",
     "sync:skill-copies": "./scripts/sync-skill-copies.sh",
-    "acc": "node bin/acc.js"
+    "acc": "node bin/acc.js",
+    "ci": "./scripts/ci-local.sh --fast",
+    "ci:full": "./scripts/ci-local.sh"
   },
   "keywords": [
     "agents",
