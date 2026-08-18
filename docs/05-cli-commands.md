@@ -346,19 +346,49 @@ Context bytes: 1842 / 65536
 
 ## `acc graph [path]`
 
-**Purpose:** Generate the derived architecture graph. The map of your
-repository — the thing that tells an agent "here's the terrain" instead
-of making it explore everything blindly.
+**Purpose:** Generate the derived architecture graph — the full
+knowledge graph for your repository. Nodes carry diagnostics, memory
+state, and edge counts; the summary shows aggregate health. This is
+the map that tells an agent "here's the terrain" instead of making it
+explore everything blindly.
 
 **Flags:**
-- `--format <text\|mermaid\|dot\|json>` — output format. Default `json` (configurable via `graph.default_format` in `.acc/config/config.yaml`; `--json` forces it).
+- `--format <text|mermaid|dot|json>` — output format. Default `json` (configurable via `graph.default_format` in `.acc/config/config.yaml`; `--json` forces it).
 - `--json` — shorthand for `--format json`.
 - `--root <path>`
 - `--provenance` — include provenance annotations on every edge/node. Default: on for JSON and `text`; off for `mermaid` and `dot` unless specified (or enabled via `graph.default_provenance` in config).
 - `--nodes` — emit only nodes (no edges). Useful for inventory.
 - `--max-depth <N>` — limit traversal depth. Default: unlimited.
 
-**Behavior:** derives the graph per [04 — Epistemology](./04-epistemology.md) and outputs in the requested format. If `path` given, scope the subgraph rooted at that functionality.
+**Behavior:** derives the graph per [04 — Epistemology](./04-epistemology.md) and enriches every node with:
+- `diagnostics` — ACC0xx violations for that boundary (filtered from the full check).
+- `memory` — `.acc-memory.md` existence, file path, byte size, and entry count.
+- `edges` — inbound, outbound, and total dependency edge counts.
+
+The result also includes a `summary` with aggregate counts: total boundaries, diagnostics breakdown (errors/warnings/infos), edge totals, memory coverage, drift report status, and engine state.
+
+If `path` is given, scope the subgraph rooted at that functionality. Scoped output includes ownership edges to the root and all transitive dependency edges.
+
+**`text` output:**
+```text
+Summary: 4 boundary(ies), 6 edge(s)
+  Diagnostics: 2 (0 errors, 1 warnings, 1 infos)
+  Memory: 1/4 boundary(ies) have memory
+  Drift report: present
+
+Nodes:
+  . owners: [team-core] 1 diag(s)
+  src/auth owners: [team-auth] mem: 128b
+  src/db owners: [team-db]
+  src/ui owners: [team-ui]
+
+Edges:
+  src/auth → src/db  [dependency]
+  src/auth → .  [ownership]
+  src/ui → src/auth  [dependency] (discovered)
+```
+
+**`json` output:** nodes carry `diagnostics`, `memory`, and `edges` objects; result includes `summary`.
 
 **`mermaid` output:** a `graph LR` diagram; long paths rendered as short labels with a path legend at the foot. Inferred edges rendered dashed.
 
@@ -1181,7 +1211,7 @@ under the standard envelope ([08 — JSON Output Schema](./08-json-schema.md)).
 | `acc check` | Validate, emit diagnostics. | No. |
 | `acc inspect <path>` | roles/owners/deps/constraints/memory. | No. |
 | `acc context <path>` | Focused, progressive context. | No. |
-| `acc graph [path]` | Derived graph (text/mermaid/dot/json). | No. |
+| `acc graph [path]` | Derived graph with diagnostics, memory, drift (text/mermaid/dot/json). | No. |
 | `acc dependencies <path>` | What it depends on. | No. |
 | `acc dependents <path>` | What depends on it. | No. |
 | `acc impact <path>` | Blast radius. | No. |

@@ -68,34 +68,44 @@ npm install -g acc-code-context
 acc --version
 ```
 
-### 2. Initialize ACC in your project
+### 2. Bootstrap your entire codebase (one command)
 
 ```bash
-acc init
+acc engine --init-context
 ```
 
-This creates:
+This does everything at once:
+1. **Scaffolds** `.acc/config/`, root `AGENTS.md`, root `.acc-memory.md`, `.gitignore`
+2. **Creates** every missing `AGENTS.md` contract from the codebase
+3. **Declares** discovered dependencies (additive, never removes existing declarations)
+4. **Writes** `ACC_WARN.md` with the full drift report (violations + docs-behind/ahead-of-code)
+5. **Reports** which contracts still need human context (fill)
+
+After that single command your repo looks like this:
 ```
 your-project/
-├── AGENTS.md                 # Project-wide agent instructions (preserved if exists)
+├── AGENTS.md                 # Root contract (created if absent)
 ├── .acc/
-│   └── config/
-│       ├── config.yaml       # ACC configuration (optional, sensible defaults)
-│       ├── agents/           # Project-specific agent profiles
-│       ├── workflows/        # Reproducible procedures (feature, release, etc.)
-│       └── standards/        # Project standards (architecture, coding, review)
-└── .gitignore                # Updated to exclude .acc-memory.md
+│   ├── config/
+│   │   ├── config.yaml       # ACC configuration (sensible defaults)
+│   │   ├── agents/           # Project-specific agent profiles
+│   │   ├── workflows/        # Reproducible procedures
+│   │   └── standards/        # Project standards
+│   └── state/                # Engine trigger state (disposable)
+├── src/
+│   └── auth/
+│       └── AGENTS.md         # Auto-generated contract for src/auth
+├── ACC_WARN.md               # Drift report (gitignored, regenerated)
+└── .acc-memory.md            # Root memory (gitignored)
 ```
 
-### 3. Define a functionality boundary
+### 3. Validate the result
 
 ```bash
-# Create a functionality directory with its contract
-mkdir -p src/auth
-acc document src/auth --apply
+acc check                    # See any remaining diagnostics
+acc graph src/auth           # Full knowledge: topology + diagnostics + memory + drift
+acc context src/auth         # Focused agent context for a task
 ```
-
-Edit `src/auth/AGENTS.md` to declare purpose, dependencies, ownership, constraints.
 
 ### 4. Let your agent work naturally
 
@@ -119,6 +129,19 @@ acc check
 acc memory add src/auth "OAuth token refresh requires clock skew tolerance of 30s"
 ```
 
+### Alternative: manual setup
+
+If you prefer to set things up step by step:
+
+```bash
+acc init                              # Scaffold .acc/config/ + .gitignore
+mkdir -p src/auth
+acc document src/auth --apply         # Create a template for src/auth
+# Edit src/auth/AGENTS.md to declare purpose, deps, ownership
+acc check                             # Validate
+acc graph --format mermaid            # See the architecture
+```
+
 ---
 
 ## Key Features
@@ -126,11 +149,14 @@ acc memory add src/auth "OAuth token refresh requires clock skew tolerance of 30
 Here’s what that looks like in practice:
 
 ### 🎯 Architecture Graph Derivation
-Derive a live architecture graph from `AGENTS.md` declarations + source imports + filesystem structure—in memory, at query time.
+Derive a live architecture graph from `AGENTS.md` declarations + source imports + filesystem structure—in memory, at query time. Nodes carry diagnostics, memory state, and edge counts; the summary shows aggregate health.
 
 ```bash
-acc graph --format mermaid    # Visual diagram
-acc graph --format json       # Machine-readable
+acc graph                    # Full graph with summary
+acc graph src/auth           # Scoped knowledge for one boundary
+acc graph --format mermaid   # Visual diagram
+acc graph --format json      # Machine-readable
+acc graph --max-depth 1      # Depth-limited view
 ```
 
 ### 📋 Focused Context Engine
@@ -199,23 +225,31 @@ acc search "database" --kind edges
 ## The CLI (Optional Accelerator)
 
 The `acc` CLI is **not required** — the framework is plain files and works
-without any tool. Think of the CLI as a power tool: it’s the same framework,
+without any tool. Think of the CLI as a power tool: it's the same framework,
 just faster, deterministic, and machine-checkable for both humans and agents.
 
 ```bash
 acc init                # Scaffold .acc/config/ + .gitignore entry
 acc check               # Validate; stable ACC0xx diagnostics
 acc context <path>      # Focused, progressive agent context
-acc graph [path]        # Derived architecture graph (text/mermaid/dot/json)
+acc graph [path]        # Derived architecture graph with diagnostics, memory, drift
+acc slice <path>        # Compact AI-optimized graph slice (context router)
 acc inspect <path>      # Roles, owners, deps, constraints, memory
 acc dependencies <p>    # What a path depends on (declared vs discovered)
 acc dependents <p>      # What depends on a path
 acc impact <path>       # Blast radius: dependents, tests, constraints
 acc search <query>      # Architecture-aware search (contracts/edges/code)
 acc discover            # Suggestions from declared-vs-discovered diffs
+acc build [--yes]       # Create missing AGENTS.md contracts from code
 acc document <path>     # Conservative AGENTS.md template
+acc fill                # Report which contracts still need human context
 acc memory show|add|clear <path>   # Durable .acc-memory.md read/write
-acc tools               # List capabilities (core + detected)
+acc install             # Deploy the ACC skill to an agent environment
+acc engine [path]       # Always-on AI intelligence engine (sync + AI phase)
+acc engine --init-context  # Bootstrap a repo: scaffold + contracts + memory + drift
+acc ai                  # Manage AI providers (list, add, remove, default, models)
+acc review <path>       # On-demand AI compliance scoring (0-100)
+acc tools               # List capabilities (core + detected + plugins)
 acc battle <project>    # Launch the standalone ABA benchmark (see below)
 ```
 
@@ -226,6 +260,7 @@ terminal output is designed to be read by both humans and agents.
 ```bash
 acc check --json        # CI-friendly
 acc context src/auth --depth 1 --max-bytes 32768
+acc graph src/auth --json    # Knowledge slice for a boundary
 acc graph --format mermaid
 ```
 

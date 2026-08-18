@@ -84,7 +84,12 @@ declared-only fields; inferred roles/owners are never placed here.
 
 `acc graph` nodes additionally carry `type: "boundary"` (additive). The
 full typed index (boundary, agents, file, test, skill, standard) is
-queried via `acc slice` — see below.
+queried via `acc slice` — see below. Every node also carries:
+- `diagnostics` — array of `{ code, severity, message, path }` for that boundary.
+- `memory` — `{ exists, file, size, entries }` reflecting the `.acc-memory.md` state.
+- `edges` — `{ total, inbound, outbound }` dependency edge counts.
+
+The `result` includes a `summary` object with aggregate counts.
 
 ### `Edge`
 
@@ -236,8 +241,35 @@ array, and `result.diagnostics` carries the full list. Agents reading
 ```json
 {
   "scope": "src/auth",
-  "nodes": [ ... FunctionalityNode ... ],
-  "edges": [ ... Edge ... ]
+  "nodes": [
+    {
+      "id": "src/auth",
+      "type": "boundary",
+      "name": "auth",
+      "has_local_contract": true,
+      "owners": ["team-auth"],
+      "provenance": { "kind": "declared", "source": "src/auth/AGENTS.md" },
+      "diagnostics": [
+        { "code": "ACC022", "severity": "warn", "message": "...", "path": "src/auth/mod.rs" }
+      ],
+      "memory": {
+        "exists": true,
+        "file": "src/auth/.acc-memory.md",
+        "size": 128,
+        "entries": 2
+      },
+      "edges": { "total": 3, "inbound": 1, "outbound": 2 }
+    }
+  ],
+  "edges": [ ... Edge ... ],
+  "summary": {
+    "boundaries": 4,
+    "diagnostics": { "total": 6, "errors": 0, "warnings": 4, "infos": 2 },
+    "edges": { "total": 6 },
+    "memory": { "with_memory": 1, "without_memory": 3 },
+    "drift_report": true,
+    "engine_state": null
+  }
 }
 ```
 

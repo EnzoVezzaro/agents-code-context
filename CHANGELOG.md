@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.4] - 2026-08-18
+
+### Added
+- **`acc graph` includes full knowledge graph** — every node now carries
+  diagnostics (ACC0xx violations), memory state (`.acc-memory.md`
+  existence, size, entries), and edge counts (inbound/outbound/total).
+  The result includes a `summary` with aggregate diagnostics, memory
+  coverage, drift report status, and engine state. Scoped views
+  (`acc graph src/auth`) show the complete knowledge for one boundary.
+- **Graph command tests** — 12 new tests covering enriched node data,
+  scoped output, memory tracking, and all output formats.
+
+### Changed
+- **Scoped graph keeps ownership edges** — `acc graph [path]` now
+  includes ownership edges to the root node even when root is outside
+  the depth filter, so ownership relationships are never silently lost.
+
 ## [Unreleased]
 
 ## [0.6.3] - 2026-08-18
