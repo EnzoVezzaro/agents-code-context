@@ -1,6 +1,6 @@
 {
   "name": "acc-code-context",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "description": "ACC — Agent Code Context. A convention + optional CLI that makes software repositories agent-native, navigable, and self-describing.",
   "license": "MIT",
   "type": "commonjs",
@@ -10,7 +10,8 @@
   },
   "files": [
     "bin",
-    "lib"
+    "lib",
+    "skills"
   ],
   "engines": {
     "node": ">=18"
@@ -29,6 +30,7 @@
     "bump": "node scripts/bump-version.mjs",
     "check:versions": "node scripts/check-versions.js",
     "check:skill-copies": "node scripts/check-skill-copies.js",
+    "sync:skill-copies": "./scripts/sync-skill-copies.sh",
     "acc": "node bin/acc.js"
   },
   "keywords": [

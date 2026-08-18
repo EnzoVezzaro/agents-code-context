@@ -36,6 +36,7 @@ const commandModules = {
   build: require('../lib/commands/build'),
   fill: require('../lib/commands/fill'),
   install: require('../lib/commands/install'),
+  uninstall: require('../lib/commands/uninstall'),
   memory: require('../lib/commands/memory'),
   ai: require('../lib/commands/ai'),
   engine: require('../lib/commands/engine'),

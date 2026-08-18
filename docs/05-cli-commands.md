@@ -72,7 +72,7 @@ command — it only adds, never rewrites.
    --from-discovery`), then reports the diagnostic summary and the files
    it created. Non-interactive runs (CI, piped stdin, `--no-scan`) never
    scan, keeping init deterministic and safe on untrusted repositories.
-6. If no `AGENTS.md` exists at root: **print** a conservative template to stdout (not auto-written) and instruct the user to review and commit. `acc init` does not author a root `AGENTS.md` on disk without explicit intent.
+6. If no `AGENTS.md` exists at root: **write** a conservative template to disk (`AGENTS.md` at project root). The template uses standard sections (Purpose, Responsibilities, Ownership, Inputs, Outputs, Dependencies, Constraints, Architecture) with placeholder items for the user or an AI agent to fill.
 7. Never delete or rewrite existing files. Existing `AGENTS.md`, `.agents/`, or `.gitignore` content is preserved verbatim; `acc init` only **adds**.
 
 **Terminal output:** concise summary of what was created / what already existed (including the root memory record), plus (when scanning) the diagnostic summary and the created contract files.
@@ -92,7 +92,7 @@ Scan the codebase and prepare the project? [y/N] y
 Scanned codebase: 3 diagnostics (0 errors, 1 warning, 2 infos)
 Created 1 missing AGENTS.md file:
   src/metrics/AGENTS.md
-No AGENTS.md found at root — printed template to stdout. Review and commit.
+Created AGENTS.md (root contract template)
 ```
 
 ---
@@ -875,11 +875,7 @@ Three phases:
 
 1. **Deterministic (always, offline)** — derives the graph, runs the
    diagnostic scan, computes per-boundary graph slices and the
-   dependency-gap plan (discovered deps not yet declared).
-2. **AI (only when `ai.enabled`)** — for each scoped boundary with a
-   contract, asks the configured model to review the contract against
-   the **changed source code** (the files the trigger identified) plus
-   the derived slice, and produce durable knowledge and drift proposals.
+   dependency-gap plan (discovered deps not yet declared).2. **AI (only when `ai.enabled`)** — for each scoped boundary with a contract, asks the configured model to review the contract against the **changed source code** (the files the trigger identified) plus the derived slice, and produce: (a) filled contract content for `AGENTS.md` sections (Purpose, Responsibilities, Ownership, etc.), (b) durable knowledge entries for `.acc-memory.md`, and (c) drift proposals. With `--apply`, filled contracts are written to `AGENTS.md` and knowledge entries to `.acc-memory.md` — only after the supervisor approves (when enabled).
 3. **Supervisor (optional, `--supervisor`)** — a second model pass scores
    the engine's proposals against ACC rules (0–100). Below the config
    threshold (default `85`), the engine iterates on its own proposals
@@ -889,9 +885,10 @@ Three phases:
 **Flags:**
 - `--apply` — apply the deterministic sync (`acc build` + `acc discover`
   additive kinds: missing contracts, declared discovered deps) and, in
-  the AI phase, write knowledge entries to `.acc-memory.md` (gitignored)
-  — only after the supervisor approves (when enabled). Contract rewrites
-  / skill / standard gaps are always proposals only.
+  the AI phase, write filled `AGENTS.md` contract sections (Purpose,
+  Responsibilities, etc.) and knowledge entries to `.acc-memory.md`
+  (gitignored) — only after the supervisor approves (when enabled).
+  Skill / standard gaps are always proposals only.
 - `--force` — bypass the trigger and run the AI phase now.
 - `--supervisor` — enable the supervisor scoring loop.
 - `--init-context` — bootstrap a repository into a fully

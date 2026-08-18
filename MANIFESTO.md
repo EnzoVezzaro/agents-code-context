@@ -44,4 +44,4 @@ Me refiero a todos los que, de alguna manera, tocan el software, lo construyen, 
 
 Quiero que toda la industria pueda sentirse orgullosa y segura de lo que hemos construido, y que nuestro futuro como creadores de cambio no se vea tragado por el *greed* corporativo ni por una búsqueda de automatización que ponga la eficiencia por encima del recurso humano y de la inteligencia humana.
 
-El problema no es la máquina. El problema es quien te dice que la máquina es mejor que el humano.
+El problema no es la máquina. El problema es quien te dice que la máquina puede remplazar la creatividad y el intelecto humano.

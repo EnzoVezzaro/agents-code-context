@@ -26,7 +26,7 @@ Diagnostics              stable code registry, severity, overrides
         ↓
 Memory                   .acc-memory.md read/write
         ↓
-Control plane            .acc/config/ config.yaml + agents/workflows/standards
+Control plane            .acc/config/ config.yaml + agents/workflows/standards/templates
 ```
 
 Each layer depends only on layers below it. No upward dependencies. No

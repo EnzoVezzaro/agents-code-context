@@ -99,6 +99,17 @@ ownership:
   strict: false
 
 # -----------------------------------------------------------------------------
+# Templates
+# -----------------------------------------------------------------------------
+# The system uses templates from .acc/config/templates/ to create and
+# modify ACC files. Edit the .md files there to customize generated
+# output. Override per-command with --template <path>.
+templates:
+  # agents_md: .acc/config/templates/agents.md  # AGENTS.md template
+  # memory: .acc/config/templates/memory.md      # .acc-memory.md template
+  # warn: .acc/config/templates/warn.md          # ACC_WARN.md template
+
+# -----------------------------------------------------------------------------
 # Engine (AI-powered, token-gated)
 # -----------------------------------------------------------------------------
 # The engine keeps the ACC files in sync with the codebase. Its AI phase
@@ -123,6 +134,10 @@ engine:
     enabled: false
     threshold: 85
     max_iterations: 3
+    # Optional: use a different provider/model for the supervisor.
+    # When unset, the supervisor uses the same provider as the engine.
+    # provider: nvidia
+    # model: nvidia/nemotron-3-nano-30b-a3b
   ai:
     # How the engine's AI phase handles failing providers:
     #   retries → attempts per provider call before giving up on it.

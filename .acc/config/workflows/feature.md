@@ -45,6 +45,11 @@ ACC-enhanced project.
    - `acc memory add <dir> "<text>"`, or
    - edit `.acc-memory.md` directly — it's plain Markdown.
 
+7. **If interrupted or corrected by the human**, immediately record
+   the reason under "Interrupts & Corrections" in `.acc-memory.md`:
+   - `acc memory add <dir> "Interrupted because: <reason>. Corrected action: <what to do instead>"`
+   - Do not repeat the same mistake in the same session.
+
 ## Notes
 
 - `.acc-memory.md` is gitignored. Don't commit it.

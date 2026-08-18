@@ -9,9 +9,9 @@
 [![GitHub forks](https://img.shields.io/github/forks/EnzoVezzaro/agents-code-context?style=social)](https://github.com/EnzoVezzaro/agents-code-context/network)
 [![GitHub issues](https://img.shields.io/github/issues/EnzoVezzaro/agents-code-context)](https://github.com/EnzoVezzaro/agents-code-context/issues)
 
-**A convention-first framework that makes any software repository agent-native, navigable, and self-describing—without proprietary runtimes.**
+**Give your agent purpose.** A codebase an agent can read and understand.
 
-> I spent a year building side-by-side with AI agents. They’re fast, they’re smart — but every new session started with the same explanations. Where things live. Why that weird code exists. What not to touch. ACC is what happened when I got tired of explaining. The knowledge belongs to the project, so let it live with the project.
+> I spent a year building side-by-side with AI agents. They're fast, they're smart — but every new session started with the same explanations. Where things live. Why that weird code exists. What not to touch. ACC is what happened when I got tired of explaining. The knowledge belongs to the project, so let it live with the project.
 
 [Quickstart](#quickstart) • [Documentation](./docs/README.md) • [Architecture](#-architecture) • [Contributing](./CONTRIBUTING.md) • [Community](#-community)
 
@@ -23,7 +23,7 @@
 
 Modern AI coding agents are powerful. Claude Code, Cursor, Codex, OpenCode, Gemini… they can write a lot of code. The problem was never that they weren’t smart — it was that they didn’t know *my* project. Every session felt like onboarding from scratch.
 
-ACC changes that by making the repository itself the source of truth.
+ACC gives your agent purpose by making the repository itself the source of truth.
 
 | Without ACC | With ACC |
 |-------------|----------|
@@ -79,7 +79,7 @@ This does everything at once:
 2. **Creates** every missing `AGENTS.md` contract from the codebase
 3. **Declares** discovered dependencies (additive, never removes existing declarations)
 4. **Writes** `ACC_WARN.md` with the full drift report (violations + docs-behind/ahead-of-code)
-5. **Reports** which contracts still need human context (fill)
+5. **Fills** `AGENTS.md` contracts with AI-generated context (when AI is enabled) or reports which contracts still need manual context (fill)
 
 After that single command your repo looks like this:
 ```
@@ -134,7 +134,7 @@ acc memory add src/auth "OAuth token refresh requires clock skew tolerance of 30
 If you prefer to set things up step by step:
 
 ```bash
-acc init                              # Scaffold .acc/config/ + .gitignore
+acc init --scan                       # Scaffold .acc/config/ + AGENTS.md + .gitignore
 mkdir -p src/auth
 acc document src/auth --apply         # Create a template for src/auth
 # Edit src/auth/AGENTS.md to declare purpose, deps, ownership
@@ -179,6 +179,28 @@ acc check --json  # CI-friendly output
 ```bash
 acc memory add src/auth "JWT validation rejects tokens with 'kid' header mismatch"
 acc context src/auth --include memory
+```
+
+### Interrupt Memory
+When the agent is stopped or corrected by a human, it **must** record
+the reason in `.acc-memory.md` under "Interrupts & Corrections" so it
+does not repeat the same mistake. Every interruption is logged with
+timestamp, reason, and corrected action.
+
+### Templates
+The system uses templates from `.acc/config/templates/` to generate
+all ACC files. Edit the `.md` files there to customize output.
+
+- **Without engine**: `acc init` creates scaffold + template files
+  (AGENTS.md with `<placeholder>` items for a human to fill).
+- **With engine**: `acc engine --init-context` calls `acc init` then
+  the AI fills the templates with real content.
+- **Custom template**: `acc init --template <path>` or
+  `acc engine --init-context --template <path>`.
+
+```bash
+acc init                              # scaffold with default templates
+acc init --template my-template.md    # scaffold with custom template
 ```
 
 ### Always-On AI Engine (`acc engine`)

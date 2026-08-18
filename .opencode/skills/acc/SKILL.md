@@ -20,7 +20,7 @@ description: >-
   convention; it is never a substitute for reading code. The CLI is
   deterministic: same repo + same flags = byte-identical output, offline,
   no API keys, safe on untrusted repositories.
-version: 0.6.5
+version: 0.6.6
 license: MIT
 allowed-tools:
   - Bash(acc *)
@@ -82,6 +82,39 @@ carry; the CLI (`acc`) is what you run against the repo.
   run `acc check` at the start and end of a task, update contracts and
   memory as you go.
 
+## Interrupt memory (mandatory)
+
+When the human stops, corrects, or redirects you mid-task:
+
+1. **Immediately** write the reason to `.acc-memory.md` under the
+   "Interrupts & Corrections" section:
+   ```
+   ## YYYY-MM-DDTHH:MM:SSZ
+   Interrupted because: <what you did wrong>
+   Corrected action: <what you should have done instead>
+   ```
+2. **Do not repeat** the same mistake in the same session.
+3. This applies to every interruption — wrong file edited, wrong
+   approach taken, wrong command run, scope creep, anything.
+
+Use `acc memory add . "Interrupted because: ..."` to append the entry
+quickly. The memory file is gitignored — write freely.
+
+## Templates
+
+The system uses templates from `.acc/config/templates/` to generate
+and modify ACC files. Edit the `.md` files there to customize all
+output. Template variables use `{{name}}` syntax.
+
+- **Without engine**: `acc init` creates scaffold + template files.
+  Templates are templates with placeholders — a human or external
+  agent fills them.
+- **With engine**: `acc engine --init-context` calls `acc init` (tools)
+  then the AI fills the templates with real content.
+
+Override the default template per-command: `acc init --template <path>`
+or `acc engine --init-context --template <path>`.
+
 ## Commands
 
 | Command | Category | What it answers | Reference |
@@ -105,7 +138,9 @@ carry; the CLI (`acc`) is what you run against the repo.
 | `engine [path]` | Engine | Keep the ACC files in sync (deterministic + optional AI) | [reference/engine.md](reference/engine.md) |
 | `review [path]` | Engine | On-demand AI compliance score (0–100, read-only) | [reference/review.md](reference/review.md) |
 | `install` | Deploy | Install this skill into an agent environment | [reference/install.md](reference/install.md) |
-| `init [dir]` | Bootstrap | Initialize ACC structure in a directory | [reference/init.md](reference/init.md) |
+| `uninstall` | Deploy | Remove all ACC-generated files from the repository | [reference/init.md](reference/init.md) |
+| `init [dir]` | Bootstrap | Initialize ACC structure in a directory (--template for custom) | [reference/init.md](reference/init.md) |
+| `engine --rollback` | Engine | Undo the last ACC write operation (restore snapshot) | [reference/engine.md](reference/engine.md) |
 | `battle <project>` | External | Launch the ABA benchmark (installs its repo on first use) | [reference/battle.md](reference/battle.md) |
 
 ## Routing
@@ -131,6 +166,9 @@ carry; the CLI (`acc`) is what you run against the repo.
   drift report in one command).
 - **Compliance question** → `acc check` (deterministic) or `acc review
   <path>` (AI-scored, requires a provider key).
+- **Stopped or corrected by human** → immediately write the reason to
+  `.acc-memory.md` under "Interrupts & Corrections" with timestamp.
+  Do not repeat the same mistake.
 - **Not sure which command** → `acc tools` lists everything with tiers;
   read the matching reference below.
 

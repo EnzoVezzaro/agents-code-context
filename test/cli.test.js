@@ -549,7 +549,7 @@ test('acc engine --init-context bootstraps the full ACC context', () => {
   const parsed = JSON.parse(out);
   assert.equal(parsed.result.init.scanned, true);
   assert.ok(parsed.result.init.created.some((c) => c.includes('config.yaml')), 'config scaffolded');
-  assert.equal(parsed.result.init.root_agents_created, true, 'root AGENTS.md created');
+  assert.equal(parsed.result.init.root_agents_created, false, 'root AGENTS.md already created by init');
   // The boundary contracts are created by init's scan step (build --yes);
   // the engine step then reports no missing contracts.
   assert.ok(parsed.result.init.scan.created_files.length >= 2, 'boundary contracts created by init scan');

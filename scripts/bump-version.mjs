@@ -1,12 +1,7 @@
 #!/usr/bin/env node
 /**
- * Bump the ACC version in one place — package.json — and let everything else
- * follow from it:
- *
- *   - The docs landing hero and footer read the version from package.json
- *     at build time (docs/.vitepress/config.ts injects __ACC_VERSION__), so
- *     they can never drift from the released version.
- *   - CHANGELOG.md gets a new [x.y.z] section cut from [Unreleased].
+ * Bump the ACC version everywhere — package.json, CHANGELOG, host manifests,
+ * package-lock.json, and skill copies.
  *
  * Usage:
  *   npm run bump -- 0.5.0          # regular release
@@ -18,6 +13,7 @@
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
+import { execSync } from 'node:child_process'
 import path from 'node:path'
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
@@ -99,13 +95,56 @@ function bumpVersion(relPath) {
 for (const rel of HOST_MANIFESTS) bumpVersion(rel)
 
 // ---------------------------------------------------------------------------
+// package-lock.json — regenerate via npm install so the lockfile matches.
+// ---------------------------------------------------------------------------
+try {
+  execSync('npm install --package-lock-only --ignore-scripts', { cwd: root, stdio: 'pipe' })
+  console.log('package-lock.json: regenerated')
+} catch {
+  // Fallback: sed if npm fails.
+  const lockPath = path.join(root, 'package-lock.json')
+  if (existsSync(lockPath)) {
+    let lock = readFileSync(lockPath, 'utf8')
+    lock = lock.replace(new RegExp(`"version":\\s*"${previous.replace(/\./g, '\\.')}"`, 'g'), `"version": "${requested}"`)
+    writeFileSync(lockPath, lock)
+    console.log('package-lock.json: sed updated')
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Skill copies — resolve __ACC_VERSION__ in all agent SKILL.md files.
+// Uses `acc install` which reads the canonical skills/acc/SKILL.md (with
+// __ACC_VERSION__ placeholder) and writes the resolved version to every
+// target location.
+// ---------------------------------------------------------------------------
+const AGENT_TARGETS = [
+  { flag: '', label: '.agents' },
+  { flag: '--agent claude', label: '.claude' },
+  { flag: '--agent codex', label: '.codex' },
+  { flag: '--agent cursor', label: '.cursor' },
+  { flag: '--agent opencode', label: '.opencode' },
+  { flag: '--agent gemini', label: '.gemini' },
+  { flag: '--agent vscode', label: '.vscode' },
+]
+
+const accBin = path.join(root, 'bin', 'acc.js')
+for (const { flag, label } of AGENT_TARGETS) {
+  try {
+    execSync(`node "${accBin}" install ${flag} --force`, { cwd: root, stdio: 'pipe' })
+    console.log(`skill copy: ${label}/skills/acc/SKILL.md ✓`)
+  } catch {
+    console.warn(`skill copy: ${label}/skills/acc/SKILL.md — FAILED (install manually)`)
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Docs — nothing to edit here by hand. The version is read from package.json
 // at build time; a docs redeploy is triggered by the package.json change
 // (see .github/workflows/pages.yml trigger paths).
 // ---------------------------------------------------------------------------
 
 console.log('\nNext steps:')
-console.log(`  git add package.json CHANGELOG.md && git commit -m "chore: bump to ${requested}"`)
+console.log(`  git add -A && git commit -m "chore: bump to ${requested}"`)
 console.log(`  git tag v${requested}`)
-console.log('  Then run the "Release" workflow with the matching version to publish to npm.')
+console.log('  Then push — the Release workflow publishes to npm automatically.')
 console.log('  The docs site redeploys automatically (package.json is a deploy trigger).')

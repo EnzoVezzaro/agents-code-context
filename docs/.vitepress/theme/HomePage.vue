@@ -202,9 +202,9 @@ onMounted(() => {
     <section class="section" id="cli">
       <div class="wrap">
         <div class="section-head">
-          <div class="label">one way to interact</div>
-          <h2>The CLI is a tool, not the product.</h2>
-          <p>The CLI makes things fast and deterministic — context, checks, the graph — but nothing depends on it. An agent can understand an ACC repo by reading files alone. The CLI is the shortcut, not the requirement.</p>
+          <div class="label">one convention, any workflow</div>
+          <h2>The CLI accelerates ACC. It doesn't define it.</h2>
+          <p>ACC is a convention, not a runtime. The repository remains understandable through its files alone, while the CLI provides deterministic shortcuts for navigating context, validating contracts, deriving the graph, and working with memory. Use the CLI when it helps; nothing in ACC depends on it.</p>
         </div>
 
         <div class="cli-bento">

@@ -67,8 +67,8 @@ Layers (top to bottom):
 3. Graph derivation — filesystem walk, `AGENTS.md` heuristic parse,
    language analyzers (optional), truth resolution.
 4. Diagnostics — stable code registry, severity, config overrides.
-5. Memory — `.acc-memory.md` read/write.
-6. Control plane — `.acc/config/` config + agents/workflows/standards.
+5. Memory — `.acc-memory.md` read/write (including interrupt records).
+6. Control plane — `.acc/config/` config + agents/workflows/standards/templates.
 
 See docs/README.md for the full documentation index.
 
@@ -93,7 +93,9 @@ When modifying this repository:
    each functionality's `AGENTS.md`).
 5. Validate affected functionality after changes (`acc check`, `acc impact`).
 6. Update durable functionality knowledge in `.acc-memory.md` when appropriate.
-7. When changing behavior that affects the JSON or diagnostic contract,
+7. If interrupted or corrected by the human, immediately record the
+   reason in `.acc-memory.md` under "Interrupts & Corrections".
+8. When changing behavior that affects the JSON or diagnostic contract,
    bump `schema_version` per docs/08-json-schema.md and never reuse a
    diagnostic code per docs/07-diagnostic-codes.md.
 

@@ -1,5 +1,7 @@
 # ACC — Agent Code Context
 
+**Give your agent purpose.** A codebase an agent can read and understand.
+
 > A convention + tooling layer that makes any software repository
 > agent-native, navigable, declarative, graph-oriented, and self-describing
 > — **without** requiring an ACC-specific agent.
@@ -13,8 +15,8 @@ Here's the TLDR of how I got here:
 > could write an absurd amount of code. The problem was never that they
 > weren't smart — it was that they didn't know *my* project. I kept
 > explaining the same decisions, over and over, to every new session.
-> ACC is what happened when I got tired of explaining. **The knowledge
-> belongs to the project — so let it live with the project.**
+> ACC gives your agent purpose. **The knowledge belongs to the project —
+> so let it live with the project.**
 >
 > [Medium — the full story: Markdown Is All You Need, So I Built ACC](https://medium.com/@enzovezzaro/markdown-is-all-you-need-so-i-built-acc-6f9f7283b758)
 > (see also: ["Markdown Is All You Need" — the readings](./02-markdown-is-all-you-need.md))
