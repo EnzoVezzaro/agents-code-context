@@ -35,6 +35,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `npm install` target.
 
 ### Fixed
+- **`term.theme.brain` panic in `engine --init-context`** — the brain
+  icon was incorrectly called as a color function. Fixed to use
+  `term.theme.warning` for the AI provider setup prompt.
 - **`picocolors` added to dependencies** — was previously only
   available as a transitive dependency, causing `MODULE_NOT_FOUND`
   in CI environments.
@@ -128,6 +131,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Scoped graph keeps ownership edges** — `acc graph [path]` now
   includes ownership edges to the root node even when root is outside
   the depth filter, so ownership relationships are never silently lost.
+
+## [0.6.9] - 2026-08-18
+
+_This section was cut from [Unreleased] by `npm run bump`._
 
 ## [Unreleased]
 

@@ -46,3 +46,4 @@ ACC_WARN.md
 # ABA — standalone project (own git repo), never pushed with ACC.
 # See aba/ for its own repo, package, and license.
 aba/
+.acc/state/rollback/

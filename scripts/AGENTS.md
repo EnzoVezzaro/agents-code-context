@@ -38,6 +38,7 @@ Owner: EnzoVezzaro/agents-code-context
 - The host adapter manifests (`plugin.json`, `plugin.yaml`,
   `.claude-plugin/`, `.codex-plugin/`, `.grok-plugin/`,
   `gemini-extension.json`) — guarded by `check-versions.js`.
+- lib
 
 ## Constraints
 

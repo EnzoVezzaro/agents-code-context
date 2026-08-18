@@ -20,7 +20,7 @@ description: >-
   convention; it is never a substitute for reading code. The CLI is
   deterministic: same repo + same flags = byte-identical output, offline,
   no API keys, safe on untrusted repositories.
-version: 0.6.8
+version: 0.6.9
 license: MIT
 allowed-tools:
   - Bash(acc *)
