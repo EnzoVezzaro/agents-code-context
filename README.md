@@ -21,7 +21,7 @@
 
 ## Why ACC?
 
-Modern AI coding agents are powerful. Claude Code, Cursor, Codex, OpenCode, Gemini… they can write a lot of code. The problem now is not that they aren't smart or fast — the problem is that they don’t know *my* project. Every session felt like onboarding from scratch. Let's change that!
+Modern AI coding agents are powerful. Claude Code, Cursor, Codex, OpenCode, Gemini… they can write a lot of code. The problem now is not that they aren't smart or fast — the problem is that they don’t know the project. Every session felt like onboarding from scratch. Let's change that!
 
 ACC gives your agent purpose by making the repository itself the source of truth.
 
