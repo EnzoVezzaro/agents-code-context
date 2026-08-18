@@ -1,0 +1,79 @@
+name: Publish to npm
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Get package version
+        id: pkg
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          NAME=$(node -p "require('./package.json').name")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Check if version is already published
+        id: npm
+        run: |
+          CURRENT=$(npm view "${{ steps.pkg.outputs.name }}@${{ steps.pkg.outputs.version }}" version 2>/dev/null || echo "")
+          LATEST=$(npm view "${{ steps.pkg.outputs.name }}" version 2>/dev/null || echo "")
+          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
+          echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
+          echo "Package: ${{ steps.pkg.outputs.name }}"
+          echo "Version in package.json: ${{ steps.pkg.outputs.version }}"
+          echo "Latest on npm: $LATEST"
+
+      - name: Install dependencies
+        if: steps.npm.outputs.current == ''
+        run: npm ci
+
+      - name: Run tests
+        if: steps.npm.outputs.current == ''
+        run: node --test test/*.test.js
+
+      - name: Consistency checks
+        if: steps.npm.outputs.current == ''
+        run: |
+          npm run check:versions
+          npm run check:skill-copies
+
+      - name: Publish to npm
+        if: steps.npm.outputs.current == ''
+        run: npm publish --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create git tag
+        if: steps.npm.outputs.current == ''
+        run: |
+          VERSION="${{ steps.pkg.outputs.version }}"
+          if ! git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            git tag "v$VERSION"
+            git push origin "v$VERSION"
+          fi
+
+      - name: Summary
+        run: |
+          if [ -n "${{ steps.npm.outputs.current }}" ]; then
+            echo "Nothing to publish — ${{ steps.pkg.outputs.name }}@${{ steps.pkg.outputs.version }} already exists on npm."
+          else
+            echo "Published ${{ steps.pkg.outputs.name }}@${{ steps.pkg.outputs.version }} to npm."
+          fi
