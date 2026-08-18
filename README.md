@@ -1,5 +1,29 @@
 # Agent Code Context (ACC)
 
+## ⚠️ Work in Progress
+
+> **Still figuring itself out. We're just building, experimenting, chasing weird ideas, and seeing where they take us. Thanks for sticking around**
+
+This project is still very much alive and under active development.
+Some parts work. Some parts don't. Some parts work **until they suddenly don't**.
+
+Expect:
+
+* 🧪 Experimental ideas
+* 🛠️ Things being rebuilt from scratch
+* 💥 Occasional breakage
+* 🌀 Features that may change direction
+* ✨ Unexpectedly good ideas
+* 🤷 The occasional *"well, that wasn't supposed to happen"*
+
+The goal right now isn't to make everything look finished.
+
+It's to **build, experiment, break things, learn, and keep making it better.**
+
+> **If you're looking for something polished and predictable... this might be a little early. 😄**
+
+**More coming soon.**
+
 <div align="center">
 
 ![ACC Logo](https://img.shields.io/badge/ACC-Agent%20Code%20Context-red?style=for-the-badge&logo=github)
