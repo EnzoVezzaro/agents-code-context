@@ -70,6 +70,34 @@ jobs:
             git push origin "v$VERSION"
           fi
 
+      - name: Create GitHub Release
+        if: steps.npm.outputs.current == ''
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.pkg.outputs.version }}
+          name: "ACC v${{ steps.pkg.outputs.version }}"
+          body: |
+            ## ACC v${{ steps.pkg.outputs.version }}
+
+            See [CHANGELOG.md](./CHANGELOG.md) for details.
+
+            ### Installation
+
+            ```bash
+            npm install -g acc-code-context
+            ```
+
+            ### Usage
+
+            ```bash
+            acc --version
+            acc check  # validates an ACC-enhanced repository
+            ```
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Summary
         run: |
           if [ -n "${{ steps.npm.outputs.current }}" ]; then

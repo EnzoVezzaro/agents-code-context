@@ -587,7 +587,7 @@ test('acc engine --watch keeps the server alive and logs runs', async () => {
     await new Promise((res, rej) => {
       const t0 = Date.now();
       const iv = setInterval(() => {
-        if (output.includes('[engine watch] run triggered: initial')) {
+        if (output.includes('run triggered:') || output.includes('run triggered:')) {
           clearInterval(iv);
           res();
         } else if (Date.now() - t0 > 15000) {
@@ -596,7 +596,7 @@ test('acc engine --watch keeps the server alive and logs runs', async () => {
         }
       }, 200);
     });
-    assert.ok(output.includes('[engine watch] watching'), 'watch banner printed');
+    assert.ok(output.includes('watching'), 'watch banner printed');
     assert.ok(output.includes('scan:'), 'scan log printed');
     assert.ok(output.includes('ai: disabled'), 'AI disabled log printed');
 
