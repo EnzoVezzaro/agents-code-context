@@ -5,19 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.6.2] - 2026-08-18
-
-_This section was cut from [Unreleased] by `npm run bump`._
-
-## [0.6.1] - 2026-08-17
-
-_This section was cut from [Unreleased] by `npm run bump`._
-
-## [0.5.0] - 2026-08-17
-
-_This section was cut from [Unreleased] by `npm run bump`._
-
 ## [Unreleased]
+
+## [0.6.3] - 2026-08-18
+
+### Changed
+- **Package renamed to `acc-code-context`** — the npm package is now
+  `acc-code-context` (was `acc-agents`). All references updated:
+  package.json, CI/release workflows, all 7 skill copies, docs site,
+  CLI code, tests.
+- **CI test job installs dependencies** — `npm install` added to the
+  `test-cli` CI job so `@ai-sdk/openai` (and other AI SDK providers)
+  are available during the test suite. Fixes 27 failing tests caused by
+  `getModel()` returning "provider package not installed" errors.
+
+## [0.6.2] - 2026-08-18
 
 ### Changed
 - **Release pipeline hardened** — pre-flight checks now verify: tests
@@ -63,6 +65,14 @@ _This section was cut from [Unreleased] by `npm run bump`._
   to the canonical `skills/acc/` (modulo `__ACC_VERSION__`).
 - **Fixed `acc install --agent opencode` target** — the OpenCode skill
   installs to `.opencode/skills/acc/` (plural `skills`, the location
+
+## [0.6.1] - 2026-08-17
+
+_This section was cut from [Unreleased] by `npm run bump`._
+
+## [0.5.0] - 2026-08-17
+
+_This section was cut from [Unreleased] by `npm run bump`._
   OpenCode actually discovers) instead of `.opencode/skill/acc`.
 - **Native skill copies for every agent** — the ACC repository now
   ships the skill installed in each agent's native config directory
