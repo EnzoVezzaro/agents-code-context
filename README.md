@@ -13,7 +13,7 @@
 
 > I spent a year building side-by-side with AI agents. They’re fast, they’re smart — but every new session started with the same explanations. Where things live. Why that weird code exists. What not to touch. ACC is what happened when I got tired of explaining. The knowledge belongs to the project, so let it live with the project.
 
-[Quickstart](#-quickstart) • [Documentation](./docs/README.md) • [Architecture](#-architecture) • [Contributing](./CONTRIBUTING.md) • [Community](#-community)
+[Quickstart](#quickstart) • [Documentation](./docs/README.md) • [Architecture](#-architecture) • [Contributing](./CONTRIBUTING.md) • [Community](#-community)
 
 </div>
 
@@ -148,7 +148,7 @@ acc graph --format mermaid            # See the architecture
 
 Here’s what that looks like in practice:
 
-### 🎯 Architecture Graph Derivation
+### Architecture Graph Derivation
 Derive a live architecture graph from `AGENTS.md` declarations + source imports + filesystem structure—in memory, at query time. Nodes carry diagnostics, memory state, and edge counts; the summary shows aggregate health.
 
 ```bash
@@ -159,21 +159,21 @@ acc graph --format json      # Machine-readable
 acc graph --max-depth 1      # Depth-limited view
 ```
 
-### 📋 Focused Context Engine
+### Focused Context Engine
 `acc context <path>` produces progressive, provenance-tagged context—exactly what an agent needs, sized for context windows.
 
 ```bash
 acc context src/auth --depth 1 --max-bytes 32768
 ```
 
-### ✅ Deterministic Validation
+### Deterministic Validation
 `acc check` runs the full derivation pipeline and emits stable diagnostic codes (`ACC0xx`).
 
 ```bash
 acc check --json  # CI-friendly output
 ```
 
-### 🧠 Durable Memory Layer
+### Durable Memory Layer
 `.acc-memory.md` files (gitignored) capture agent-learned knowledge—gotchas, decisions, tried-and-rejected—without polluting committed contracts.
 
 ```bash
@@ -181,7 +181,7 @@ acc memory add src/auth "JWT validation rejects tokens with 'kid' header mismatc
 acc context src/auth --include memory
 ```
 
-### 🤖 Always-On AI Engine (`acc engine`)
+### Always-On AI Engine (`acc engine`)
 The engine does automatically what the coding agent should have done:
 it reviews changed code, keeps `AGENTS.md` contracts and `.acc-memory.md`
 knowledge in sync, and regenerates `ACC_WARN.md` (the developer-facing
@@ -212,7 +212,7 @@ approval threshold.) See
 npm run benchmark:engine   # live: degradation + ACC contribution + graph size
 ```
 
-### 🔍 Architecture-Aware Search
+### Architecture-Aware Search
 Search contracts, dependencies, and code with functionality-boundary awareness.
 
 ```bash
