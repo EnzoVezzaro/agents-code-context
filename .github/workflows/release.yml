@@ -32,6 +32,9 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       # ── Pre-flight checks ──────────────────────────────────────────
+      - name: Install dependencies
+        run: npm install
+
       - name: Run tests
         run: node --test test/*.test.js
 
