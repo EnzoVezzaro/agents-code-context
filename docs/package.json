@@ -1,6 +1,6 @@
 {
   "name": "acc-docs",
-  "private": true,
+  "private": false,
   "type": "module",
   "scripts": {
     "dev": "vitepress dev .",
