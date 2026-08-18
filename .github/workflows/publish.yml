@@ -43,7 +43,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.npm.outputs.current == ''
-        run: npm ci
+        run: npm install
 
       - name: Run tests
         if: steps.npm.outputs.current == ''
