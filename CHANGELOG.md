@@ -25,11 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.6.5] - 2026-08-18
 
 ### Changed
-- **Release workflow triggers on tag push** — `release.yml` now fires
-  on `v*` tags in addition to manual `workflow_dispatch`. Push a tag
-  (`git tag v0.6.5 && git push origin v0.6.5`) and the release runs
-  automatically: tests, npm publish, GitHub release. Version is
-  extracted from the tag so no manual input is needed.
+- **Automatic npm publish on push to main** — replaced manual
+  `release.yml` (workflow_dispatch + NPM_TOKEN) with `publish.yml`:
+  pushes to main auto-publish to npm when `package.json` version is
+  new. Uses npm Trusted Publishing (OIDC) for provenance. Tests,
+  consistency checks, and git tag creation are all automatic. Release
+  process is now: bump version, commit, push.
 
 ## [Unreleased]
 
