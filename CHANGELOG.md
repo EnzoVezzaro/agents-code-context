@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.8] - 2026-08-18
+
+### Added
+- **GitHub Release creation** — `publish.yml` now creates a GitHub Release
+  automatically after publishing to npm, using `softprops/action-gh-release`.
+  Pre-release versions (e.g. `0.6.7-dev`) are marked as pre-release and
+  published to npm with `--tag beta`.
+- **Terminal styling for engine output** — `acc engine` output now uses
+  colors, icons, and structured sections inspired by OpenCode/Crush.
+  Section headers with Unicode icons, color-coded values, and
+  composable style functions via `lib/core/terminal.js`.
+- **`lib/core/terminal.js`** — terminal styling module with composable
+  color functions, Unicode icons, horizontal rules, section headers,
+  indented content, summary formatting, and ANSI-aware utilities.
+- **Local CI simulation** — `scripts/ci-local.sh` runs all CI checks
+  locally before pushing. `npm run ci` (fast) or `npm run ci:full`
+  (full including tests and determinism).
+
+### Changed
+- **CI jobs require `npm install`** — all workflow jobs that run ACC
+  CLI commands now install dependencies first, preventing
+  `Cannot find module` failures in CI.
+- **Version check accepts pre-release tags** — `check:versions` now
+  accepts semver with pre-release suffixes (e.g. `0.6.7-dev`) in
+  addition to pinned `X.Y.Z`.
+- **Pre-release npm publishing** — versions with a `-` suffix are
+  published with `--tag beta` so they don't become the default
+  `npm install` target.
+
+### Fixed
+- **`picocolors` added to dependencies** — was previously only
+  available as a transitive dependency, causing `MODULE_NOT_FOUND`
+  in CI environments.
+
 ## [0.6.7] - 2026-08-18
 
 ### Added

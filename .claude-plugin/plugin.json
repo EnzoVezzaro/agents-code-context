@@ -1,6 +1,6 @@
 {
   "name": "acc",
-  "version": "0.6.7-dev",
+  "version": "0.6.8",
   "description": "ACC — Agent Code Context. A deterministic, offline CLI that makes repositories agent-native, navigable, and self-describing.",
   "author": {
     "name": "EnzoVezzaro",
