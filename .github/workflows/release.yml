@@ -31,17 +31,66 @@ jobs:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
 
+      # ── Pre-flight checks ──────────────────────────────────────────
       - name: Run tests
         run: node --test test/*.test.js
 
-      - name: Verify version
+      - name: Verify version matches input
         run: |
           PKG_VERSION=$(node -p "require('./package.json').version")
+          PKG_NAME=$(node -p "require('./package.json').name")
+          echo "Package: $PKG_NAME@$PKG_VERSION"
           if [ "$PKG_VERSION" != "${{ github.event.inputs.version }}" ]; then
-            echo "package.json version ($PKG_VERSION) does not match release version (${{ github.event.inputs.version }})"
+            echo "::error::package.json version ($PKG_VERSION) does not match release version (${{ github.event.inputs.version }})"
             exit 1
           fi
 
+      - name: Verify package name
+        run: |
+          PKG_NAME=$(node -p "require('./package.json').name")
+          if [ "$PKG_NAME" != "acc-agents" ]; then
+            echo "::error::Unexpected package name '$PKG_NAME' — expected 'acc-agents'"
+            exit 1
+          fi
+
+      - name: Check manifest version consistency
+        run: npm run check:versions
+
+      - name: Check skill copy consistency
+        run: npm run check:skill-copies
+
+      - name: Verify npm authentication
+        run: npm whoami
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Dry-run publish (verify package contents)
+        run: npm pack --dry-run
+
+      - name: Check version not already published
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          PKG_NAME=$(node -p "require('./package.json').name")
+          if npm view "$PKG_NAME@$PKG_VERSION" version 2>/dev/null; then
+            echo "::error::$PKG_NAME@$PKG_VERSION already exists on npm"
+            exit 1
+          fi
+          echo "$PKG_NAME@$PKG_VERSION is available"
+
+      - name: Check version is higher than latest on npm
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          PKG_NAME=$(node -p "require('./package.json').name")
+          LATEST_NPM=$(npm view "$PKG_NAME" version 2>/dev/null || echo "0.0.0")
+          echo "Latest on npm: $LATEST_NPM → publishing: $PKG_VERSION"
+          # Reject if the new version is LOWER than what's already published
+          HIGHER=$(printf '%s\n' "$PKG_VERSION" "$LATEST_NPM" | sort -V | tail -1)
+          if [ "$HIGHER" = "$LATEST_NPM" ] && [ "$PKG_VERSION" != "$LATEST_NPM" ]; then
+            echo "::error::Version $PKG_VERSION is LOWER than latest on npm ($LATEST_NPM)"
+            exit 1
+          fi
+
+      # ── Publish ────────────────────────────────────────────────────
       - name: Publish to npm
         run: |
           if [ "${{ github.event.inputs.prerelease }}" == "true" ]; then
@@ -52,11 +101,12 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      # ── Post-publish ───────────────────────────────────────────────
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.event.inputs.version }}
-          name: ACC v${{ github.event.inputs.version }}
+          name: "ACC v${{ github.event.inputs.version }}"
           body: |
             ## ACC v${{ github.event.inputs.version }}
 

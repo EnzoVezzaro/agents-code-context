@@ -1,0 +1,4 @@
+# Prevent accidental `npm publish` from the docs/ directory.
+# The docs package is private (private: true in package.json) but this
+# is an extra safety net.
+*

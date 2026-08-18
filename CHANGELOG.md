@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.2] - 2026-08-18
+
+_This section was cut from [Unreleased] by `npm run bump`._
+
 ## [0.6.1] - 2026-08-17
 
 _This section was cut from [Unreleased] by `npm run bump`._
@@ -16,6 +20,16 @@ _This section was cut from [Unreleased] by `npm run bump`._
 ## [Unreleased]
 
 ### Changed
+- **Release pipeline hardened** — pre-flight checks now verify: tests
+  pass, package name is `acc-agents`, all 6 host manifests agree
+  (`check:versions`), all skill copies are in sync
+  (`check:skill-copies`), npm auth is valid, package contents are
+  correct (`npm pack --dry-run`), version doesn't already exist on npm,
+  and version is higher than the latest published release.
+- **CI consistency gate** — new `consistency` job runs
+  `check:versions` + `check:skill-copies` on every push and PR. New
+  `publish-safety` job verifies root package is `acc-agents`, docs is
+  `private: true`, and `files` is `["bin","lib"]`.
 - **`lib/` restructured into two layers** — the domain logic moved to
   `lib/core/` (graph, diagnostics, config, memory, ai, engine, skill,
   templates, …) and `lib/commands/` keeps the thin per-command CLI
@@ -25,6 +39,12 @@ _This section was cut from [Unreleased] by `npm run bump`._
   updated; behavior unchanged (full deterministic suite passes).
 
 ### Added
+- **`.agents/` distribution folder** — the universal Agent Skills
+  installation target (`.agents/skills/acc/`), the fallback path read
+  by Codex, Cursor, Copilot, Gemini, and OpenCode. Ships SKILL.md,
+  22 reference playbooks, 7 role sub-agents, and README — byte-identical
+  to the canonical `skills/acc/` source and all other agent-native
+  copies.
 - **Host adapter manifests** — ACC is now discoverable/installable from
   every major agent ecosystem, replicating the ponytail layout:
   `opencode.json` + `.opencode/plugins/acc.mjs` (OpenCode plugin that

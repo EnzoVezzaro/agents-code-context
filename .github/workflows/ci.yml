@@ -110,6 +110,57 @@ jobs:
         run: npm run build
 
   # ---------------------------------------------------------------------------
+  # Consistency: all version-bearing manifests and skill copies agree
+  # ---------------------------------------------------------------------------
+  consistency:
+    name: Consistency (versions + skill copies)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check manifest versions
+        run: npm run check:versions
+      - name: Check skill copy consistency
+        run: npm run check:skill-copies
+
+  # ---------------------------------------------------------------------------
+  # Publish safety: verify only acc-agents is publishable, docs is private
+  # ---------------------------------------------------------------------------
+  publish-safety:
+    name: Publish Safety (only acc-agents goes to npm)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify root package is acc-agents
+        run: |
+          PKG_NAME=$(node -p "require('./package.json').name")
+          if [ "$PKG_NAME" != "acc-agents" ]; then
+            echo "::error::Root package name is '$PKG_NAME', expected 'acc-agents'"
+            exit 1
+          fi
+      - name: Verify docs package is private
+        run: |
+          DOCS_PRIVATE=$(node -p "require('./docs/package.json').private")
+          if [ "$DOCS_PRIVATE" != "true" ]; then
+            echo "::error::docs/package.json is not private — accidental publish risk"
+            exit 1
+          fi
+      - name: Verify npm pack only includes bin + lib
+        run: |
+          FILES=$(node -p "JSON.stringify(require('./package.json').files)")
+          if [ "$FILES" != '["bin","lib"]' ]; then
+            echo "::error::package.json files field is $FILES, expected [\"bin\",\"lib\"]"
+            exit 1
+          fi
+
+  # ---------------------------------------------------------------------------
   # Hard invariant: removing the .acc/ control plane leaves a valid
   # agents.md repository (AGENTS.md hierarchy still parses and checks clean)
   # ---------------------------------------------------------------------------
