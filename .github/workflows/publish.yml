@@ -29,6 +29,14 @@ jobs:
           NAME=$(node -p "require('./package.json').name")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          # Detect pre-release versions (e.g., 0.6.7-dev, 1.0.0-beta.1)
+          if echo "$VERSION" | grep -qE '-'; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+            echo "npm_tag=beta" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+            echo "npm_tag=latest" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Check if version is already published
         id: npm
@@ -57,7 +65,7 @@ jobs:
 
       - name: Publish to npm
         if: steps.npm.outputs.current == ''
-        run: npm publish --provenance
+        run: npm publish --tag ${{ steps.pkg.outputs.npm_tag }} --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -94,7 +102,7 @@ jobs:
             acc check  # validates an ACC-enhanced repository
             ```
           draft: false
-          prerelease: false
+          prerelease: ${{ steps.pkg.outputs.prerelease }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -103,5 +111,12 @@ jobs:
           if [ -n "${{ steps.npm.outputs.current }}" ]; then
             echo "Nothing to publish — ${{ steps.pkg.outputs.name }}@${{ steps.pkg.outputs.version }} already exists on npm."
           else
-            echo "Published ${{ steps.pkg.outputs.name }}@${{ steps.pkg.outputs.version }} to npm."
+            TAG="${{ steps.pkg.outputs.npm_tag }}"
+            PRERELEASE="${{ steps.pkg.outputs.prerelease }}"
+            echo "Published ${{ steps.pkg.outputs.name }}@${{ steps.pkg.outputs.version }} to npm (${TAG})."
+            if [ "$PRERELEASE" = "true" ]; then
+              echo "Pre-release version — will not be the default npm install target."
+            else
+              echo "Stable release — this is now the latest version."
+            fi
           fi
