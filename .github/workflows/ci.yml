@@ -178,10 +178,10 @@ jobs:
       - name: Verify AGENTS.md hierarchy parses standalone
         run: |
           node -e "
-            const { parse } = require('./lib/agents.js');
+            const { parse } = require('./lib/core/agents.js');
             const fs = require('fs');
             const path = require('path');
-            const { walkFiles } = require('./lib/util.js');
+            const { walkFiles } = require('./lib/core/util.js');
             const files = walkFiles('.', '.', [], []);
             const agentsFiles = files.filter((f) => path.basename(f).toLowerCase() === 'agents.md');
             if (!agentsFiles.length) { console.error('no AGENTS.md found'); process.exit(1); }
