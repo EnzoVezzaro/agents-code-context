@@ -157,8 +157,8 @@ jobs:
       - name: Verify npm pack only includes bin + lib
         run: |
           FILES=$(node -p "JSON.stringify(require('./package.json').files)")
-          if [ "$FILES" != '["bin","lib"]' ]; then
-            echo "::error::package.json files field is $FILES, expected [\"bin\",\"lib\"]"
+          if [ "$FILES" != '["bin","lib","skills"]' ]; then
+            echo "::error::package.json files field is $FILES, expected [\"bin\",\"lib\",\"skills\"]"
             exit 1
           fi
 

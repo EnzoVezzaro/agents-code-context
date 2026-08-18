@@ -1,0 +1,237 @@
+# PR AI Contribution Verification
+#
+# Verifies AI tooling declared in .github/pr.yml against the
+# repository's provider/harness policy in .github/pr_allow_providers.yml.
+#
+# Posts (or updates) a single bot comment on the PR with the result.
+# Deterministic, offline, no external API calls.
+
+name: AI Contribution Verification
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify AI contribution
+        id: verify
+        run: |
+          PR_FILE=".github/pr.yml"
+          ALLOW_FILE=".github/pr_allow_providers.yml"
+          CONFIG_FILE=".acc/config/config.yaml"
+
+          # ── Defaults ──────────────────────────────────────────────
+          CONTRIBUTOR="${{ github.event.pull_request.user.login }}"
+          HARNESS=""
+          PROVIDER=""
+          MODEL=""
+          HARNESS_ALLOWED="N/A"
+          PROVIDER_ALLOWED="N/A"
+          MODEL_MATCH="N/A"
+          API_ACCESS="NOT DECLARED"
+          RESULT="PASS"
+          REASON=""
+          RESOLUTION=""
+          PR_EXISTS="false"
+
+          # ── Read pr.yml ──────────────────────────────────────────
+          if [ -f "$PR_FILE" ]; then
+            PR_EXISTS="true"
+            HARNESS=$(grep '^harness:' "$PR_FILE" | head -1 | sed 's/^harness:\s*//')
+            PROVIDER=$(grep '^provider:' "$PR_FILE" | head -1 | sed 's/^provider:\s*//')
+            MODEL=$(grep '^model:' "$PR_FILE" | head -1 | sed 's/^model:\s*//')
+          fi
+
+          # ── Read ai_policy from config.yaml ──────────────────────
+          ALLOW_PAID="true"
+          if [ -f "$CONFIG_FILE" ]; then
+            AP=$(grep 'allow_paid:' "$CONFIG_FILE" | head -1 | sed 's/.*allow_paid:\s*//')
+            if [ "$AP" = "false" ]; then
+              ALLOW_PAID="false"
+            fi
+          fi
+
+          # ── No pr.yml → not declared ─────────────────────────────
+          if [ "$PR_EXISTS" = "false" ]; then
+            API_ACCESS="NOT DECLARED"
+            RESULT="PASS"
+          elif [ -z "$HARNESS" ] || [ -z "$PROVIDER" ] || [ -z "$MODEL" ]; then
+            API_ACCESS="INCOMPLETE"
+            RESULT="FAIL"
+            REASON="pr.yml is missing harness, provider, or model fields."
+          elif [ ! -f "$ALLOW_FILE" ]; then
+            HARNESS_ALLOWED="✓ Allowed (no policy file)"
+            PROVIDER_ALLOWED="✓ Allowed (no policy file)"
+            MODEL_MATCH="✓ (no policy)"
+            API_ACCESS="UNKNOWN"
+            RESULT="PASS"
+          else
+            # ── Step 1: Harness check ──────────────────────────────
+            if grep -q "^  ${HARNESS}:" "$ALLOW_FILE" 2>/dev/null && \
+               grep -A2 "^  ${HARNESS}:" "$ALLOW_FILE" | grep -q "allowed:\s*true" 2>/dev/null; then
+              HARNESS_ALLOWED="✓ Allowed"
+            else
+              HARNESS_ALLOWED="✗ Not allowed"
+              PROVIDER_ALLOWED="✗"
+              MODEL_MATCH="✗"
+              API_ACCESS="UNKNOWN"
+              RESULT="FAIL"
+              REASON="Harness '${HARNESS}' is not in the allowlist."
+            fi
+
+            # ── Step 2: Provider + model resolution ────────────────
+            if [ "$RESULT" = "PASS" ]; then
+              # Check if provider exists
+              if grep -q "^  ${PROVIDER}:" "$ALLOW_FILE" 2>/dev/null; then
+                PROVIDER_ALLOWED="✓ Allowed"
+                PROVIDER_FREE=$(grep -A1 "^  ${PROVIDER}:" "$ALLOW_FILE" | grep 'free_api_access:' | sed 's/.*free_api_access:\s*//' | tr -d ' ')
+
+                # Check if model is in free-model list
+                IN_FREE_LIST=false
+                IN_PAID_LIST=false
+                if grep -A20 "^  ${PROVIDER}:" "$ALLOW_FILE" | grep -q "^\s*- ${MODEL}\s*$" 2>/dev/null; then
+                  # Determine which list it's in by checking context
+                  # Find the line with the model and check preceding list header
+                  MODEL_LINE=$(grep -n "^ \+ *- ${MODEL}$" "$ALLOW_FILE" | head -1 | cut -d: -f1)
+                  if [ -n "$MODEL_LINE" ]; then
+                    PREV_LINES=$(head -n "$MODEL_LINE" "$ALLOW_FILE")
+                    if echo "$PREV_LINES" | grep -q "free-model:"; then
+                      IN_FREE_LIST=true
+                    elif echo "$PREV_LINES" | grep -q "paid-model:"; then
+                      IN_PAID_LIST=true
+                    fi
+                  fi
+                fi
+
+                # Check if model is in (all) list
+                IN_ALL=false
+                if grep -A5 "^  ${PROVIDER}:" "$ALLOW_FILE" | grep -q "(all):" 2>/dev/null; then
+                  IN_ALL=true
+                fi
+
+                if [ "$IN_FREE_LIST" = "true" ]; then
+                  MODEL_MATCH="✓ free-model"
+                  RESOLUTION="free-model"
+                  API_ACCESS="FREE"
+                elif [ "$IN_PAID_LIST" = "true" ]; then
+                  MODEL_MATCH="✓ paid-model"
+                  RESOLUTION="paid-model"
+                  API_ACCESS="PAID"
+                elif [ "$IN_ALL" = "true" ]; then
+                  MODEL_MATCH="✓ (all)"
+                  RESOLUTION="all"
+                  # Use provider-level free_api_access
+                  if [ "$PROVIDER_FREE" = "true" ]; then
+                    API_ACCESS="FREE"
+                  else
+                    API_ACCESS="PAID"
+                  fi
+                else
+                  # No match at all — use provider-level default
+                  if [ "$PROVIDER_FREE" = "true" ]; then
+                    MODEL_MATCH="✓ provider default"
+                    RESOLUTION="provider-default"
+                    API_ACCESS="FREE"
+                  else
+                    MODEL_MATCH="✗ Not recognized"
+                    API_ACCESS="UNKNOWN"
+                    RESULT="FAIL"
+                    REASON="Model '${MODEL}' is not in the allowlist for ${PROVIDER}."
+                  fi
+                fi
+              else
+                PROVIDER_ALLOWED="✗ Not allowed"
+                MODEL_MATCH="✗ Not recognized"
+                API_ACCESS="UNKNOWN"
+                RESULT="FAIL"
+                REASON="Provider '${PROVIDER}' is not in the allowlist."
+              fi
+            fi
+          fi
+
+          # ── Apply paid policy ────────────────────────────────────
+          if [ "$RESULT" = "PASS" ] && [ "$API_ACCESS" = "PAID" ] && [ "$ALLOW_PAID" = "false" ]; then
+            RESULT="FAIL"
+            REASON="Paid AI models are not allowed by this repository policy."
+          fi
+
+          # ── Build comment ────────────────────────────────────────
+          if [ "$PR_EXISTS" = "false" ]; then
+            BODY="## AI Contribution
+
+          | Field | Value |
+          |---|---|
+          | Contributor | @${CONTRIBUTOR} |
+          | Declaration | Not declared (no \`pr.yml\`) |
+          | Result | **Not verified** |"
+          else
+            RESULT_ICON="✓"
+            if [ "$RESULT" = "FAIL" ]; then
+              RESULT_ICON="✗"
+            fi
+
+            BODY="## AI Contribution
+
+          | Field | Value |
+          |---|---|
+          | Contributor | @${CONTRIBUTOR} |
+          | Harness | ${HARNESS} |
+          | Provider | ${PROVIDER} |
+          | Model | ${MODEL} |
+          | Harness | ${HARNESS_ALLOWED} |
+          | Provider | ${PROVIDER_ALLOWED} |
+          | Model | ${MODEL_MATCH} |
+          | API Access | **${API_ACCESS}** |"
+
+            if [ -n "$RESOLUTION" ]; then
+              BODY="${BODY}
+          | Resolution | \`${RESOLUTION}\` |"
+            fi
+
+            BODY="${BODY}
+          | Result | **${RESULT_ICON} ${RESULT}** |"
+
+            if [ -n "$REASON" ]; then
+              BODY="${BODY}
+
+          **Reason:** ${REASON}"
+            fi
+          fi
+
+          # ── Output ───────────────────────────────────────────────
+          echo "body<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$BODY" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "result=${RESULT}" >> "$GITHUB_OUTPUT"
+
+      - name: Find existing comment
+        uses: peter-evans/find-comment@v3
+        id: find
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: '<!-- acc-pr-ai-verification -->'
+
+      - name: Create or update comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.find.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            <!-- acc-pr-ai-verification -->
+            ${{ steps.verify.outputs.body }}
+          edit-mode: replace
+
+      - name: Fail if verification failed
+        if: steps.verify.outputs.result == 'FAIL'
+        run: exit 1

@@ -169,6 +169,8 @@ or `acc engine --init-context --template <path>`.
 - **Stopped or corrected by human** → immediately write the reason to
   `.acc-memory.md` under "Interrupts & Corrections" with timestamp.
   Do not repeat the same mistake.
+- **AI-assisted PR** → add `.github/pr.yml` declaring harness,
+  provider, and model. CI verifies against the allowlist.
 - **Not sure which command** → `acc tools` lists everything with tiers;
   read the matching reference below.
 

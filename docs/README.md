@@ -158,6 +158,7 @@ already has rooms, doors, and `AGENTS.md` on the wall.
 | [10 — AGENTS.md Authoring Guide](./10-authoring-guide.md) | How to write functional `AGENTS.md`, sections, cross-references. |
 | [11 — Multi-Agent Orchestration](./11-multi-agent-orchestration.md) | Graph-driven partitioning, dynamic concurrency, isolation, handoff. |
 | [13 — Security Model](./13-security.md) | What ACC guarantees (offline, no code execution, path boundary), what it reads/writes, untrusted input. |
+| [AI Contributions](./ai-contributions.md) | PR tooling declarations, provider policy, free API access, and CI verification. |
 
 **Where to start:** if you only read one thing, make it
 [01 — Philosophy](./01-philosophy.md). It’s the *why*; the rest of the

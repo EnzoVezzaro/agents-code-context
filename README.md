@@ -48,6 +48,59 @@ These are the non-negotiables that shaped ACC. They’re not features — they�
 
 ---
 
+## 🤖 AI-Assisted Contributions
+
+ACC is built as a community project, and we want to make something visible through the project itself:
+
+> **Free software can build incredible software.**
+
+We prioritize free AI models and open tooling whenever capable options are available. At the same time, we don't require contributors to use a particular provider, model, or harness.
+
+Instead, AI-assisted pull requests can declare what was used, and the repository can verify it.
+
+### How it works
+
+A contributor can optionally add `.github/pr.yml` with the tooling used:
+
+```yaml
+harness: opencode
+provider: google
+model: gemini-2.5-flash
+```
+
+The contributor declares only what they used. They do **not** declare whether the model is free.
+
+The repository maintains its own provider and harness policy in `.github/pr_allow_providers.yml`:
+
+```yaml
+providers:
+  google:
+    free_api_access: true
+    models:
+      (all):
+      free-model:
+        - gemini-3.5-flash
+        - gemini-2.5-flash
+
+harnesses:
+  opencode:
+    allowed: true
+  claude-code:
+    allowed: true
+```
+
+CI then verifies the harness, provider, and model against this policy and posts the result as a bot comment.
+
+### Why we do this
+
+This isn't about judging how contributors work. It's about transparency and experimentation. We want this project to be a living demonstration of what the open-source community can build with freely available tools.
+
+> **We don't tell contributors which AI they must use. We ask them to tell us what they used, and we verify it.**
+
+See [AI Contributions](./docs/ai-contributions.md) for the full specification.
+
+---
+
 ## Quickstart
 
 Getting started is intentionally simple. ACC works without the CLI — the CLI just makes it faster and verifiable.

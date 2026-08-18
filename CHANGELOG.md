@@ -5,22 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.6.6] - 2026-08-18
+## [0.6.7] - 2026-08-18
 
 ### Added
+- **PR AI Contribution Verification** — optional AI tooling declaration
+  for pull requests. Contributors can add `.github/pr.yml` to declare
+  harness, provider, and model used. CI verifies against the repository's
+  provider/harness allowlist in `.github/pr_allow_providers.yml` and posts
+  (or updates) a single bot comment on the PR with the result.
+- **`pr_allow_providers.yml`** — repository-controlled provider/harness
+  policy. Supports provider-level `free_api_access`, `(all)` for all models,
+  per-model `free-model`/`paid-model` lists, and harness allowlists.
+  Committed to the repo for determinism, transparency, and reviewability.
 - **`acc uninstall`** — remove all ACC-generated files from the repository
   (`.acc/`, `AGENTS.md` at root if template-matching, `ACC_WARN.md`,
   `.acc-memory.md`, `.env` ACC keys, `.gitignore` ACC entries). Asks for
-  confirmation interactively; `--yes` skips the prompt. Never removes
-  source code, user-written AGENTS.md in subdirectories, or files
-  outside the ACC footprint.
+  confirmation interactively; `--yes` skips the prompt.
 - **`acc engine --rollback`** — undo the last ACC file-modifying
-  operation by restoring a snapshot from `.acc/state/rollback/`. Before
-  each write operation (`engine --init-context`, `build --yes`,
-  `discover --apply`), ACC saves a snapshot of the files that will be
-  changed. `--list` shows available snapshots; `--id <snapshot-id>`
-  restores a specific one; `--yes` skips the confirmation prompt. Only
-  the last 5 snapshots are kept.
+  operation by restoring a snapshot from `.acc/state/rollback/`. `--list`
+  shows available snapshots; `--id <snapshot-id>` restores a specific one;
+  `--yes` skips the confirmation prompt. Only the last 5 snapshots kept.
 - **Snapshot-based rollback in `engine --init-context`** — saves a
   snapshot before the engine modifies files, so `acc engine --rollback`
   can restore the pre-init state.
@@ -28,48 +32,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `AGENTS.md` contract content (Purpose, Responsibilities, Ownership,
   Inputs, Outputs, Dependencies, Constraints, Architecture) alongside
   knowledge entries and drift proposals. With `--apply`, filled contracts
-  are written to `AGENTS.md` and knowledge to `.acc-memory.md` — only
-  after the supervisor approves (when enabled).
+  are written to `AGENTS.md` and knowledge to `.acc-memory.md`.
 - **Template system** — `.acc/config/templates/` holds customizable
   Markdown templates for `AGENTS.md`, `.acc-memory.md`, and
   `ACC_WARN.md`. Templates use `{{variable}}` syntax. Resolution order:
   explicit `--template` path → `.acc/config/templates/<name>.md` →
-  built-in default. `acc init` creates the templates directory and
-  default `agents.md` template.
+  built-in default.
 - **`--template <path>` flag** — on `acc init` and
   `acc engine --init-context` to override the default template.
 - **`templates` config section** — `config.yaml` now supports
   `templates.agents_md` for config-based template override.
 - **Supervisor provider/model config** — `engine.supervisor` now
   supports separate `provider` and `model` keys so the supervisor can
-  use a different AI provider than the engine (e.g. engine uses
-  fast/cheap model, supervisor uses stronger model for scoring).
+  use a different AI provider than the engine.
 - **JSON output mode for AI** — `realGenerateText` now passes
   `responseFormat: { type: 'json_object' }` for OpenAI-compatible
-  providers (NVIDIA, OpenRouter, Groq, Together) to ensure structured
-  JSON responses instead of freeform text.
+  providers (NVIDIA, OpenRouter, Groq, Together).
 - **Interrupt memory** — mandatory agent behavior: when the human
   stops, corrects, or redirects the agent mid-task, the agent must
-  immediately record the reason in `.acc-memory.md` under "Interrupts
-  & Corrections" with timestamp, reason, and corrected action. Added to
-  SKILL.md, feature workflow, memory template, and AGENTS.md.
+  record the reason in `.acc-memory.md` under "Interrupts & Corrections".
 - **`scripts/sync-skill-copies.sh`** — one-command script to sync
-  canonical `skills/acc/SKILL.md` to all 7 agent locations and verify
-  consistency. `npm run sync:skill-copies` added to package.json.
+  canonical `skills/acc/SKILL.md` to all 7 agent locations.
 
 ### Changed
 - **`acc init` writes AGENTS.md to disk** — previously printed the
-  template to stdout only; now writes the file to the project root
-  (additive, never rewrites existing content).
+  template to stdout only; now writes the file to the project root.
 - **`acc init` scaffolds `templates/` directory** — `.acc/config/templates/`
   is now created during init with the default `agents.md` template.
+- **CI publish-safety** — checks for `['bin','lib','skills']` files field
+  (added `skills` to published files).
+- **`check-skill-copies.js`** — now includes `.agents/skills/acc` in the
+  checked locations list.
 - **Engine docs updated** — `docs/05-cli-commands.md` and README updated
-  to reflect: init writes AGENTS.md, engine AI fills contracts, templates
-  system, interrupt memory, supervisor provider config.
-- **All 7 skill copies synced** — `.agents/`, `.claude/`, `.codex/`,
-  `.cursor/`, `.opencode/`, `.gemini/`, `.vscode/` all updated with
-  interrupt memory, templates section, and new commands (`uninstall`,
-  `engine --rollback`).
+  to reflect all new features.
+- **All 7 skill copies synced** — updated with interrupt memory, templates
+  section, and new commands (`uninstall`, `engine --rollback`).
 
 ## [0.6.5] - 2026-08-18
 
@@ -99,67 +96,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the depth filter, so ownership relationships are never silently lost.
 
 ## [Unreleased]
-  (`.acc/`, `AGENTS.md` at root if template-matching, `ACC_WARN.md`,
-  `.acc-memory.md`, `.env` ACC keys, `.gitignore` ACC entries). Asks for
-  confirmation interactively; `--yes` skips the prompt. Never removes
-  source code, user-written AGENTS.md in subdirectories, or files
-  outside the ACC footprint.
-- **`acc engine --rollback`** — undo the last ACC file-modifying
-  operation by restoring a snapshot from `.acc/state/rollback/`. Before
-  each write operation (`engine --init-context`, `build --yes`,
-  `discover --apply`), ACC saves a snapshot of the files that will be
-  changed. `--list` shows available snapshots; `--id <snapshot-id>`
-  restores a specific one; `--yes` skips the confirmation prompt. Only
-  the last 5 snapshots are kept.
-- **Snapshot-based rollback in `engine --init-context`** — saves a
-  snapshot before the engine modifies files, so `acc engine --rollback`
-  can restore the pre-init state.
-- **AI contract filling** — the engine AI phase now returns filled
-  `AGENTS.md` contract content (Purpose, Responsibilities, Ownership,
-  Inputs, Outputs, Dependencies, Constraints, Architecture) alongside
-  knowledge entries and drift proposals. With `--apply`, filled contracts
-  are written to `AGENTS.md` and knowledge to `.acc-memory.md` — only
-  after the supervisor approves (when enabled).
-- **Template system** — `.acc/config/templates/` holds customizable
-  Markdown templates for `AGENTS.md`, `.acc-memory.md`, and
-  `ACC_WARN.md`. Templates use `{{variable}}` syntax. Resolution order:
-  explicit `--template` path → `.acc/config/templates/<name>.md` →
-  built-in default. `acc init` creates the templates directory and
-  default `agents.md` template.
-- **`--template <path>` flag** — on `acc init` and
-  `acc engine --init-context` to override the default template.
-- **`templates` config section** — `config.yaml` now supports
-  `templates.agents_md` for config-based template override.
-- **Supervisor provider/model config** — `engine.supervisor` now
-  supports separate `provider` and `model` keys so the supervisor can
-  use a different AI provider than the engine (e.g. engine uses
-  fast/cheap model, supervisor uses stronger model for scoring).
-- **JSON output mode for AI** — `realGenerateText` now passes
-  `responseFormat: { type: 'json_object' }` for OpenAI-compatible
-  providers (NVIDIA, OpenRouter, Groq, Together) to ensure structured
-  JSON responses instead of freeform text.
-- **Interrupt memory** — mandatory agent behavior: when the human
-  stops, corrects, or redirects the agent mid-task, the agent must
-  immediately record the reason in `.acc-memory.md` under "Interrupts
-  & Corrections" with timestamp, reason, and corrected action. Added to
-  SKILL.md, feature workflow, memory template, and AGENTS.md.
-- **`scripts/sync-skill-copies.sh`** — one-command script to sync
-  canonical `skills/acc/SKILL.md` to all 7 agent locations and verify
-  consistency. `npm run sync:skill-copies` added to package.json.
-
-### Changed
-- **`acc init` writes AGENTS.md to disk** — previously printed the
-  template to stdout only; now writes the file to the project root
-  (additive, never rewrites existing content).
-- **`acc init` scaffolds `templates/` directory** — `.acc/config/templates/`
-  is now created during init with the default `agents.md` template.
-- **Engine docs updated** — `docs/05-cli-commands.md` and README updated
-  to reflect: init writes AGENTS.md, engine AI fills contracts, templates
-  system, interrupt memory, supervisor provider config.
-- **All 7 skill copies synced** — `.agents/`, `.claude/`, `.codex/`,
-  `.cursor/`, `.opencode/`, `.gemini/`, `.vscode/` all updated with
-  interrupt memory, templates section, and new commands (`uninstall`,
-  `engine --rollback`).
 
 ## [0.6.3] - 2026-08-18
 

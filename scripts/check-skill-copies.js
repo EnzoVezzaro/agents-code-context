@@ -28,6 +28,7 @@ const CANONICAL = path.join(root, 'skills', 'acc');
 
 /** Known install locations (project-local, per-agent). */
 const INSTALL_LOCATIONS = [
+  '.agents/skills/acc',
   '.claude/skills/acc',
   '.codex/skills/acc',
   '.cursor/skills/acc',
@@ -84,10 +85,7 @@ for (const dir of INSTALL_LOCATIONS) {
   }
 }
 
-// Also check the repo's own bootstrap copy if present (this repo has one).
-if (fs.existsSync(path.join(root, '.agents', 'skills', 'acc'))) {
-  // Already covered by INSTALL_LOCATIONS[0].
-}
+
 
 if (failed) {
   console.error('\nFix: re-run `acc install --force` (or copy skills/acc/) to resync.');

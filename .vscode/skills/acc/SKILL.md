@@ -20,7 +20,7 @@ description: >-
   convention; it is never a substitute for reading code. The CLI is
   deterministic: same repo + same flags = byte-identical output, offline,
   no API keys, safe on untrusted repositories.
-version: 0.6.6
+version: __ACC_VERSION__
 license: MIT
 allowed-tools:
   - Bash(acc *)
@@ -169,6 +169,8 @@ or `acc engine --init-context --template <path>`.
 - **Stopped or corrected by human** → immediately write the reason to
   `.acc-memory.md` under "Interrupts & Corrections" with timestamp.
   Do not repeat the same mistake.
+- **AI-assisted PR** → add `.github/pr.yml` declaring harness,
+  provider, and model. CI verifies against the allowlist.
 - **Not sure which command** → `acc tools` lists everything with tiers;
   read the matching reference below.
 
