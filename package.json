@@ -21,7 +21,8 @@
     "@ai-sdk/google": "^2.0.88",
     "@ai-sdk/openai": "^2.0.118",
     "acc-battle-arena": "^0.1.8",
-    "ai": "^5.0.237"
+    "ai": "^5.0.237",
+    "picocolors": "^1.1.1"
   },
   "scripts": {
     "test": "node --test test/*.test.js",

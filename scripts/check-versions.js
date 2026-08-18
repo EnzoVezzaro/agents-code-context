@@ -21,7 +21,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
-const PINNED_SEMVER = /^\d+\.\d+\.\d+$/;
+const SEMVER = /^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$/;
 
 // Every file that declares the ACC version, and who reads it. Add new
 // host manifests here so a future ecosystem can't drift unnoticed.
@@ -57,8 +57,8 @@ for (const relPath of VERSION_FILES) {
     continue;
   }
   const version = readVersion(relPath);
-  if (typeof version !== 'string' || !PINNED_SEMVER.test(version)) {
-    console.error(`${relPath}: version must be a pinned X.Y.Z semver, got ${JSON.stringify(version)}`);
+  if (typeof version !== 'string' || !SEMVER.test(version)) {
+    console.error(`${relPath}: version must be valid semver (X.Y.Z or X.Y.Z-tag), got ${JSON.stringify(version)}`);
     failed = true;
   }
   versions.push([relPath, version]);
