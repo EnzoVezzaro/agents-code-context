@@ -547,8 +547,8 @@ Discovered:
           </article>
           <article class="gh-card">
             <h3>Packages</h3>
-            <p class="desc">Published to npm: <code>acc-agents</code> — install with <code>npm i -g acc-agents</code>.</p>
-            <a class="link" href="https://www.npmjs.com/package/acc-agents" target="_blank" rel="noopener">npm package
+            <p class="desc">Published to npm: <code>acc-code-context</code> — install with <code>npm i -g acc-code-context</code>.</p>
+            <a class="link" href="https://www.npmjs.com/package/acc-code-context" target="_blank" rel="noopener">npm package
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8L22 12L18 16" /><path d="M2 12H22" /></svg>
             </a>
             <a class="link" href="https://github.com/EnzoVezzaro/agents-code-context/packages" target="_blank" rel="noopener">GitHub packages

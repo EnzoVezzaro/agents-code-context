@@ -46,7 +46,7 @@ test('abaCacheDir: respects XDG_CACHE_HOME, falls back to ~/.cache', () => {
   }
 });
 
-test('findAbaEntry: finds the npm-installed package (dependency of acc-agents)', () => {
+test('findAbaEntry: finds the npm-installed package (dependency of acc-code-context)', () => {
   const entry = findAbaEntry();
   // In this repository the acc-battle-arena package is installed, so the
   // resolver must find it — the command works out of the box.

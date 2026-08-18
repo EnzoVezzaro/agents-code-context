@@ -81,7 +81,7 @@ ACC022  warn    src/payments/mod.rs
 
 ```bash
 npx skills add EnzoVezzaro/agents-code-context --skill acc   # into an agent
-npm install -g acc-agents                                    # the CLI engine
+npm install -g acc-code-context                                    # the CLI engine
 acc install                                                  # project-local skill
 ```
 

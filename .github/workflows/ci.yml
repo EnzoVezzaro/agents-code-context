@@ -18,6 +18,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Install dependencies
+        run: npm install
       - name: Run tests
         run: node --test test/*.test.js
 
@@ -127,10 +129,10 @@ jobs:
         run: npm run check:skill-copies
 
   # ---------------------------------------------------------------------------
-  # Publish safety: verify only acc-agents is publishable, docs is private
+  # Publish safety: verify only acc-code-context is publishable, docs is private
   # ---------------------------------------------------------------------------
   publish-safety:
-    name: Publish Safety (only acc-agents goes to npm)
+    name: Publish Safety (only acc-code-context goes to npm)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -138,11 +140,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Verify root package is acc-agents
+      - name: Verify root package is acc-code-context
         run: |
           PKG_NAME=$(node -p "require('./package.json').name")
-          if [ "$PKG_NAME" != "acc-agents" ]; then
-            echo "::error::Root package name is '$PKG_NAME', expected 'acc-agents'"
+          if [ "$PKG_NAME" != "acc-code-context" ]; then
+            echo "::error::Root package name is '$PKG_NAME', expected 'acc-code-context'"
             exit 1
           fi
       - name: Verify docs package is private

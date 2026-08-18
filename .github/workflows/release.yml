@@ -48,8 +48,8 @@ jobs:
       - name: Verify package name
         run: |
           PKG_NAME=$(node -p "require('./package.json').name")
-          if [ "$PKG_NAME" != "acc-agents" ]; then
-            echo "::error::Unexpected package name '$PKG_NAME' — expected 'acc-agents'"
+          if [ "$PKG_NAME" != "acc-code-context" ]; then
+            echo "::error::Unexpected package name '$PKG_NAME' — expected 'acc-code-context'"
             exit 1
           fi
 
@@ -115,7 +115,7 @@ jobs:
             ### Installation
 
             ```bash
-            npm install -g acc-agents
+            npm install -g acc-code-context
             ```
 
             ### Usage

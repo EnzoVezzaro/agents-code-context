@@ -1,5 +1,5 @@
 {
-  "name": "acc-agents",
+  "name": "acc-code-context",
   "version": "0.6.2",
   "description": "ACC — Agent Code Context. A convention + optional CLI that makes software repositories agent-native, navigable, and self-describing.",
   "license": "MIT",

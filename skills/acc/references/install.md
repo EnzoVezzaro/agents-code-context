@@ -39,7 +39,7 @@ npx skills add EnzoVezzaro/agents-code-context --skill acc
 # or with --agent codex / --agent claude-code / --global
 ```
 
-The engine CLI is distributed separately: `npm install -g acc-agents`.
+The engine CLI is distributed separately: `npm install -g acc-code-context`.
 Two channels, one source: the skill teaches any agent how to operate;
 the CLI is the deterministic engine underneath.
 

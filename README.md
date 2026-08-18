@@ -61,7 +61,7 @@ Getting started is intentionally simple. ACC works without the CLI — the CLI j
 ### 1. Install the CLI (optional)
 
 ```bash
-npm install -g acc-agents
+npm install -g acc-code-context
 # or, from a clone of this repository:
 # npm link
 

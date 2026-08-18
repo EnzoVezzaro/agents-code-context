@@ -30,5 +30,5 @@ output. No API keys, safe on untrusted repositories.
 - Engine OFF: you are responsible for keeping the ACC files in sync
   (contracts, memory, diagnostics) as you work.
 
-Install: `npm install -g acc-agents` (the CLI) or
+Install: `npm install -g acc-code-context` (the CLI) or
 `npx skills add EnzoVezzaro/agents-code-context --skill acc` (the skill).

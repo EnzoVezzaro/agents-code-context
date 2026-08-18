@@ -53,7 +53,7 @@ carry; the CLI (`acc`) is what you run against the repo.
 ## Setup
 
 1. Verify the CLI is available: `acc --version`. If not:
-   `npm install -g acc-agents`.
+   `npm install -g acc-code-context`.
 2. If you see this file, the skill is loaded. To install it into another
    environment:
    `npx skills add EnzoVezzaro/agents-code-context --skill acc` (or

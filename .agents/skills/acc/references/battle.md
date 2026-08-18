@@ -20,7 +20,7 @@ acc battle <project> [--local] [--network policy] [--preserve] [--timeout s] [--
 
 - **ABA is a separate product** — its own repository
   (`github.com/EnzoVezzaro/aba-arena`) and npm package
-  (`acc-battle-arena`, a dependency of `acc-agents`). ACC never
+  (`acc-battle-arena`, a dependency of `acc-code-context`). ACC never
   requires it; this command is the convenience launcher.
 - **Auto-install:** when ABA is not already available (npm-installed
   package or local `aba/` checkout), `acc battle` clones the aba-arena

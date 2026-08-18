@@ -2,7 +2,7 @@
 //
 // Exposes the deterministic `acc` CLI as a native OpenCode tool, so the
 // agent can run ACC commands (context, graph, slice, check, ...) without
-// leaving the tool interface. Falls back to `npx acc-agents` when the CLI
+// leaving the tool interface. Falls back to `npx acc-code-context` when the CLI
 // is not installed globally.
 //
 // OpenCode loads this via opencode.json:
@@ -15,7 +15,7 @@ const MAX_OUTPUT = 10 * 1024 * 1024; // 10 MB
 
 function runAcc(args, cwd) {
   const command = `acc ${args}`;
-  const fallback = `npx --yes acc-agents ${args}`;
+  const fallback = `npx --yes acc-code-context ${args}`;
   try {
     return execSync(command, { cwd, encoding: "utf8", maxBuffer: MAX_OUTPUT });
   } catch (err) {
@@ -24,7 +24,7 @@ function runAcc(args, cwd) {
     } catch (err2) {
       throw new Error(
         `acc failed (${command}): ${err2.stderr || err2.message}\n` +
-          "Install the CLI with: npm install -g acc-agents",
+          "Install the CLI with: npm install -g acc-code-context",
       );
     }
   }

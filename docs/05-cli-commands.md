@@ -1265,7 +1265,7 @@ separate-product launcher it is.
 `acc battle` launches the standalone ABA benchmark harness — ABA is a
 separate application and is never required by the framework. It is
 published as the npm package `acc-battle-arena` (a dependency of
-`acc-agents`, so `acc battle` works out of the box), and lives in its own
+`acc-code-context`, so `acc battle` works out of the box), and lives in its own
 repository with its own license. **When ABA is not already available,
 `acc battle` installs it on first use**: it clones the aba-arena
 repository into the per-user cache (`~/.cache/acc/aba-arena`) and

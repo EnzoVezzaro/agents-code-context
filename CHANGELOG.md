@@ -21,14 +21,14 @@ _This section was cut from [Unreleased] by `npm run bump`._
 
 ### Changed
 - **Release pipeline hardened** — pre-flight checks now verify: tests
-  pass, package name is `acc-agents`, all 6 host manifests agree
+  pass, package name is `acc-code-context`, all 6 host manifests agree
   (`check:versions`), all skill copies are in sync
   (`check:skill-copies`), npm auth is valid, package contents are
   correct (`npm pack --dry-run`), version doesn't already exist on npm,
   and version is higher than the latest published release.
 - **CI consistency gate** — new `consistency` job runs
   `check:versions` + `check:skill-copies` on every push and PR. New
-  `publish-safety` job verifies root package is `acc-agents`, docs is
+  `publish-safety` job verifies root package is `acc-code-context`, docs is
   `private: true`, and `files` is `["bin","lib"]`.
 - **`lib/` restructured into two layers** — the domain logic moved to
   `lib/core/` (graph, diagnostics, config, memory, ai, engine, skill,
@@ -458,7 +458,7 @@ _This section was cut from [Unreleased] by `npm run bump`._
   numbered spec files are the site's pages; no separate content copy.
 - **ABA as a standalone project** — its own repository and npm package
   (`acc-battle-arena`); the `aba/` directory is a self-contained git
-  repo, never pushed with ACC; `acc-agents` depends on the package so
+  repo, never pushed with ACC; `acc-code-context` depends on the package so
   `acc battle` works out of the box. Runs without Docker (isolated
   snapshot copy; container when available, host otherwise); spawns a
   Vite web app (battle arena) by default with per-panel
@@ -466,7 +466,7 @@ _This section was cut from [Unreleased] by `npm run bump`._
   `--headless` terminal flow.
 
 ### Changed
-- Published to npm as `acc-agents` (renamed from `agents-code-context`).
+- Published to npm as `acc-code-context` (renamed from `agents-code-context`).
 - CI rewritten for the Node CLI: tests, dogfood, determinism, schema
   validation, docs build, hard-invariant check; GitHub Pages deploy for
   the docs site.
