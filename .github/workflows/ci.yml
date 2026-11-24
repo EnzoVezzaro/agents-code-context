@@ -35,6 +35,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Install dependencies
+        run: npm install
       - name: Run acc check
         run: node bin/acc.js check --json
       - name: Run acc graph
@@ -58,6 +60,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Install dependencies
+        run: npm install
       - name: Test determinism - acc context
         run: |
           node bin/acc.js context docs --depth 1 --json > /tmp/run1.json
@@ -86,6 +90,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Install dependencies
+        run: npm install
       - name: Validate JSON outputs
         run: |
           for cmd in "check" "graph" "inspect docs" "discover" "dependencies docs" "dependents docs" "impact docs"; do
@@ -123,6 +129,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Install dependencies
+        run: npm install
       - name: Check manifest versions
         run: npm run check:versions
       - name: Check skill copy consistency
@@ -175,6 +183,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Install dependencies
+        run: npm install
       - name: Verify AGENTS.md hierarchy parses standalone
         run: |
           node -e "

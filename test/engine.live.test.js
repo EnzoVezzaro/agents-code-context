@@ -5,7 +5,7 @@
  * the AI SDK v5. Requires env keys — skipped when absent so `npm test`
  * stays offline by default:
  *
- *   TEST_NVIDIA_KEY=nvapi-... TEST_GEMINI_KEY=AQ... TEST_OPENROUTER_KEY=sk-or-v1-...
+ *   ACC_NVIDIA_KEY=nvapi-... ACC_GEMINI_KEY=AQ... ACC_OPENROUTER_KEY=sk-or-v1-...
  *
  * Providers are OpenAI-compatible endpoints (NVIDIA NIM, OpenRouter)
  * via @ai-sdk/openai with a base_url, plus Gemini via @ai-sdk/google.
@@ -29,14 +29,14 @@ const PROVIDERS = [
     provider: 'openai',
     model: process.env.TEST_NVIDIA_MODEL || 'nvidia/nemotron-3-nano-30b-a3b',
     base_url: 'https://integrate.api.nvidia.com/v1',
-    api_key_env: 'TEST_NVIDIA_KEY',
+    api_key_env: 'ACC_NVIDIA_KEY',
   },
   {
     id: 'gemini',
     provider: 'google',
     model: process.env.TEST_GEMINI_MODEL || 'gemini-3.6-flash',
     base_url: null,
-    api_key_env: 'TEST_GEMINI_KEY',
+    api_key_env: 'ACC_GEMINI_KEY',
   },
   {
     id: 'openrouter',
@@ -45,7 +45,7 @@ const PROVIDERS = [
     // provided test key has no purchased credits).
     model: process.env.TEST_OPENROUTER_MODEL || 'nvidia/nemotron-3-nano-30b-a3b:free',
     base_url: 'https://openrouter.ai/api/v1',
-    api_key_env: 'TEST_OPENROUTER_KEY',
+    api_key_env: 'ACC_OPENROUTER_KEY',
   },
 ];
 

@@ -26,7 +26,7 @@
  *      of the repo (no prose is ever stored).
  *
  * Output is a markdown report (stdout) + JSON (--json). Use a real
- * provider key (TEST_NVIDIA_KEY / TEST_GEMINI_KEY / TEST_OPENROUTER_KEY)
+ * provider key (ACC_NVIDIA_KEY / ACC_GEMINI_KEY / ACC_OPENROUTER_KEY)
  * — the benchmark is live by design.
  *
  * Usage:
@@ -53,19 +53,19 @@ const PROVIDERS = {
     // nvidia/nemotron-3-nano-omni-30b-a3b-reasoning.
     model: process.env.TEST_NVIDIA_MODEL || 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning',
     base_url: 'https://integrate.api.nvidia.com/v1',
-    api_key_env: 'TEST_NVIDIA_KEY',
+    api_key_env: 'ACC_NVIDIA_KEY',
   },
   gemini: {
     provider: 'google',
     model: process.env.TEST_GEMINI_MODEL || 'gemini-3.6-flash',
     base_url: null,
-    api_key_env: 'TEST_GEMINI_KEY',
+    api_key_env: 'ACC_GEMINI_KEY',
   },
   openrouter: {
     provider: 'openai',
     model: process.env.TEST_OPENROUTER_MODEL || 'nvidia/nemotron-3-nano-30b-a3b:free',
     base_url: 'https://openrouter.ai/api/v1',
-    api_key_env: 'TEST_OPENROUTER_KEY',
+    api_key_env: 'ACC_OPENROUTER_KEY',
   },
 };
 const PROVIDER = PROVIDERS[PROVIDER_ID] || PROVIDERS.nvidia;

@@ -36,6 +36,7 @@ Owner: EnzoVezzaro/agents-code-context
 ## Dependencies
 
 - lib/ (core engine and command modules)
+- lib/commands
 
 ## Constraints
 

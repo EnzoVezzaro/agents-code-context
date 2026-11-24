@@ -16,7 +16,7 @@
  *   - respecting budgets (knowledge ≤ 5, no oversized entries)
  *
  * Requires env keys; skipped when absent so `npm test` stays offline:
- *   TEST_NVIDIA_KEY / TEST_GEMINI_KEY / TEST_OPENROUTER_KEY
+ *   ACC_NVIDIA_KEY / ACC_GEMINI_KEY / ACC_OPENROUTER_KEY
  * Provider/model overridable via TEST_QUALITY_PROVIDER + TEST_QUALITY_MODEL.
  */
 
@@ -39,19 +39,19 @@ const PROVIDER = {
     provider: 'openai',
     model: process.env.TEST_NVIDIA_MODEL || 'nvidia/nemotron-3-nano-30b-a3b',
     base_url: 'https://integrate.api.nvidia.com/v1',
-    api_key_env: 'TEST_NVIDIA_KEY',
+    api_key_env: 'ACC_NVIDIA_KEY',
   },
   gemini: {
     provider: 'google',
     model: process.env.TEST_GEMINI_MODEL || 'gemini-3.6-flash',
     base_url: null,
-    api_key_env: 'TEST_GEMINI_KEY',
+    api_key_env: 'ACC_GEMINI_KEY',
   },
   openrouter: {
     provider: 'openai',
     model: process.env.TEST_OPENROUTER_MODEL || 'nvidia/nemotron-3-nano-30b-a3b:free',
     base_url: 'https://openrouter.ai/api/v1',
-    api_key_env: 'TEST_OPENROUTER_KEY',
+    api_key_env: 'ACC_OPENROUTER_KEY',
   },
 }[PROVIDER_ID];
 

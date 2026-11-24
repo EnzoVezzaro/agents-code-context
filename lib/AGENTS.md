@@ -57,6 +57,7 @@ Owner: EnzoVezzaro/agents-code-context
 ## Dependencies
 
 - (leaf — no internal library dependencies)
+- .acc/config/templates
 
 ## Constraints
 

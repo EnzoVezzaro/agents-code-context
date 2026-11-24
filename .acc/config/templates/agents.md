@@ -6,34 +6,34 @@
 
 ## Responsibilities
 
-- <Responsibility 1>
-- <Responsibility 2>
+- {{responsibility_1}}
+- {{responsibility_2}}
 
 ## Ownership
 
-Owner: <team or module path>
+Owner: {{owner}}
 
 ## Inputs
 
-- <Input 1>
-- <Input 2>
+- {{input_1}}
+- {{input_2}}
 
 ## Outputs
 
-- <Output 1>
+- {{output_1}}
 
 ## Dependencies
 
-- <path/to/dependency>
+{{dependencies}}
 
 ## Constraints
 
-- <Invariant 1>
-- <Invariant 2>
+- {{constraint_1}}
+- {{constraint_2}}
 
 ## Architecture
 
-<Prose describing the high-level structure.>
+{{architecture}}
 
 ## Workflows
 

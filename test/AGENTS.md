@@ -37,6 +37,8 @@ Owner: EnzoVezzaro/agents-code-context
 - lib/ (engine under test)
 - scripts/ (fixtures exercise the discovered-reference matcher against
   the scripts boundary in `graph.test.js`)
+- docs
+- lib/commands
 
 ## Constraints
 

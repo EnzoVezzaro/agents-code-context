@@ -17,11 +17,33 @@
 
 </div>
 
+## ⚠️ Work in Progress
+
+> **Still figuring itself out. We're just building, experimenting, chasing weird ideas, and seeing where they take us. Thanks for sticking around**
+
+This project is still very much alive and under active development.
+Some parts work. Some parts don't. Some parts work **until they suddenly don't**.
+
+Expect:
+
+* 🧪 Experimental ideas
+* 🛠️ Things being rebuilt from scratch
+* 💥 Occasional breakage
+* 🌀 Features that may change direction
+* ✨ Unexpectedly good ideas
+* 🤷 The occasional *"well, that wasn't supposed to happen"*
+
+The goal right now isn't to make everything look finished.
+
+It's to **build, experiment, break things, learn, and keep making it better.**
+
+> **If you're looking for something polished and predictable... this might be a little early. 😄**
+
 ---
 
 ## Why ACC?
 
-Modern AI coding agents are powerful. Claude Code, Cursor, Codex, OpenCode, Gemini… they can write a lot of code. The problem was never that they weren’t smart — it was that they didn’t know *my* project. Every session felt like onboarding from scratch.
+Modern AI coding agents are powerful. Claude Code, Cursor, Codex, OpenCode, Gemini… they can write a lot of code. The problem now is not that they aren't smart or fast — the problem is that they don’t know the project. Every session felt like onboarding from scratch. Let's change that!
 
 ACC gives your agent purpose by making the repository itself the source of truth.
 
@@ -39,65 +61,12 @@ ACC gives your agent purpose by making the repository itself the source of truth
 
 These are the non-negotiables that shaped ACC. They’re not features — they’re how I wanted to work.
 
-- **🏗️ Convention over Configuration** — Built on the open [agents.md](https://agents.md/) standard: plain `AGENTS.md`, no schema
+- **🏗️ Convention over Configuration** — Built on the open [agents.md](https://agents.md/) standard: `AGENTS.md` stays plain Markdown, no proprietary schema. ACC adds optional `.acc/config/` for templates and engine settings while the ecosystem establishes conventions.
 - **🔄 Agent-Agnostic** — Works with *any* coding agent; no wrapper, runtime, or API required
 - **📁 Filesystem-First** — Repository is the sole source of truth; no database, no network calls
 - **🔒 Offline & Secure** — No telemetry, no code execution, safe on untrusted repos
 - **📊 Deterministic tools** — Same repo state + same flags = byte-identical output (critical for CI/agents)
 - **🔗 Compatibility Invariant** — Removing `.acc/` and the CLI leaves a perfectly valid agents.md repository
-
----
-
-## 🤖 AI-Assisted Contributions
-
-ACC is built as a community project, and we want to make something visible through the project itself:
-
-> **Free software can build incredible software.**
-
-We prioritize free AI models and open tooling whenever capable options are available. At the same time, we don't require contributors to use a particular provider, model, or harness.
-
-Instead, AI-assisted pull requests can declare what was used, and the repository can verify it.
-
-### How it works
-
-A contributor can optionally add `.github/pr.yml` with the tooling used:
-
-```yaml
-harness: opencode
-provider: google
-model: gemini-2.5-flash
-```
-
-The contributor declares only what they used. They do **not** declare whether the model is free.
-
-The repository maintains its own provider and harness policy in `.github/pr_allow_providers.yml`:
-
-```yaml
-providers:
-  google:
-    free_api_access: true
-    models:
-      (all):
-      free-model:
-        - gemini-3.5-flash
-        - gemini-2.5-flash
-
-harnesses:
-  opencode:
-    allowed: true
-  claude-code:
-    allowed: true
-```
-
-CI then verifies the harness, provider, and model against this policy and posts the result as a bot comment.
-
-### Why we do this
-
-This isn't about judging how contributors work. It's about transparency and experimentation. We want this project to be a living demonstration of what the open-source community can build with freely available tools.
-
-> **We don't tell contributors which AI they must use. We ask them to tell us what they used, and we verify it.**
-
-See [AI Contributions](./docs/ai-contributions.md) for the full specification.
 
 ---
 
@@ -513,6 +482,59 @@ I also spent countless hours with [OpenCode](https://opencode.ai) ([GitHub](http
 <!-- tags: Freebuff https://github.com/CodebuffAI/freebuff, OpenCode https://github.com/anomalyco/opencode -->
 
 To **the open source community** — thank you for the revolutionary contributions that make projects like this possible. Gracias por los aportes. 🙌
+
+---
+
+## 🤖 AI-Assisted Contributions
+
+ACC is built as a community project, and I want to make something visible through the project itself:
+
+> **I believe free software can build incredible things. Not because the price tag doesn't matter, or because technology doesn't matter, or even the code doesn't matter, but because neither of them is what makes software great. It's the people behind it — the ones who care enough to build, share, and keep it alive.**
+
+We prioritize free AI models and open tooling whenever capable options are available. At the same time, we don't require contributors to use a particular provider, model, or harness.
+
+Instead, AI-assisted pull requests can declare what was used, and the repository can verify it.
+
+### How it works
+
+A contributor can optionally add `.github/pr.yml` with the tooling used:
+
+```yaml
+harness: opencode
+provider: google
+model: gemini-2.5-flash
+```
+
+The contributor declares only what they used. They do **not** declare whether the model is free.
+
+The repository maintains its own provider and harness policy in `.github/pr_allow_providers.yml`:
+
+```yaml
+providers:
+  google:
+    free_api_access: true
+    models:
+      (all):
+      free-model:
+        - gemini-3.5-flash
+        - gemini-2.5-flash
+
+harnesses:
+  opencode:
+    allowed: true
+  claude-code:
+    allowed: true
+```
+
+CI then verifies the harness, provider, and model against this policy and posts the result as a bot comment.
+
+### Why we do this
+
+This isn't about judging how contributors work. It's about transparency and experimentation. We want this project to be a living demonstration of what the open-source community can build with freely available tools.
+
+> **We don't tell contributors which AI they must use. We ask them to tell us what they used, and we verify it.**
+
+See [AI Contributions](./docs/ai-contributions.md) for the full specification.
 
 ---
 
